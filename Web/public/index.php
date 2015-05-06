@@ -26,8 +26,8 @@ $app->view->parserExtensions = array(new \Slim\Views\TwigExtension());
 
 /* Routes */
 
-$app->get('/', function ()use ($app) {
-  echo 'TODO: Soapy homepage.';
+$app->get('/', function() use ($app) {
+  $app->render('index.html');
 });
 
 $app->get('/callback', function() use ($app) {

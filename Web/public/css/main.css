@@ -1,0 +1,16 @@
+body {
+  background-color: #eee;
+  background-image: url('../images/background.png');
+  background-attachment: fixed;
+  padding-top: 76px;
+  padding-bottom: 20px;
+}
+
+.navbar-brand .logo {
+  width: 24px;
+  height: 23px;
+  position: relative;
+  top: -2px;
+  display: inline;
+}
+

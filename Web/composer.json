@@ -1,0 +1,20 @@
+{
+    "name": "soapy/soapy-web",
+    "description": "Web frontend and API endpoint for Soapy.",
+    "homepage": "http://github.com/dag10/Soapy-Web",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Drew Gottlieb",
+            "email": "gottlieb.drew@gmail.com",
+            "homepage": "http://drewgottlieb.net"
+        }
+    ],
+    "require": {
+        "php": ">=5.3.0",
+        "monolog/monolog": "1.*",
+        "slim/slim": "2.*",
+        "slim/views": "0.*",
+        "twig/twig": "1.*"
+    }
+}

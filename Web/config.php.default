@@ -1,0 +1,11 @@
+<?PHP
+
+$cfg = array(
+  'spotify' => array(
+    'client_id' => '',
+    'client_secret' => '',
+  ),
+
+  'url' => 'http://soapy.csh.rit.edu',
+);
+

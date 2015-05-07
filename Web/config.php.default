@@ -4,6 +4,7 @@ $cfg = array(
   'spotify' => array(
     'client_id' => '',
     'client_secret' => '',
+    'callback_route' => 'sp_callback',
   ),
 
   'url' => 'http://soapy.csh.rit.edu',

@@ -1,12 +1,10 @@
-{% extends "layouts/layout.html" %}
+{% extends "layouts/spotify.html" %}
 
-{% block content %}
-<div class="panel panel-default">
-  <div class="panel-body">
-    Welcome to Soapy!<br />
-    <br />
-    Here you'll be able to authorize Soapy to access your Spotify Premium account.
-  </div>
-</div>
+{% block panel_body %}
+{% if authorized %}
+Select a link at the top to view Spotify data.
+{% else %}
+Please sign in with Spotify to continue.
+{% endif %}
 {% endblock %}
 

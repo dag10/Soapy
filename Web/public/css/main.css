@@ -14,3 +14,30 @@ body {
   display: inline;
 }
 
+.panel-title {
+  font-weight: bold;
+}
+
+.panel-body {
+  min-height: 80px;
+}
+
+.spotify-log-in-btn {
+  display: block;
+  width: 100%;
+  text-align: center;
+  transition: opacity 0.2s;
+}
+
+.spotify-log-in-btn:hover {
+  opacity: 0.9;
+}
+
+.spotify-log-in-btn img {
+  width: 200px;
+}
+
+.alert:empty {
+  display: none;
+}
+

@@ -1,0 +1,19 @@
+<div class="panel panel-default">
+  <div class="panel-heading">
+    <div class="panel-title">
+      Spotify Account
+    </div>
+  </div>
+  <div class="panel-body">
+    {% if authorized %}
+    Token: <input value="{{ token }}" style="width: 100%;" readonly /><br />
+    <br />
+    <a href="/forgettoken">Unpair Spotify Account</a>
+    {% else %}
+    <a class="spotify-log-in-btn" href="{{ auth_url }}">
+      <img src="/images/spotify-log_in-desktop.svg" />
+    </a>
+    {% endif %}
+  </div>
+</div>
+

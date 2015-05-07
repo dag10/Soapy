@@ -1,0 +1,28 @@
+{% extends "layouts/layout.html" %}
+
+{% block content %}
+<div class="row">
+  <div class="col-md-4 spotify-panel">
+    {% include "partials/spotify_panel.html" %}
+  </div>
+  <div class="col-md-8">
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <div class="panel-title">
+          {% if authorized %}
+          <a href="/data/basic">Basic Data</a> | 
+          <a href="/data/playlists">Playlists</a>
+          {% else %}
+          Welcome
+          {% endif %}
+        </div>
+      </div>
+      <div class="panel-body">
+        {% block panel_body %}
+        {% endblock %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+

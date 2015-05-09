@@ -1,4 +1,5 @@
 <?php
+
 require '../vendor/autoload.php';
 require '../config.php';
 require '../include/spotify.php';
@@ -6,6 +7,8 @@ require '../include/spotify.php';
 $app = new \Slim\Slim(array(
   'templates.path' => '../templates',
 ));
+
+$base_url = $cfg['url'] . '/';
 
 $app->config($cfg);
 $app->add(new \Slim\Middleware\SessionCookie());
@@ -44,9 +47,11 @@ function render($app, $ctx, $template='index.html') {
 }
 
 function ensure_auth($app) {
+  global $base_url;
+
   if (!isset($_SESSION['sp_refresh_token'])) {
     $app->flash('error', "You must connect a Spotify account.");
-    $app->redirect('/');
+    $app->redirect($base_url);
     return null;
   }
 
@@ -78,6 +83,8 @@ function get_me($api) {
 }
 
 function start_view($app, $require_auth=false) {
+  global $cfg;
+
   if ($require_auth) {
     if (!($refresh_token = ensure_auth($app))) return;
   } else {
@@ -97,6 +104,7 @@ function start_view($app, $require_auth=false) {
   $me = $api ? get_me($api) : null;
 
   return array(
+    'base_url' => $cfg['url'],
     'sp_refresh_token' => $refresh_token,
     'sp_access_token' => $access_token,
     'sp_api' => $api,
@@ -107,10 +115,12 @@ function start_view($app, $require_auth=false) {
 /* Routes */
 
 $app->get('/', function() use ($app) {
+  global $base_url;
+
   $ctx = start_view($app);
 
   if ($ctx['sp_access_token']) {
-    $app->redirect('/data/playlists');
+    $app->redirect($base_url . 'data/playlists');
     return;
   }
 
@@ -119,30 +129,34 @@ $app->get('/', function() use ($app) {
 
 // Forget the current api token in the session.
 $app->get('/forgettoken/?', function() use ($app) {
+  global $base_url;
+
   if (!ensure_auth($app)) return;
   unset($_SESSION['sp_refresh_token']);
-  $app->redirect('/');
+  $app->redirect($base_url);
 });
 
 // Spotify redirects here after user authenticates.
 $app->get('/' . $cfg['spotify']['callback_route'] . '/?', function() use ($app) {
+  global $base_url;
+
   if (get_refresh_token()) {
     $app->flash('error', "You are already authenticated with Spotify.");
-    $app->redirect('/');
+    $app->redirect($base_url);
     return;
   }
 
   $error = $app->request->get('error');
   if (isset($error)) {
     $app->flash('error', "You can't use Soapy until you accept Spotify permissions.");
-    $app->redirect('/');
+    $app->redirect($base_url);
     return;
   }
 
   $code = $app->request->get('code');
   if (!isset($code)) {
     $app->flash('error', "Expected Spotify authorization token.");
-    $app->redirect('/');
+    $app->redirect($base_url);
     return;
   }
 
@@ -150,12 +164,12 @@ $app->get('/' . $cfg['spotify']['callback_route'] . '/?', function() use ($app) 
     $refresh_token = \Spotify\get_refresh_token($code);
   } catch(\SpotifyWebAPI\SpotifyWebAPIException $e) {
     $app->flash('error', "Spotify Error: " . $e->getMessage());
-    $app->redirect('/');
+    $app->redirect($base_url);
     return;
   }
 
   $_SESSION['sp_refresh_token'] = $refresh_token;
-  $app->redirect('/');
+  $app->redirect($base_url);
 });
 
 // View spotify playlists.

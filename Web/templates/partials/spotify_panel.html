@@ -15,10 +15,10 @@
     {% endif %}
     Access Token: <input value="{{ sp_access_token }}" style="width: 100%;" readonly /><br />
     <br />
-    <a href="/forgettoken">Unpair Spotify Account</a>
+    <a href="{{ base_url }}/forgettoken">Unpair Spotify Account</a>
     {% else %}
     <a class="spotify-log-in-btn" href="{{ auth_url }}">
-      <img src="/images/spotify-log_in-desktop.svg" />
+      <img src="{{ base_url }}/images/spotify-log_in-desktop.svg" />
     </a>
     {% endif %}
   </div>

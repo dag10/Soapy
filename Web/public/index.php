@@ -39,10 +39,6 @@ function render($app, $ctx=null, $template='index.html') {
 
   $ctx = $ctx ? array_merge($base_ctx, $ctx) : $base_ctx;
 
-  if (!isset($ctx['alert'])) {
-    $ctx['alert'] = $app->flash['error'];
-  }
-
   $app->render($template, $ctx);
 }
 

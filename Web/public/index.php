@@ -28,14 +28,14 @@ $app->view->parserExtensions = array(new \Slim\Views\TwigExtension());
 
 /* View Utilities */
 
-function render($app, $ctx=null, $template='index.html') {
+function render($app, $ctx, $template='index.html') {
   global $sp_auth_url;
-  $token = isset($_SESSION['token']) ? $_SESSION['token'] : null;
+  $sp_access_token = $ctx['sp_access_token'];
 
   $base_ctx = array(
     'auth_url' => $sp_auth_url,
-    'authorized' => !!$token,
-    'token' => $token,
+    'authorized' => !!$sp_access_token,
+    'sp_access_token' => $sp_access_token,
   );
 
   $ctx = $ctx ? array_merge($base_ctx, $ctx) : $base_ctx;
@@ -44,32 +44,63 @@ function render($app, $ctx=null, $template='index.html') {
 }
 
 function ensure_auth($app) {
-  if (!isset($_SESSION['token'])) {
+  if (!isset($_SESSION['sp_refresh_token'])) {
     $app->flash('error', "You must connect a Spotify account.");
     $app->redirect('/');
-    return false;
+    return null;
   }
 
-  return true;
+  return $_SESSION['sp_refresh_token'];
+}
+
+function get_refresh_token() {
+  if (isset($_SESSION['sp_refresh_token'])) {
+    return $_SESSION['sp_refresh_token'];
+  }
+
+  return null;
+}
+
+function start_view($app, $require_auth=false) {
+  if ($require_auth) {
+    if (!($refresh_token = ensure_auth($app))) return;
+  } else {
+    $refresh_token = get_refresh_token();
+  }
+
+  if ($refresh_token) {
+    $access_token = \Spotify\get_access_token($refresh_token);
+  } else {
+    $access_token = null;
+  }
+
+  return array(
+    'sp_refresh_token' => $refresh_token,
+    'sp_access_token' => $access_token,
+  );
 }
 
 /* Routes */
 
 $app->get('/', function() use ($app) {
-  render($app);
+  $ctx = start_view($app);
+  render($app, $ctx);
 });
 
 // Forget the current api token in the session.
 $app->get('/forgettoken/?', function() use ($app) {
   if (!ensure_auth($app)) return;
-
-  unset($_SESSION['token']);
+  unset($_SESSION['sp_refresh_token']);
   $app->redirect('/');
 });
 
 // Spotify redirects here after user authenticates.
 $app->get('/' . $cfg['spotify']['callback_route'] . '/?', function() use ($app) {
-  $ctx = array();
+  if (get_refresh_token()) {
+    $app->flash('error', "You are already authenticated with Spotify.");
+    $app->redirect('/');
+    return;
+  }
 
   $error = $app->request->get('error');
   if (isset($error)) {
@@ -86,40 +117,31 @@ $app->get('/' . $cfg['spotify']['callback_route'] . '/?', function() use ($app) 
   }
 
   try {
-    $retarr = \Spotify\get_api($code);
+    $refresh_token = \Spotify\get_refresh_token($code);
   } catch(\SpotifyWebAPI\SpotifyWebAPIException $e) {
     $app->flash('error', "Spotify Error: " . $e->getMessage());
     $app->redirect('/');
     return;
   }
 
-  $access_token = $retarr[0];
-  $api = $retarr[1];
-
-  $_SESSION['token'] = $access_token;
+  $_SESSION['sp_refresh_token'] = $refresh_token;
   $app->redirect('/');
 });
 
 // View basic spotify account data.
 $app->get('/data/basic/?', function() use ($app) {
-  if (!ensure_auth($app)) return;
-  $token = $_SESSION['token'];
+  $ctx = start_view($app, $require_auth=true);
+  if (!$ctx) return;
 
-  $ctx = array(
-    'name' => "Bob Smith",
-  );
+  $ctx['name'] = "John smith";
 
   render($app, $ctx, 'data_basic.html');
 });
 
 // View spotify playlists.
 $app->get('/data/playlists/?', function() use ($app) {
-  if (!ensure_auth($app)) return;
-  $token = $_SESSION['token'];
-
-  $ctx = array(
-    'name' => "Bob Smith",
-  );
+  $ctx = start_view($app, $require_auth=true);
+  if (!$ctx) return;
 
   render($app, $ctx, 'data_playlists.html');
 });

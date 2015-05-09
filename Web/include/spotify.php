@@ -17,15 +17,25 @@ $sp_auth_url = $sp_session->getAuthorizeUrl(array(
   'scope' => $scopes,
 ));
 
-function get_api($auth_code) {
+function get_refresh_token($auth_code) {
+  global $sp_session;
+  $sp_session->requestAccessToken($auth_code);
+  return $sp_session->getRefreshToken();
+}
+
+function get_access_token($refresh_token) {
   global $sp_session;
 
-  $sp_session->requestAccessToken($auth_code);
-  $access_token = $sp_session->getAccessToken();
+  $sp_session->setRefreshToken($refresh_token);
+  $sp_session->refreshAccessToken();
 
+  return $sp_session->getAccessToken();
+}
+
+function get_api($access_token) {
   $api = new \SpotifyWebAPI\SpotifyWebAPI();
-  $api->setAccessToken($access_token);
+  $api->setAccess_token($access_token);
 
-  return array($access_token, $api);
+  return $api;
 }
 

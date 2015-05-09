@@ -6,7 +6,7 @@
   </div>
   <div class="panel-body">
     {% if authorized %}
-    Token: <input value="{{ token }}" style="width: 100%;" readonly /><br />
+    Access Token: <input value="{{ sp_access_token }}" style="width: 100%;" readonly /><br />
     <br />
     <a href="/forgettoken">Unpair Spotify Account</a>
     {% else %}

@@ -34,7 +34,7 @@ function get_access_token($refresh_token) {
 
 function get_api($access_token) {
   $api = new \SpotifyWebAPI\SpotifyWebAPI();
-  $api->setAccess_token($access_token);
+  $api->setAccessToken($access_token);
 
   return $api;
 }

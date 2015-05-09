@@ -6,6 +6,13 @@
   </div>
   <div class="panel-body">
     {% if authorized %}
+    <strong>{{ sp_user_data.name }}</strong><br />
+    ID: {{ sp_user_data.user_id }}<br />
+    <br />
+    {% if sp_user_data.image_url %}
+    <img style="width: 200px;" src="{{ sp_user_data.image_url }}" /><br />
+    <br />
+    {% endif %}
     Access Token: <input value="{{ sp_access_token }}" style="width: 100%;" readonly /><br />
     <br />
     <a href="/forgettoken">Unpair Spotify Account</a>

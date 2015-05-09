@@ -61,6 +61,22 @@ function get_refresh_token() {
   return null;
 }
 
+function get_me($api) {
+  $me_obj = $api->me();
+
+  $me = array(
+    'name' => $me_obj->display_name,
+    'user_id' => $me_obj->id,
+  );
+
+  $images = $me_obj->images;
+  if ($images) {
+    $me['image_url'] = $images[0]->url;
+  }
+
+  return $me;
+}
+
 function start_view($app, $require_auth=false) {
   if ($require_auth) {
     if (!($refresh_token = ensure_auth($app))) return;
@@ -68,15 +84,23 @@ function start_view($app, $require_auth=false) {
     $refresh_token = get_refresh_token();
   }
 
+  // TODO: Cache this in a db and only fetch new access token when expired.
   if ($refresh_token) {
     $access_token = \Spotify\get_access_token($refresh_token);
   } else {
     $access_token = null;
   }
 
+  $api = $refresh_token ? \Spotify\get_api($access_token) : null;
+
+  // TODO: Cache user data in a db instead of fetching it every time.
+  $me = $api ? get_me($api) : null;
+
   return array(
     'sp_refresh_token' => $refresh_token,
     'sp_access_token' => $access_token,
+    'sp_api' => $api,
+    'sp_user_data' => $me,
   );
 }
 
@@ -84,6 +108,12 @@ function start_view($app, $require_auth=false) {
 
 $app->get('/', function() use ($app) {
   $ctx = start_view($app);
+
+  if ($ctx['sp_access_token']) {
+    $app->redirect('/data/playlists');
+    return;
+  }
+
   render($app, $ctx);
 });
 

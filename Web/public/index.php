@@ -128,16 +128,6 @@ $app->get('/' . $cfg['spotify']['callback_route'] . '/?', function() use ($app) 
   $app->redirect('/');
 });
 
-// View basic spotify account data.
-$app->get('/data/basic/?', function() use ($app) {
-  $ctx = start_view($app, $require_auth=true);
-  if (!$ctx) return;
-
-  $ctx['name'] = "John smith";
-
-  render($app, $ctx, 'data_basic.html');
-});
-
 // View spotify playlists.
 $app->get('/data/playlists/?', function() use ($app) {
   $ctx = start_view($app, $require_auth=true);

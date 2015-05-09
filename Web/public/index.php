@@ -163,6 +163,18 @@ $app->get('/data/playlists/?', function() use ($app) {
   $ctx = start_view($app, $require_auth=true);
   if (!$ctx) return;
 
+  $api = $ctx['sp_api'];
+
+  $api->setReturnAssoc(true);
+
+  try {
+    $playlists = $api->getUserPlaylists($ctx['sp_user_data']['user_id']);
+    $ctx['playlists'] = $playlists['items'];
+  } catch (Exception $e) {
+    $app->flash('error', 'Spotify error: ' . $e->getMessage());
+    $ctx['playlists'] = array();
+  }
+
   render($app, $ctx, 'data_playlists.html');
 });
 

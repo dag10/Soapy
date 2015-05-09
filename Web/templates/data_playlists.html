@@ -5,10 +5,10 @@ Playlists
 {% endblock %}
 
 {% block panel_body %}
-<strong>Playlists:</strong>
-<ul>
-  <li>Foo</li>
-  <li>Bar</li>
-</ul>
+{% for playlist in playlists %}
+<strong><a href="{{ playlist.external_urls.spotify }}">{{ playlist.name }}</a></strong><br />
+(id: {{ playlist.uri }})<br />
+<br />
+{% endfor %}
 {% endblock %}
 

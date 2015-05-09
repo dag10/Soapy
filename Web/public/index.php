@@ -29,10 +29,11 @@ $app->view->parserExtensions = array(new \Slim\Views\TwigExtension());
 /* View Utilities */
 
 function render($app, $ctx=null, $template='index.html') {
+  global $sp_auth_url;
   $token = isset($_SESSION['token']) ? $_SESSION['token'] : null;
 
   $base_ctx = array(
-    'auth_url' => \Spotify\auth_url(),
+    'auth_url' => $sp_auth_url,
     'authorized' => !!$token,
     'token' => $token,
   );
@@ -58,6 +59,7 @@ $app->get('/', function() use ($app) {
   render($app);
 });
 
+// Forget the current api token in the session.
 $app->get('/forgettoken/?', function() use ($app) {
   if (!ensure_auth($app)) return;
 
@@ -65,6 +67,7 @@ $app->get('/forgettoken/?', function() use ($app) {
   $app->redirect('/');
 });
 
+// Spotify redirects here after user authenticates.
 $app->get('/' . $cfg['spotify']['callback_route'] . '/?', function() use ($app) {
   $ctx = array();
 
@@ -82,10 +85,22 @@ $app->get('/' . $cfg['spotify']['callback_route'] . '/?', function() use ($app) 
     return;
   }
 
-  $_SESSION['token'] = $code;
+  try {
+    $retarr = \Spotify\get_api($code);
+  } catch(\SpotifyWebAPI\SpotifyWebAPIException $e) {
+    $app->flash('error', "Spotify Error: " . $e->getMessage());
+    $app->redirect('/');
+    return;
+  }
+
+  $access_token = $retarr[0];
+  $api = $retarr[1];
+
+  $_SESSION['token'] = $access_token;
   $app->redirect('/');
 });
 
+// View basic spotify account data.
 $app->get('/data/basic/?', function() use ($app) {
   if (!ensure_auth($app)) return;
   $token = $_SESSION['token'];
@@ -97,6 +112,7 @@ $app->get('/data/basic/?', function() use ($app) {
   render($app, $ctx, 'data_basic.html');
 });
 
+// View spotify playlists.
 $app->get('/data/playlists/?', function() use ($app) {
   if (!ensure_auth($app)) return;
   $token = $_SESSION['token'];

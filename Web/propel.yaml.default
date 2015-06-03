@@ -1,0 +1,18 @@
+propel:
+  database:
+      connections:
+          soapy:
+              adapter: mysql
+              classname: Propel\Runtime\Connection\ConnectionWrapper
+              dsn: "mysql:host=127.0.0.1;dbname=soapy"
+              user: root
+              password:
+              attributes:
+  runtime:
+      defaultConnection: soapy
+      connections:
+          - soapy
+  generator:
+      defaultConnection: soapy
+      connections:
+          - soapy

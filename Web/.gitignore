@@ -1,4 +1,5 @@
 config.php
+propel.yaml
 composer.lock
 
 vendor/

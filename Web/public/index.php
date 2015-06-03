@@ -1,6 +1,7 @@
 <?php
 
 require '../vendor/autoload.php';
+require '../generated-conf/config.php';
 require '../config.php';
 require '../include/spotify.php';
 

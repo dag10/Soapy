@@ -10,8 +10,14 @@
             "homepage": "http://drewgottlieb.net"
         }
     ],
+    "autoload": {
+        "classmap": [
+            "generated-classes/"
+        ]
+    },
     "require": {
         "php": ">=5.3.0",
+        "propel/propel": "~2.0@dev",
         "jwilsson/spotify-web-api-php": "0.8.*",
         "monolog/monolog": "1.*",
         "slim/slim": "2.*",

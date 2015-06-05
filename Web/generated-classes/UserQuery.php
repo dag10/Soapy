@@ -14,5 +14,17 @@ use Base\UserQuery as BaseUserQuery;
  */
 class UserQuery extends BaseUserQuery
 {
+  public static function GetOrCreateUser($webauth) {
+    $user = self::create()->findOneByLDAP($webauth['ldap']);
 
+    if (!$user) {
+      $user = new User();
+      $user->setLDAP($webauth['ldap']);
+      $user->setFirstname($webauth['firstname']);
+      $user->setLastname($webauth['lastname']);
+      $user->save();
+    }
+
+    return $user;
+  }
 }

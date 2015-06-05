@@ -8,5 +8,6 @@ $cfg = array(
   ),
 
   'url' => 'http://soapy.csh.rit.edu',
+  'webauth' => true,
 );
 

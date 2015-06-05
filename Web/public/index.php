@@ -67,6 +67,24 @@ function get_refresh_token() {
   return null;
 }
 
+function get_webauth($app) {
+  global $cfg;
+
+  if ($cfg['webauth']) {
+    return [
+      'ldap' => $_SERVER['WEBAUTH_USER'],
+      'firstname' => $_SERVER['WEBAUTH_LDAP_GIVENNAME'],
+      'lastname' => $_SERVER['WEBAUTH_LDAP_SN'],
+    ];
+  } else {
+    return [
+      'ldap' => 'dag10',
+      'firstname' => 'Drew',
+      'lastname' => 'Gottlieb',
+    ];
+  }
+}
+
 function get_me($api) {
   $me_obj = $api->me();
 
@@ -104,12 +122,16 @@ function start_view($app, $require_auth=false) {
   // TODO: Cache user data in a db instead of fetching it every time.
   $me = $api ? get_me($api) : null;
 
+  $webauth = get_webauth($app);
+  $user = UserQuery::GetOrCreateUser($webauth);
+
   return array(
     'base_url' => $cfg['url'],
     'sp_refresh_token' => $refresh_token,
     'sp_access_token' => $access_token,
     'sp_api' => $api,
     'sp_user_data' => $me,
+    'user' => $user,
   );
 }
 

@@ -1,8 +1,9 @@
 {% extends "layouts/spotify.html" %}
 
 {% block panel_body %}
+Hi there, {{ user.getFirstname }}!<br />
 {% if authorized %}
-Hi there, {{ sp_user_data.name }}.
+Your Spotify account is paired.
 {% else %}
 Please sign in with Spotify to continue.
 {% endif %}

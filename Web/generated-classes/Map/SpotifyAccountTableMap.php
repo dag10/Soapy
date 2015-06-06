@@ -2,8 +2,8 @@
 
 namespace Map;
 
-use \User;
-use \UserQuery;
+use \SpotifyAccount;
+use \SpotifyAccountQuery;
 use Propel\Runtime\Propel;
 use Propel\Runtime\ActiveQuery\Criteria;
 use Propel\Runtime\ActiveQuery\InstancePoolTrait;
@@ -16,7 +16,7 @@ use Propel\Runtime\Map\TableMapTrait;
 
 
 /**
- * This class defines the structure of the 'user' table.
+ * This class defines the structure of the 'spotifyaccount' table.
  *
  *
  *
@@ -26,7 +26,7 @@ use Propel\Runtime\Map\TableMapTrait;
  * (i.e. if it's a text column type).
  *
  */
-class UserTableMap extends TableMap
+class SpotifyAccountTableMap extends TableMap
 {
     use InstancePoolTrait;
     use TableMapTrait;
@@ -34,7 +34,7 @@ class UserTableMap extends TableMap
     /**
      * The (dot-path) name of this class
      */
-    const CLASS_NAME = '.Map.UserTableMap';
+    const CLASS_NAME = '.Map.SpotifyAccountTableMap';
 
     /**
      * The default database name for this class
@@ -44,22 +44,22 @@ class UserTableMap extends TableMap
     /**
      * The table name for this class
      */
-    const TABLE_NAME = 'user';
+    const TABLE_NAME = 'spotifyaccount';
 
     /**
      * The related Propel class for this table
      */
-    const OM_CLASS = '\\User';
+    const OM_CLASS = '\\SpotifyAccount';
 
     /**
      * A class that can be returned by this tableMap
      */
-    const CLASS_DEFAULT = 'User';
+    const CLASS_DEFAULT = 'SpotifyAccount';
 
     /**
      * The total number of columns
      */
-    const NUM_COLUMNS = 4;
+    const NUM_COLUMNS = 6;
 
     /**
      * The number of lazy-loaded columns
@@ -69,27 +69,37 @@ class UserTableMap extends TableMap
     /**
      * The number of columns to hydrate (NUM_COLUMNS - NUM_LAZY_LOAD_COLUMNS)
      */
-    const NUM_HYDRATE_COLUMNS = 4;
+    const NUM_HYDRATE_COLUMNS = 6;
 
     /**
      * the column name for the id field
      */
-    const COL_ID = 'user.id';
+    const COL_ID = 'spotifyaccount.id';
 
     /**
-     * the column name for the ldap field
+     * the column name for the user_id field
      */
-    const COL_LDAP = 'user.ldap';
+    const COL_USER_ID = 'spotifyaccount.user_id';
 
     /**
-     * the column name for the firstname field
+     * the column name for the username field
      */
-    const COL_FIRSTNAME = 'user.firstname';
+    const COL_USERNAME = 'spotifyaccount.username';
 
     /**
-     * the column name for the lastname field
+     * the column name for the accesstoken field
      */
-    const COL_LASTNAME = 'user.lastname';
+    const COL_ACCESSTOKEN = 'spotifyaccount.accesstoken';
+
+    /**
+     * the column name for the refreshtoken field
+     */
+    const COL_REFRESHTOKEN = 'spotifyaccount.refreshtoken';
+
+    /**
+     * the column name for the expiration field
+     */
+    const COL_EXPIRATION = 'spotifyaccount.expiration';
 
     /**
      * The default string format for model objects of the related table
@@ -103,11 +113,11 @@ class UserTableMap extends TableMap
      * e.g. self::$fieldNames[self::TYPE_PHPNAME][0] = 'Id'
      */
     protected static $fieldNames = array (
-        self::TYPE_PHPNAME       => array('Id', 'Ldap', 'Firstname', 'Lastname', ),
-        self::TYPE_CAMELNAME     => array('id', 'ldap', 'firstname', 'lastname', ),
-        self::TYPE_COLNAME       => array(UserTableMap::COL_ID, UserTableMap::COL_LDAP, UserTableMap::COL_FIRSTNAME, UserTableMap::COL_LASTNAME, ),
-        self::TYPE_FIELDNAME     => array('id', 'ldap', 'firstname', 'lastname', ),
-        self::TYPE_NUM           => array(0, 1, 2, 3, )
+        self::TYPE_PHPNAME       => array('Id', 'UserId', 'Username', 'Accesstoken', 'Refreshtoken', 'Expiration', ),
+        self::TYPE_CAMELNAME     => array('id', 'userId', 'username', 'accesstoken', 'refreshtoken', 'expiration', ),
+        self::TYPE_COLNAME       => array(SpotifyAccountTableMap::COL_ID, SpotifyAccountTableMap::COL_USER_ID, SpotifyAccountTableMap::COL_USERNAME, SpotifyAccountTableMap::COL_ACCESSTOKEN, SpotifyAccountTableMap::COL_REFRESHTOKEN, SpotifyAccountTableMap::COL_EXPIRATION, ),
+        self::TYPE_FIELDNAME     => array('id', 'user_id', 'username', 'accesstoken', 'refreshtoken', 'expiration', ),
+        self::TYPE_NUM           => array(0, 1, 2, 3, 4, 5, )
     );
 
     /**
@@ -117,11 +127,11 @@ class UserTableMap extends TableMap
      * e.g. self::$fieldKeys[self::TYPE_PHPNAME]['Id'] = 0
      */
     protected static $fieldKeys = array (
-        self::TYPE_PHPNAME       => array('Id' => 0, 'Ldap' => 1, 'Firstname' => 2, 'Lastname' => 3, ),
-        self::TYPE_CAMELNAME     => array('id' => 0, 'ldap' => 1, 'firstname' => 2, 'lastname' => 3, ),
-        self::TYPE_COLNAME       => array(UserTableMap::COL_ID => 0, UserTableMap::COL_LDAP => 1, UserTableMap::COL_FIRSTNAME => 2, UserTableMap::COL_LASTNAME => 3, ),
-        self::TYPE_FIELDNAME     => array('id' => 0, 'ldap' => 1, 'firstname' => 2, 'lastname' => 3, ),
-        self::TYPE_NUM           => array(0, 1, 2, 3, )
+        self::TYPE_PHPNAME       => array('Id' => 0, 'UserId' => 1, 'Username' => 2, 'Accesstoken' => 3, 'Refreshtoken' => 4, 'Expiration' => 5, ),
+        self::TYPE_CAMELNAME     => array('id' => 0, 'userId' => 1, 'username' => 2, 'accesstoken' => 3, 'refreshtoken' => 4, 'expiration' => 5, ),
+        self::TYPE_COLNAME       => array(SpotifyAccountTableMap::COL_ID => 0, SpotifyAccountTableMap::COL_USER_ID => 1, SpotifyAccountTableMap::COL_USERNAME => 2, SpotifyAccountTableMap::COL_ACCESSTOKEN => 3, SpotifyAccountTableMap::COL_REFRESHTOKEN => 4, SpotifyAccountTableMap::COL_EXPIRATION => 5, ),
+        self::TYPE_FIELDNAME     => array('id' => 0, 'user_id' => 1, 'username' => 2, 'accesstoken' => 3, 'refreshtoken' => 4, 'expiration' => 5, ),
+        self::TYPE_NUM           => array(0, 1, 2, 3, 4, 5, )
     );
 
     /**
@@ -134,17 +144,19 @@ class UserTableMap extends TableMap
     public function initialize()
     {
         // attributes
-        $this->setName('user');
-        $this->setPhpName('User');
+        $this->setName('spotifyaccount');
+        $this->setPhpName('SpotifyAccount');
         $this->setIdentifierQuoting(false);
-        $this->setClassName('\\User');
+        $this->setClassName('\\SpotifyAccount');
         $this->setPackage('');
         $this->setUseIdGenerator(true);
         // columns
         $this->addPrimaryKey('id', 'Id', 'INTEGER', true, null, null);
-        $this->addColumn('ldap', 'Ldap', 'VARCHAR', true, 128, null);
-        $this->addColumn('firstname', 'Firstname', 'LONGVARCHAR', true, null, null);
-        $this->addColumn('lastname', 'Lastname', 'LONGVARCHAR', true, null, null);
+        $this->addForeignKey('user_id', 'UserId', 'INTEGER', 'user', 'id', true, null, null);
+        $this->addColumn('username', 'Username', 'VARCHAR', true, 128, null);
+        $this->addColumn('accesstoken', 'Accesstoken', 'LONGVARCHAR', true, null, null);
+        $this->addColumn('refreshtoken', 'Refreshtoken', 'LONGVARCHAR', true, null, null);
+        $this->addColumn('expiration', 'Expiration', 'DATE', true, null, null);
     } // initialize()
 
     /**
@@ -152,13 +164,13 @@ class UserTableMap extends TableMap
      */
     public function buildRelations()
     {
-        $this->addRelation('SpotifyAccount', '\\SpotifyAccount', RelationMap::ONE_TO_MANY, array (
+        $this->addRelation('User', '\\User', RelationMap::MANY_TO_ONE, array (
   0 =>
   array (
     0 => ':user_id',
     1 => ':id',
   ),
-), null, null, 'SpotifyAccounts', false);
+), null, null, null, false);
     } // buildRelations()
 
     /**
@@ -218,7 +230,7 @@ class UserTableMap extends TableMap
      */
     public static function getOMClass($withPrefix = true)
     {
-        return $withPrefix ? UserTableMap::CLASS_DEFAULT : UserTableMap::OM_CLASS;
+        return $withPrefix ? SpotifyAccountTableMap::CLASS_DEFAULT : SpotifyAccountTableMap::OM_CLASS;
     }
 
     /**
@@ -232,22 +244,22 @@ class UserTableMap extends TableMap
      *
      * @throws PropelException Any exceptions caught during processing will be
      *                         rethrown wrapped into a PropelException.
-     * @return array           (User object, last column rank)
+     * @return array           (SpotifyAccount object, last column rank)
      */
     public static function populateObject($row, $offset = 0, $indexType = TableMap::TYPE_NUM)
     {
-        $key = UserTableMap::getPrimaryKeyHashFromRow($row, $offset, $indexType);
-        if (null !== ($obj = UserTableMap::getInstanceFromPool($key))) {
+        $key = SpotifyAccountTableMap::getPrimaryKeyHashFromRow($row, $offset, $indexType);
+        if (null !== ($obj = SpotifyAccountTableMap::getInstanceFromPool($key))) {
             // We no longer rehydrate the object, since this can cause data loss.
             // See http://www.propelorm.org/ticket/509
             // $obj->hydrate($row, $offset, true); // rehydrate
-            $col = $offset + UserTableMap::NUM_HYDRATE_COLUMNS;
+            $col = $offset + SpotifyAccountTableMap::NUM_HYDRATE_COLUMNS;
         } else {
-            $cls = UserTableMap::OM_CLASS;
-            /** @var User $obj */
+            $cls = SpotifyAccountTableMap::OM_CLASS;
+            /** @var SpotifyAccount $obj */
             $obj = new $cls();
             $col = $obj->hydrate($row, $offset, false, $indexType);
-            UserTableMap::addInstanceToPool($obj, $key);
+            SpotifyAccountTableMap::addInstanceToPool($obj, $key);
         }
 
         return array($obj, $col);
@@ -270,18 +282,18 @@ class UserTableMap extends TableMap
         $cls = static::getOMClass(false);
         // populate the object(s)
         while ($row = $dataFetcher->fetch()) {
-            $key = UserTableMap::getPrimaryKeyHashFromRow($row, 0, $dataFetcher->getIndexType());
-            if (null !== ($obj = UserTableMap::getInstanceFromPool($key))) {
+            $key = SpotifyAccountTableMap::getPrimaryKeyHashFromRow($row, 0, $dataFetcher->getIndexType());
+            if (null !== ($obj = SpotifyAccountTableMap::getInstanceFromPool($key))) {
                 // We no longer rehydrate the object, since this can cause data loss.
                 // See http://www.propelorm.org/ticket/509
                 // $obj->hydrate($row, 0, true); // rehydrate
                 $results[] = $obj;
             } else {
-                /** @var User $obj */
+                /** @var SpotifyAccount $obj */
                 $obj = new $cls();
                 $obj->hydrate($row);
                 $results[] = $obj;
-                UserTableMap::addInstanceToPool($obj, $key);
+                SpotifyAccountTableMap::addInstanceToPool($obj, $key);
             } // if key exists
         }
 
@@ -302,15 +314,19 @@ class UserTableMap extends TableMap
     public static function addSelectColumns(Criteria $criteria, $alias = null)
     {
         if (null === $alias) {
-            $criteria->addSelectColumn(UserTableMap::COL_ID);
-            $criteria->addSelectColumn(UserTableMap::COL_LDAP);
-            $criteria->addSelectColumn(UserTableMap::COL_FIRSTNAME);
-            $criteria->addSelectColumn(UserTableMap::COL_LASTNAME);
+            $criteria->addSelectColumn(SpotifyAccountTableMap::COL_ID);
+            $criteria->addSelectColumn(SpotifyAccountTableMap::COL_USER_ID);
+            $criteria->addSelectColumn(SpotifyAccountTableMap::COL_USERNAME);
+            $criteria->addSelectColumn(SpotifyAccountTableMap::COL_ACCESSTOKEN);
+            $criteria->addSelectColumn(SpotifyAccountTableMap::COL_REFRESHTOKEN);
+            $criteria->addSelectColumn(SpotifyAccountTableMap::COL_EXPIRATION);
         } else {
             $criteria->addSelectColumn($alias . '.id');
-            $criteria->addSelectColumn($alias . '.ldap');
-            $criteria->addSelectColumn($alias . '.firstname');
-            $criteria->addSelectColumn($alias . '.lastname');
+            $criteria->addSelectColumn($alias . '.user_id');
+            $criteria->addSelectColumn($alias . '.username');
+            $criteria->addSelectColumn($alias . '.accesstoken');
+            $criteria->addSelectColumn($alias . '.refreshtoken');
+            $criteria->addSelectColumn($alias . '.expiration');
         }
     }
 
@@ -323,7 +339,7 @@ class UserTableMap extends TableMap
      */
     public static function getTableMap()
     {
-        return Propel::getServiceContainer()->getDatabaseMap(UserTableMap::DATABASE_NAME)->getTable(UserTableMap::TABLE_NAME);
+        return Propel::getServiceContainer()->getDatabaseMap(SpotifyAccountTableMap::DATABASE_NAME)->getTable(SpotifyAccountTableMap::TABLE_NAME);
     }
 
     /**
@@ -331,16 +347,16 @@ class UserTableMap extends TableMap
      */
     public static function buildTableMap()
     {
-        $dbMap = Propel::getServiceContainer()->getDatabaseMap(UserTableMap::DATABASE_NAME);
-        if (!$dbMap->hasTable(UserTableMap::TABLE_NAME)) {
-            $dbMap->addTableObject(new UserTableMap());
+        $dbMap = Propel::getServiceContainer()->getDatabaseMap(SpotifyAccountTableMap::DATABASE_NAME);
+        if (!$dbMap->hasTable(SpotifyAccountTableMap::TABLE_NAME)) {
+            $dbMap->addTableObject(new SpotifyAccountTableMap());
         }
     }
 
     /**
-     * Performs a DELETE on the database, given a User or Criteria object OR a primary key value.
+     * Performs a DELETE on the database, given a SpotifyAccount or Criteria object OR a primary key value.
      *
-     * @param mixed               $values Criteria or User object or primary key or array of primary keys
+     * @param mixed               $values Criteria or SpotifyAccount object or primary key or array of primary keys
      *              which is used to create the DELETE statement
      * @param  ConnectionInterface $con the connection to use
      * @return int             The number of affected rows (if supported by underlying database driver).  This includes CASCADE-related rows
@@ -351,27 +367,27 @@ class UserTableMap extends TableMap
      public static function doDelete($values, ConnectionInterface $con = null)
      {
         if (null === $con) {
-            $con = Propel::getServiceContainer()->getWriteConnection(UserTableMap::DATABASE_NAME);
+            $con = Propel::getServiceContainer()->getWriteConnection(SpotifyAccountTableMap::DATABASE_NAME);
         }
 
         if ($values instanceof Criteria) {
             // rename for clarity
             $criteria = $values;
-        } elseif ($values instanceof \User) { // it's a model object
+        } elseif ($values instanceof \SpotifyAccount) { // it's a model object
             // create criteria based on pk values
             $criteria = $values->buildPkeyCriteria();
         } else { // it's a primary key, or an array of pks
-            $criteria = new Criteria(UserTableMap::DATABASE_NAME);
-            $criteria->add(UserTableMap::COL_ID, (array) $values, Criteria::IN);
+            $criteria = new Criteria(SpotifyAccountTableMap::DATABASE_NAME);
+            $criteria->add(SpotifyAccountTableMap::COL_ID, (array) $values, Criteria::IN);
         }
 
-        $query = UserQuery::create()->mergeWith($criteria);
+        $query = SpotifyAccountQuery::create()->mergeWith($criteria);
 
         if ($values instanceof Criteria) {
-            UserTableMap::clearInstancePool();
+            SpotifyAccountTableMap::clearInstancePool();
         } elseif (!is_object($values)) { // it's a primary key, or an array of pks
             foreach ((array) $values as $singleval) {
-                UserTableMap::removeInstanceFromPool($singleval);
+                SpotifyAccountTableMap::removeInstanceFromPool($singleval);
             }
         }
 
@@ -379,20 +395,20 @@ class UserTableMap extends TableMap
     }
 
     /**
-     * Deletes all rows from the user table.
+     * Deletes all rows from the spotifyaccount table.
      *
      * @param ConnectionInterface $con the connection to use
      * @return int The number of affected rows (if supported by underlying database driver).
      */
     public static function doDeleteAll(ConnectionInterface $con = null)
     {
-        return UserQuery::create()->doDeleteAll($con);
+        return SpotifyAccountQuery::create()->doDeleteAll($con);
     }
 
     /**
-     * Performs an INSERT on the database, given a User or Criteria object.
+     * Performs an INSERT on the database, given a SpotifyAccount or Criteria object.
      *
-     * @param mixed               $criteria Criteria or User object containing data that is used to create the INSERT statement.
+     * @param mixed               $criteria Criteria or SpotifyAccount object containing data that is used to create the INSERT statement.
      * @param ConnectionInterface $con the ConnectionInterface connection to use
      * @return mixed           The new primary key.
      * @throws PropelException Any exceptions caught during processing will be
@@ -401,22 +417,22 @@ class UserTableMap extends TableMap
     public static function doInsert($criteria, ConnectionInterface $con = null)
     {
         if (null === $con) {
-            $con = Propel::getServiceContainer()->getWriteConnection(UserTableMap::DATABASE_NAME);
+            $con = Propel::getServiceContainer()->getWriteConnection(SpotifyAccountTableMap::DATABASE_NAME);
         }
 
         if ($criteria instanceof Criteria) {
             $criteria = clone $criteria; // rename for clarity
         } else {
-            $criteria = $criteria->buildCriteria(); // build Criteria from User object
+            $criteria = $criteria->buildCriteria(); // build Criteria from SpotifyAccount object
         }
 
-        if ($criteria->containsKey(UserTableMap::COL_ID) && $criteria->keyContainsValue(UserTableMap::COL_ID) ) {
-            throw new PropelException('Cannot insert a value for auto-increment primary key ('.UserTableMap::COL_ID.')');
+        if ($criteria->containsKey(SpotifyAccountTableMap::COL_ID) && $criteria->keyContainsValue(SpotifyAccountTableMap::COL_ID) ) {
+            throw new PropelException('Cannot insert a value for auto-increment primary key ('.SpotifyAccountTableMap::COL_ID.')');
         }
 
 
         // Set the correct dbName
-        $query = UserQuery::create()->mergeWith($criteria);
+        $query = SpotifyAccountQuery::create()->mergeWith($criteria);
 
         // use transaction because $criteria could contain info
         // for more than one table (I guess, conceivably)
@@ -425,7 +441,7 @@ class UserTableMap extends TableMap
         });
     }
 
-} // UserTableMap
+} // SpotifyAccountTableMap
 // This is the static code needed to register the TableMap for this table with the main Propel class.
 //
-UserTableMap::buildTableMap();
+SpotifyAccountTableMap::buildTableMap();

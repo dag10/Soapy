@@ -50,6 +50,7 @@ function render($app, $ctx, $template='index.html') {
 function ensure_auth($app) {
   global $base_url;
 
+  // This is just to fake webauth when developing on systems without it.
   if (!isset($_SESSION['sp_refresh_token'])) {
     $app->flash('error', "You must connect a Spotify account.");
     $app->redirect($base_url);
@@ -78,9 +79,9 @@ function get_webauth($app) {
     ];
   } else {
     return [
-      'ldap' => 'dag10',
-      'firstname' => 'Drew',
-      'lastname' => 'Gottlieb',
+      'ldap' => 'csher',
+      'firstname' => 'John',
+      'lastname' => 'Smith',
     ];
   }
 }

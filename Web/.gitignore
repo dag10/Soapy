@@ -2,6 +2,8 @@ config.php
 propel.yaml
 composer.lock
 
+generated-conf/
+
 vendor/
 logs/
 templates/cache/

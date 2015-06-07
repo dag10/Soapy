@@ -15,7 +15,8 @@
     <column name="username" type="varchar" size="128" required="true" />
     <column name="accesstoken" phpName="AccessToken" type="longvarchar" required="true" />
     <column name="refreshtoken" phpName="RefreshToken" type="longvarchar" required="true" />
-    <column name="expiration" type="date" required="true" />
+    <column name="expiration" type="timestamp" required="true" />
+    <column name="avatar" type="longvarchar" required="false" />
   </table>
 </database>
 

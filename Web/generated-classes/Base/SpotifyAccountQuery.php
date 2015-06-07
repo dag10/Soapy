@@ -26,6 +26,7 @@ use Propel\Runtime\Exception\PropelException;
  * @method     ChildSpotifyAccountQuery orderByAccessToken($order = Criteria::ASC) Order by the accesstoken column
  * @method     ChildSpotifyAccountQuery orderByRefreshToken($order = Criteria::ASC) Order by the refreshtoken column
  * @method     ChildSpotifyAccountQuery orderByExpiration($order = Criteria::ASC) Order by the expiration column
+ * @method     ChildSpotifyAccountQuery orderByAvatar($order = Criteria::ASC) Order by the avatar column
  *
  * @method     ChildSpotifyAccountQuery groupById() Group by the id column
  * @method     ChildSpotifyAccountQuery groupByUserId() Group by the user_id column
@@ -33,6 +34,7 @@ use Propel\Runtime\Exception\PropelException;
  * @method     ChildSpotifyAccountQuery groupByAccessToken() Group by the accesstoken column
  * @method     ChildSpotifyAccountQuery groupByRefreshToken() Group by the refreshtoken column
  * @method     ChildSpotifyAccountQuery groupByExpiration() Group by the expiration column
+ * @method     ChildSpotifyAccountQuery groupByAvatar() Group by the avatar column
  *
  * @method     ChildSpotifyAccountQuery leftJoin($relation) Adds a LEFT JOIN clause to the query
  * @method     ChildSpotifyAccountQuery rightJoin($relation) Adds a RIGHT JOIN clause to the query
@@ -52,7 +54,8 @@ use Propel\Runtime\Exception\PropelException;
  * @method     ChildSpotifyAccount findOneByUsername(string $username) Return the first ChildSpotifyAccount filtered by the username column
  * @method     ChildSpotifyAccount findOneByAccessToken(string $accesstoken) Return the first ChildSpotifyAccount filtered by the accesstoken column
  * @method     ChildSpotifyAccount findOneByRefreshToken(string $refreshtoken) Return the first ChildSpotifyAccount filtered by the refreshtoken column
- * @method     ChildSpotifyAccount findOneByExpiration(string $expiration) Return the first ChildSpotifyAccount filtered by the expiration column *
+ * @method     ChildSpotifyAccount findOneByExpiration(string $expiration) Return the first ChildSpotifyAccount filtered by the expiration column
+ * @method     ChildSpotifyAccount findOneByAvatar(string $avatar) Return the first ChildSpotifyAccount filtered by the avatar column *
 
  * @method     ChildSpotifyAccount requirePk($key, ConnectionInterface $con = null) Return the ChildSpotifyAccount by primary key and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
  * @method     ChildSpotifyAccount requireOne(ConnectionInterface $con = null) Return the first ChildSpotifyAccount matching the query and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
@@ -63,6 +66,7 @@ use Propel\Runtime\Exception\PropelException;
  * @method     ChildSpotifyAccount requireOneByAccessToken(string $accesstoken) Return the first ChildSpotifyAccount filtered by the accesstoken column and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
  * @method     ChildSpotifyAccount requireOneByRefreshToken(string $refreshtoken) Return the first ChildSpotifyAccount filtered by the refreshtoken column and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
  * @method     ChildSpotifyAccount requireOneByExpiration(string $expiration) Return the first ChildSpotifyAccount filtered by the expiration column and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
+ * @method     ChildSpotifyAccount requireOneByAvatar(string $avatar) Return the first ChildSpotifyAccount filtered by the avatar column and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
  *
  * @method     ChildSpotifyAccount[]|ObjectCollection find(ConnectionInterface $con = null) Return ChildSpotifyAccount objects based on current ModelCriteria
  * @method     ChildSpotifyAccount[]|ObjectCollection findById(int $id) Return ChildSpotifyAccount objects filtered by the id column
@@ -71,6 +75,7 @@ use Propel\Runtime\Exception\PropelException;
  * @method     ChildSpotifyAccount[]|ObjectCollection findByAccessToken(string $accesstoken) Return ChildSpotifyAccount objects filtered by the accesstoken column
  * @method     ChildSpotifyAccount[]|ObjectCollection findByRefreshToken(string $refreshtoken) Return ChildSpotifyAccount objects filtered by the refreshtoken column
  * @method     ChildSpotifyAccount[]|ObjectCollection findByExpiration(string $expiration) Return ChildSpotifyAccount objects filtered by the expiration column
+ * @method     ChildSpotifyAccount[]|ObjectCollection findByAvatar(string $avatar) Return ChildSpotifyAccount objects filtered by the avatar column
  * @method     ChildSpotifyAccount[]|\Propel\Runtime\Util\PropelModelPager paginate($page = 1, $maxPerPage = 10, ConnectionInterface $con = null) Issue a SELECT query based on the current ModelCriteria and uses a page and a maximum number of results per page to compute an offset and a limit
  *
  */
@@ -163,7 +168,7 @@ abstract class SpotifyAccountQuery extends ModelCriteria
      */
     protected function findPkSimple($key, ConnectionInterface $con)
     {
-        $sql = 'SELECT id, user_id, username, accesstoken, refreshtoken, expiration FROM spotifyaccount WHERE id = :p0';
+        $sql = 'SELECT id, user_id, username, accesstoken, refreshtoken, expiration, avatar FROM spotifyaccount WHERE id = :p0';
         try {
             $stmt = $con->prepare($sql);
             $stmt->bindValue(':p0', $key, PDO::PARAM_INT);
@@ -465,6 +470,35 @@ abstract class SpotifyAccountQuery extends ModelCriteria
         }
 
         return $this->addUsingAlias(SpotifyAccountTableMap::COL_EXPIRATION, $expiration, $comparison);
+    }
+
+    /**
+     * Filter the query on the avatar column
+     *
+     * Example usage:
+     * <code>
+     * $query->filterByAvatar('fooValue');   // WHERE avatar = 'fooValue'
+     * $query->filterByAvatar('%fooValue%'); // WHERE avatar LIKE '%fooValue%'
+     * </code>
+     *
+     * @param     string $avatar The value to use as filter.
+     *              Accepts wildcards (* and % trigger a LIKE)
+     * @param     string $comparison Operator to use for the column comparison, defaults to Criteria::EQUAL
+     *
+     * @return $this|ChildSpotifyAccountQuery The current query, for fluid interface
+     */
+    public function filterByAvatar($avatar = null, $comparison = null)
+    {
+        if (null === $comparison) {
+            if (is_array($avatar)) {
+                $comparison = Criteria::IN;
+            } elseif (preg_match('/[\%\*]/', $avatar)) {
+                $avatar = str_replace('*', '%', $avatar);
+                $comparison = Criteria::LIKE;
+            }
+        }
+
+        return $this->addUsingAlias(SpotifyAccountTableMap::COL_AVATAR, $avatar, $comparison);
     }
 
     /**

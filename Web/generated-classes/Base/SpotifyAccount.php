@@ -100,6 +100,12 @@ abstract class SpotifyAccount implements ActiveRecordInterface
     protected $expiration;
 
     /**
+     * The value for the avatar field.
+     * @var        string
+     */
+    protected $avatar;
+
+    /**
      * @var        ChildUser
      */
     protected $aUser;
@@ -386,7 +392,7 @@ abstract class SpotifyAccount implements ActiveRecordInterface
      * @param      string $format The date/time format string (either date()-style or strftime()-style).
      *                            If format is NULL, then the raw DateTime object will be returned.
      *
-     * @return string|DateTime Formatted date/time value as string or DateTime object (if format is NULL), NULL if column is NULL, and 0 if column value is 0000-00-00
+     * @return string|DateTime Formatted date/time value as string or DateTime object (if format is NULL), NULL if column is NULL, and 0 if column value is 0000-00-00 00:00:00
      *
      * @throws PropelException - if unable to parse/validate the date/time value.
      */
@@ -397,6 +403,16 @@ abstract class SpotifyAccount implements ActiveRecordInterface
         } else {
             return $this->expiration instanceof \DateTime ? $this->expiration->format($format) : null;
         }
+    }
+
+    /**
+     * Get the [avatar] column value.
+     *
+     * @return string
+     */
+    public function getAvatar()
+    {
+        return $this->avatar;
     }
 
     /**
@@ -514,7 +530,7 @@ abstract class SpotifyAccount implements ActiveRecordInterface
     {
         $dt = PropelDateTime::newInstance($v, null, 'DateTime');
         if ($this->expiration !== null || $dt !== null) {
-            if ($this->expiration === null || $dt === null || $dt->format("Y-m-d") !== $this->expiration->format("Y-m-d")) {
+            if ($this->expiration === null || $dt === null || $dt->format("Y-m-d H:i:s") !== $this->expiration->format("Y-m-d H:i:s")) {
                 $this->expiration = $dt === null ? null : clone $dt;
                 $this->modifiedColumns[SpotifyAccountTableMap::COL_EXPIRATION] = true;
             }
@@ -522,6 +538,26 @@ abstract class SpotifyAccount implements ActiveRecordInterface
 
         return $this;
     } // setExpiration()
+
+    /**
+     * Set the value of [avatar] column.
+     *
+     * @param string $v new value
+     * @return $this|\SpotifyAccount The current object (for fluent API support)
+     */
+    public function setAvatar($v)
+    {
+        if ($v !== null) {
+            $v = (string) $v;
+        }
+
+        if ($this->avatar !== $v) {
+            $this->avatar = $v;
+            $this->modifiedColumns[SpotifyAccountTableMap::COL_AVATAR] = true;
+        }
+
+        return $this;
+    } // setAvatar()
 
     /**
      * Indicates whether the columns in this object are only set to default values.
@@ -575,10 +611,13 @@ abstract class SpotifyAccount implements ActiveRecordInterface
             $this->refreshtoken = (null !== $col) ? (string) $col : null;
 
             $col = $row[TableMap::TYPE_NUM == $indexType ? 5 + $startcol : SpotifyAccountTableMap::translateFieldName('Expiration', TableMap::TYPE_PHPNAME, $indexType)];
-            if ($col === '0000-00-00') {
+            if ($col === '0000-00-00 00:00:00') {
                 $col = null;
             }
             $this->expiration = (null !== $col) ? PropelDateTime::newInstance($col, null, 'DateTime') : null;
+
+            $col = $row[TableMap::TYPE_NUM == $indexType ? 6 + $startcol : SpotifyAccountTableMap::translateFieldName('Avatar', TableMap::TYPE_PHPNAME, $indexType)];
+            $this->avatar = (null !== $col) ? (string) $col : null;
             $this->resetModified();
 
             $this->setNew(false);
@@ -587,7 +626,7 @@ abstract class SpotifyAccount implements ActiveRecordInterface
                 $this->ensureConsistency();
             }
 
-            return $startcol + 6; // 6 = SpotifyAccountTableMap::NUM_HYDRATE_COLUMNS.
+            return $startcol + 7; // 7 = SpotifyAccountTableMap::NUM_HYDRATE_COLUMNS.
 
         } catch (Exception $e) {
             throw new PropelException(sprintf('Error populating %s object', '\\SpotifyAccount'), 0, $e);
@@ -818,6 +857,9 @@ abstract class SpotifyAccount implements ActiveRecordInterface
         if ($this->isColumnModified(SpotifyAccountTableMap::COL_EXPIRATION)) {
             $modifiedColumns[':p' . $index++]  = 'expiration';
         }
+        if ($this->isColumnModified(SpotifyAccountTableMap::COL_AVATAR)) {
+            $modifiedColumns[':p' . $index++]  = 'avatar';
+        }
 
         $sql = sprintf(
             'INSERT INTO spotifyaccount (%s) VALUES (%s)',
@@ -846,6 +888,9 @@ abstract class SpotifyAccount implements ActiveRecordInterface
                         break;
                     case 'expiration':
                         $stmt->bindValue($identifier, $this->expiration ? $this->expiration->format("Y-m-d H:i:s") : null, PDO::PARAM_STR);
+                        break;
+                    case 'avatar':
+                        $stmt->bindValue($identifier, $this->avatar, PDO::PARAM_STR);
                         break;
                 }
             }
@@ -927,6 +972,9 @@ abstract class SpotifyAccount implements ActiveRecordInterface
             case 5:
                 return $this->getExpiration();
                 break;
+            case 6:
+                return $this->getAvatar();
+                break;
             default:
                 return null;
                 break;
@@ -963,6 +1011,7 @@ abstract class SpotifyAccount implements ActiveRecordInterface
             $keys[3] => $this->getAccessToken(),
             $keys[4] => $this->getRefreshToken(),
             $keys[5] => $this->getExpiration(),
+            $keys[6] => $this->getAvatar(),
         );
 
         $utc = new \DateTimeZone('utc');
@@ -1045,6 +1094,9 @@ abstract class SpotifyAccount implements ActiveRecordInterface
             case 5:
                 $this->setExpiration($value);
                 break;
+            case 6:
+                $this->setAvatar($value);
+                break;
         } // switch()
 
         return $this;
@@ -1088,6 +1140,9 @@ abstract class SpotifyAccount implements ActiveRecordInterface
         }
         if (array_key_exists($keys[5], $arr)) {
             $this->setExpiration($arr[$keys[5]]);
+        }
+        if (array_key_exists($keys[6], $arr)) {
+            $this->setAvatar($arr[$keys[6]]);
         }
     }
 
@@ -1147,6 +1202,9 @@ abstract class SpotifyAccount implements ActiveRecordInterface
         }
         if ($this->isColumnModified(SpotifyAccountTableMap::COL_EXPIRATION)) {
             $criteria->add(SpotifyAccountTableMap::COL_EXPIRATION, $this->expiration);
+        }
+        if ($this->isColumnModified(SpotifyAccountTableMap::COL_AVATAR)) {
+            $criteria->add(SpotifyAccountTableMap::COL_AVATAR, $this->avatar);
         }
 
         return $criteria;
@@ -1239,6 +1297,7 @@ abstract class SpotifyAccount implements ActiveRecordInterface
         $copyObj->setAccessToken($this->getAccessToken());
         $copyObj->setRefreshToken($this->getRefreshToken());
         $copyObj->setExpiration($this->getExpiration());
+        $copyObj->setAvatar($this->getAvatar());
         if ($makeNew) {
             $copyObj->setNew(true);
             $copyObj->setId(NULL); // this is a auto-increment column, so set to default value
@@ -1334,6 +1393,7 @@ abstract class SpotifyAccount implements ActiveRecordInterface
         $this->accesstoken = null;
         $this->refreshtoken = null;
         $this->expiration = null;
+        $this->avatar = null;
         $this->alreadyInSave = false;
         $this->clearAllReferences();
         $this->resetModified();

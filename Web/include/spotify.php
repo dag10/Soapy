@@ -63,3 +63,10 @@ function get_api($access_token) {
   return $api;
 }
 
+function get_playlists($api, $username) {
+  $options = [
+    'limit' => 50,
+  ];
+  return $api->getUserPlaylists($username, $options)['items'];
+}
+

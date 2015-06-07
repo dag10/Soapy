@@ -162,8 +162,8 @@ $app->get('/data/playlists/?', function() use ($app) {
   $api->setReturnAssoc(true);
 
   try {
-    $playlists = $api->getUserPlaylists($ctx['spotifyacct']->getUsername());
-    $ctx['playlists'] = $playlists['items'];
+    $ctx['playlists'] = \Spotify\get_playlists(
+        $api, $ctx['spotifyacct']->getUsername());
   } catch (Exception $e) {
     $app->flash('error', 'Spotify error: ' . $e->getMessage());
     $ctx['playlists'] = array();

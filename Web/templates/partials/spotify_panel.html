@@ -6,16 +6,16 @@
   </div>
   <div class="panel-body">
     {% if authorized %}
-    <strong>{{ sp_user_data.name }}</strong><br />
-    ID: {{ sp_user_data.user_id }}<br />
-    <br />
-    {% if sp_user_data.image_url %}
-    <img style="width: 200px;" src="{{ sp_user_data.image_url }}" /><br />
+    <h3>{{ spotifyacct.getUsername }}</h3>
+    {% if spotifyacct.avatar %}
+    <img style="width: 200px;" src="{{ spotifyacct.getAvatar }}" /><br />
     <br />
     {% endif %}
-    Access Token: <input value="{{ sp_access_token }}" style="width: 100%;" readonly /><br />
+    Access Token: <input value="{{ spotifyacct.getAccessToken }}" style="width: 100%;" readonly /><br />
     <br />
-    <a href="{{ base_url }}/forgettoken">Unpair Spotify Account</a>
+    <form action="{{ base_url }}/unpair/spotify" method="post">
+      <input type="submit" value="Unpair Spotify Account" />
+    </form>
     {% else %}
     <a class="spotify-log-in-btn" href="{{ auth_url }}">
       <img src="{{ base_url }}/images/spotify-log_in-desktop.svg" />

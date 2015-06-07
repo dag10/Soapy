@@ -14,5 +14,9 @@ use Base\SpotifyAccountQuery as BaseSpotifyAccountQuery;
  */
 class SpotifyAccountQuery extends BaseSpotifyAccountQuery
 {
+  public static function findByUser($user) {
+    if (!$user || !$user->getId()) return null;
 
+    return self::create()->filterByUserId($user->getId())->findOne();
+  }
 }

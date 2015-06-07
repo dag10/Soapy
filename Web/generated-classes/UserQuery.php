@@ -20,8 +20,8 @@ class UserQuery extends BaseUserQuery
     if (!$user) {
       $user = new User();
       $user->setLDAP($webauth['ldap']);
-      $user->setFirstname($webauth['firstname']);
-      $user->setLastname($webauth['lastname']);
+      $user->setFirstName($webauth['firstname']);
+      $user->setLastName($webauth['lastname']);
       $user->save();
     }
 

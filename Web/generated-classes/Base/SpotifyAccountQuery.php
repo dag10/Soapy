@@ -23,15 +23,15 @@ use Propel\Runtime\Exception\PropelException;
  * @method     ChildSpotifyAccountQuery orderById($order = Criteria::ASC) Order by the id column
  * @method     ChildSpotifyAccountQuery orderByUserId($order = Criteria::ASC) Order by the user_id column
  * @method     ChildSpotifyAccountQuery orderByUsername($order = Criteria::ASC) Order by the username column
- * @method     ChildSpotifyAccountQuery orderByAccesstoken($order = Criteria::ASC) Order by the accesstoken column
- * @method     ChildSpotifyAccountQuery orderByRefreshtoken($order = Criteria::ASC) Order by the refreshtoken column
+ * @method     ChildSpotifyAccountQuery orderByAccessToken($order = Criteria::ASC) Order by the accesstoken column
+ * @method     ChildSpotifyAccountQuery orderByRefreshToken($order = Criteria::ASC) Order by the refreshtoken column
  * @method     ChildSpotifyAccountQuery orderByExpiration($order = Criteria::ASC) Order by the expiration column
  *
  * @method     ChildSpotifyAccountQuery groupById() Group by the id column
  * @method     ChildSpotifyAccountQuery groupByUserId() Group by the user_id column
  * @method     ChildSpotifyAccountQuery groupByUsername() Group by the username column
- * @method     ChildSpotifyAccountQuery groupByAccesstoken() Group by the accesstoken column
- * @method     ChildSpotifyAccountQuery groupByRefreshtoken() Group by the refreshtoken column
+ * @method     ChildSpotifyAccountQuery groupByAccessToken() Group by the accesstoken column
+ * @method     ChildSpotifyAccountQuery groupByRefreshToken() Group by the refreshtoken column
  * @method     ChildSpotifyAccountQuery groupByExpiration() Group by the expiration column
  *
  * @method     ChildSpotifyAccountQuery leftJoin($relation) Adds a LEFT JOIN clause to the query
@@ -50,8 +50,8 @@ use Propel\Runtime\Exception\PropelException;
  * @method     ChildSpotifyAccount findOneById(int $id) Return the first ChildSpotifyAccount filtered by the id column
  * @method     ChildSpotifyAccount findOneByUserId(int $user_id) Return the first ChildSpotifyAccount filtered by the user_id column
  * @method     ChildSpotifyAccount findOneByUsername(string $username) Return the first ChildSpotifyAccount filtered by the username column
- * @method     ChildSpotifyAccount findOneByAccesstoken(string $accesstoken) Return the first ChildSpotifyAccount filtered by the accesstoken column
- * @method     ChildSpotifyAccount findOneByRefreshtoken(string $refreshtoken) Return the first ChildSpotifyAccount filtered by the refreshtoken column
+ * @method     ChildSpotifyAccount findOneByAccessToken(string $accesstoken) Return the first ChildSpotifyAccount filtered by the accesstoken column
+ * @method     ChildSpotifyAccount findOneByRefreshToken(string $refreshtoken) Return the first ChildSpotifyAccount filtered by the refreshtoken column
  * @method     ChildSpotifyAccount findOneByExpiration(string $expiration) Return the first ChildSpotifyAccount filtered by the expiration column *
 
  * @method     ChildSpotifyAccount requirePk($key, ConnectionInterface $con = null) Return the ChildSpotifyAccount by primary key and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
@@ -60,16 +60,16 @@ use Propel\Runtime\Exception\PropelException;
  * @method     ChildSpotifyAccount requireOneById(int $id) Return the first ChildSpotifyAccount filtered by the id column and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
  * @method     ChildSpotifyAccount requireOneByUserId(int $user_id) Return the first ChildSpotifyAccount filtered by the user_id column and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
  * @method     ChildSpotifyAccount requireOneByUsername(string $username) Return the first ChildSpotifyAccount filtered by the username column and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
- * @method     ChildSpotifyAccount requireOneByAccesstoken(string $accesstoken) Return the first ChildSpotifyAccount filtered by the accesstoken column and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
- * @method     ChildSpotifyAccount requireOneByRefreshtoken(string $refreshtoken) Return the first ChildSpotifyAccount filtered by the refreshtoken column and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
+ * @method     ChildSpotifyAccount requireOneByAccessToken(string $accesstoken) Return the first ChildSpotifyAccount filtered by the accesstoken column and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
+ * @method     ChildSpotifyAccount requireOneByRefreshToken(string $refreshtoken) Return the first ChildSpotifyAccount filtered by the refreshtoken column and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
  * @method     ChildSpotifyAccount requireOneByExpiration(string $expiration) Return the first ChildSpotifyAccount filtered by the expiration column and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
  *
  * @method     ChildSpotifyAccount[]|ObjectCollection find(ConnectionInterface $con = null) Return ChildSpotifyAccount objects based on current ModelCriteria
  * @method     ChildSpotifyAccount[]|ObjectCollection findById(int $id) Return ChildSpotifyAccount objects filtered by the id column
  * @method     ChildSpotifyAccount[]|ObjectCollection findByUserId(int $user_id) Return ChildSpotifyAccount objects filtered by the user_id column
  * @method     ChildSpotifyAccount[]|ObjectCollection findByUsername(string $username) Return ChildSpotifyAccount objects filtered by the username column
- * @method     ChildSpotifyAccount[]|ObjectCollection findByAccesstoken(string $accesstoken) Return ChildSpotifyAccount objects filtered by the accesstoken column
- * @method     ChildSpotifyAccount[]|ObjectCollection findByRefreshtoken(string $refreshtoken) Return ChildSpotifyAccount objects filtered by the refreshtoken column
+ * @method     ChildSpotifyAccount[]|ObjectCollection findByAccessToken(string $accesstoken) Return ChildSpotifyAccount objects filtered by the accesstoken column
+ * @method     ChildSpotifyAccount[]|ObjectCollection findByRefreshToken(string $refreshtoken) Return ChildSpotifyAccount objects filtered by the refreshtoken column
  * @method     ChildSpotifyAccount[]|ObjectCollection findByExpiration(string $expiration) Return ChildSpotifyAccount objects filtered by the expiration column
  * @method     ChildSpotifyAccount[]|\Propel\Runtime\Util\PropelModelPager paginate($page = 1, $maxPerPage = 10, ConnectionInterface $con = null) Issue a SELECT query based on the current ModelCriteria and uses a page and a maximum number of results per page to compute an offset and a limit
  *
@@ -371,28 +371,28 @@ abstract class SpotifyAccountQuery extends ModelCriteria
      *
      * Example usage:
      * <code>
-     * $query->filterByAccesstoken('fooValue');   // WHERE accesstoken = 'fooValue'
-     * $query->filterByAccesstoken('%fooValue%'); // WHERE accesstoken LIKE '%fooValue%'
+     * $query->filterByAccessToken('fooValue');   // WHERE accesstoken = 'fooValue'
+     * $query->filterByAccessToken('%fooValue%'); // WHERE accesstoken LIKE '%fooValue%'
      * </code>
      *
-     * @param     string $accesstoken The value to use as filter.
+     * @param     string $accessToken The value to use as filter.
      *              Accepts wildcards (* and % trigger a LIKE)
      * @param     string $comparison Operator to use for the column comparison, defaults to Criteria::EQUAL
      *
      * @return $this|ChildSpotifyAccountQuery The current query, for fluid interface
      */
-    public function filterByAccesstoken($accesstoken = null, $comparison = null)
+    public function filterByAccessToken($accessToken = null, $comparison = null)
     {
         if (null === $comparison) {
-            if (is_array($accesstoken)) {
+            if (is_array($accessToken)) {
                 $comparison = Criteria::IN;
-            } elseif (preg_match('/[\%\*]/', $accesstoken)) {
-                $accesstoken = str_replace('*', '%', $accesstoken);
+            } elseif (preg_match('/[\%\*]/', $accessToken)) {
+                $accessToken = str_replace('*', '%', $accessToken);
                 $comparison = Criteria::LIKE;
             }
         }
 
-        return $this->addUsingAlias(SpotifyAccountTableMap::COL_ACCESSTOKEN, $accesstoken, $comparison);
+        return $this->addUsingAlias(SpotifyAccountTableMap::COL_ACCESSTOKEN, $accessToken, $comparison);
     }
 
     /**
@@ -400,28 +400,28 @@ abstract class SpotifyAccountQuery extends ModelCriteria
      *
      * Example usage:
      * <code>
-     * $query->filterByRefreshtoken('fooValue');   // WHERE refreshtoken = 'fooValue'
-     * $query->filterByRefreshtoken('%fooValue%'); // WHERE refreshtoken LIKE '%fooValue%'
+     * $query->filterByRefreshToken('fooValue');   // WHERE refreshtoken = 'fooValue'
+     * $query->filterByRefreshToken('%fooValue%'); // WHERE refreshtoken LIKE '%fooValue%'
      * </code>
      *
-     * @param     string $refreshtoken The value to use as filter.
+     * @param     string $refreshToken The value to use as filter.
      *              Accepts wildcards (* and % trigger a LIKE)
      * @param     string $comparison Operator to use for the column comparison, defaults to Criteria::EQUAL
      *
      * @return $this|ChildSpotifyAccountQuery The current query, for fluid interface
      */
-    public function filterByRefreshtoken($refreshtoken = null, $comparison = null)
+    public function filterByRefreshToken($refreshToken = null, $comparison = null)
     {
         if (null === $comparison) {
-            if (is_array($refreshtoken)) {
+            if (is_array($refreshToken)) {
                 $comparison = Criteria::IN;
-            } elseif (preg_match('/[\%\*]/', $refreshtoken)) {
-                $refreshtoken = str_replace('*', '%', $refreshtoken);
+            } elseif (preg_match('/[\%\*]/', $refreshToken)) {
+                $refreshToken = str_replace('*', '%', $refreshToken);
                 $comparison = Criteria::LIKE;
             }
         }
 
-        return $this->addUsingAlias(SpotifyAccountTableMap::COL_REFRESHTOKEN, $refreshtoken, $comparison);
+        return $this->addUsingAlias(SpotifyAccountTableMap::COL_REFRESHTOKEN, $refreshToken, $comparison);
     }
 
     /**

@@ -103,8 +103,8 @@ class UserTableMap extends TableMap
      * e.g. self::$fieldNames[self::TYPE_PHPNAME][0] = 'Id'
      */
     protected static $fieldNames = array (
-        self::TYPE_PHPNAME       => array('Id', 'Ldap', 'Firstname', 'Lastname', ),
-        self::TYPE_CAMELNAME     => array('id', 'ldap', 'firstname', 'lastname', ),
+        self::TYPE_PHPNAME       => array('Id', 'Ldap', 'FirstName', 'LastName', ),
+        self::TYPE_CAMELNAME     => array('id', 'ldap', 'firstName', 'lastName', ),
         self::TYPE_COLNAME       => array(UserTableMap::COL_ID, UserTableMap::COL_LDAP, UserTableMap::COL_FIRSTNAME, UserTableMap::COL_LASTNAME, ),
         self::TYPE_FIELDNAME     => array('id', 'ldap', 'firstname', 'lastname', ),
         self::TYPE_NUM           => array(0, 1, 2, 3, )
@@ -117,8 +117,8 @@ class UserTableMap extends TableMap
      * e.g. self::$fieldKeys[self::TYPE_PHPNAME]['Id'] = 0
      */
     protected static $fieldKeys = array (
-        self::TYPE_PHPNAME       => array('Id' => 0, 'Ldap' => 1, 'Firstname' => 2, 'Lastname' => 3, ),
-        self::TYPE_CAMELNAME     => array('id' => 0, 'ldap' => 1, 'firstname' => 2, 'lastname' => 3, ),
+        self::TYPE_PHPNAME       => array('Id' => 0, 'Ldap' => 1, 'FirstName' => 2, 'LastName' => 3, ),
+        self::TYPE_CAMELNAME     => array('id' => 0, 'ldap' => 1, 'firstName' => 2, 'lastName' => 3, ),
         self::TYPE_COLNAME       => array(UserTableMap::COL_ID => 0, UserTableMap::COL_LDAP => 1, UserTableMap::COL_FIRSTNAME => 2, UserTableMap::COL_LASTNAME => 3, ),
         self::TYPE_FIELDNAME     => array('id' => 0, 'ldap' => 1, 'firstname' => 2, 'lastname' => 3, ),
         self::TYPE_NUM           => array(0, 1, 2, 3, )
@@ -143,8 +143,8 @@ class UserTableMap extends TableMap
         // columns
         $this->addPrimaryKey('id', 'Id', 'INTEGER', true, null, null);
         $this->addColumn('ldap', 'Ldap', 'VARCHAR', true, 128, null);
-        $this->addColumn('firstname', 'Firstname', 'LONGVARCHAR', true, null, null);
-        $this->addColumn('lastname', 'Lastname', 'LONGVARCHAR', true, null, null);
+        $this->addColumn('firstname', 'FirstName', 'LONGVARCHAR', true, null, null);
+        $this->addColumn('lastname', 'LastName', 'LONGVARCHAR', true, null, null);
     } // initialize()
 
     /**

@@ -3,8 +3,8 @@
   <table name="user">
     <column name="id" type="integer" required="true" primaryKey="true" autoIncrement="true" />
     <column name="ldap" type="varchar" size="128" required="true" />
-    <column name="firstname" type="longvarchar" required="true" />
-    <column name="lastname" type="longvarchar" required="true" />
+    <column name="firstname" phpName="FirstName" type="longvarchar" required="true" />
+    <column name="lastname" phpName="LastName" type="longvarchar" required="true" />
   </table>
   <table name="spotifyaccount" phpName="SpotifyAccount">
     <column name="id" type="integer" required="true" primaryKey="true" autoIncrement="true" />
@@ -13,8 +13,8 @@
       <reference local="user_id" foreign="id" />
     </foreign-key>
     <column name="username" type="varchar" size="128" required="true" />
-    <column name="accesstoken" type="longvarchar" required="true" />
-    <column name="refreshtoken" type="longvarchar" required="true" />
+    <column name="accesstoken" phpName="AccessToken" type="longvarchar" required="true" />
+    <column name="refreshtoken" phpName="RefreshToken" type="longvarchar" required="true" />
     <column name="expiration" type="date" required="true" />
   </table>
 </database>

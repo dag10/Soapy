@@ -113,8 +113,8 @@ class SpotifyAccountTableMap extends TableMap
      * e.g. self::$fieldNames[self::TYPE_PHPNAME][0] = 'Id'
      */
     protected static $fieldNames = array (
-        self::TYPE_PHPNAME       => array('Id', 'UserId', 'Username', 'Accesstoken', 'Refreshtoken', 'Expiration', ),
-        self::TYPE_CAMELNAME     => array('id', 'userId', 'username', 'accesstoken', 'refreshtoken', 'expiration', ),
+        self::TYPE_PHPNAME       => array('Id', 'UserId', 'Username', 'AccessToken', 'RefreshToken', 'Expiration', ),
+        self::TYPE_CAMELNAME     => array('id', 'userId', 'username', 'accessToken', 'refreshToken', 'expiration', ),
         self::TYPE_COLNAME       => array(SpotifyAccountTableMap::COL_ID, SpotifyAccountTableMap::COL_USER_ID, SpotifyAccountTableMap::COL_USERNAME, SpotifyAccountTableMap::COL_ACCESSTOKEN, SpotifyAccountTableMap::COL_REFRESHTOKEN, SpotifyAccountTableMap::COL_EXPIRATION, ),
         self::TYPE_FIELDNAME     => array('id', 'user_id', 'username', 'accesstoken', 'refreshtoken', 'expiration', ),
         self::TYPE_NUM           => array(0, 1, 2, 3, 4, 5, )
@@ -127,8 +127,8 @@ class SpotifyAccountTableMap extends TableMap
      * e.g. self::$fieldKeys[self::TYPE_PHPNAME]['Id'] = 0
      */
     protected static $fieldKeys = array (
-        self::TYPE_PHPNAME       => array('Id' => 0, 'UserId' => 1, 'Username' => 2, 'Accesstoken' => 3, 'Refreshtoken' => 4, 'Expiration' => 5, ),
-        self::TYPE_CAMELNAME     => array('id' => 0, 'userId' => 1, 'username' => 2, 'accesstoken' => 3, 'refreshtoken' => 4, 'expiration' => 5, ),
+        self::TYPE_PHPNAME       => array('Id' => 0, 'UserId' => 1, 'Username' => 2, 'AccessToken' => 3, 'RefreshToken' => 4, 'Expiration' => 5, ),
+        self::TYPE_CAMELNAME     => array('id' => 0, 'userId' => 1, 'username' => 2, 'accessToken' => 3, 'refreshToken' => 4, 'expiration' => 5, ),
         self::TYPE_COLNAME       => array(SpotifyAccountTableMap::COL_ID => 0, SpotifyAccountTableMap::COL_USER_ID => 1, SpotifyAccountTableMap::COL_USERNAME => 2, SpotifyAccountTableMap::COL_ACCESSTOKEN => 3, SpotifyAccountTableMap::COL_REFRESHTOKEN => 4, SpotifyAccountTableMap::COL_EXPIRATION => 5, ),
         self::TYPE_FIELDNAME     => array('id' => 0, 'user_id' => 1, 'username' => 2, 'accesstoken' => 3, 'refreshtoken' => 4, 'expiration' => 5, ),
         self::TYPE_NUM           => array(0, 1, 2, 3, 4, 5, )
@@ -154,8 +154,8 @@ class SpotifyAccountTableMap extends TableMap
         $this->addPrimaryKey('id', 'Id', 'INTEGER', true, null, null);
         $this->addForeignKey('user_id', 'UserId', 'INTEGER', 'user', 'id', true, null, null);
         $this->addColumn('username', 'Username', 'VARCHAR', true, 128, null);
-        $this->addColumn('accesstoken', 'Accesstoken', 'LONGVARCHAR', true, null, null);
-        $this->addColumn('refreshtoken', 'Refreshtoken', 'LONGVARCHAR', true, null, null);
+        $this->addColumn('accesstoken', 'AccessToken', 'LONGVARCHAR', true, null, null);
+        $this->addColumn('refreshtoken', 'RefreshToken', 'LONGVARCHAR', true, null, null);
         $this->addColumn('expiration', 'Expiration', 'DATE', true, null, null);
     } // initialize()
 

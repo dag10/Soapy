@@ -22,13 +22,13 @@ use Propel\Runtime\Exception\PropelException;
  *
  * @method     ChildUserQuery orderById($order = Criteria::ASC) Order by the id column
  * @method     ChildUserQuery orderByLdap($order = Criteria::ASC) Order by the ldap column
- * @method     ChildUserQuery orderByFirstname($order = Criteria::ASC) Order by the firstname column
- * @method     ChildUserQuery orderByLastname($order = Criteria::ASC) Order by the lastname column
+ * @method     ChildUserQuery orderByFirstName($order = Criteria::ASC) Order by the firstname column
+ * @method     ChildUserQuery orderByLastName($order = Criteria::ASC) Order by the lastname column
  *
  * @method     ChildUserQuery groupById() Group by the id column
  * @method     ChildUserQuery groupByLdap() Group by the ldap column
- * @method     ChildUserQuery groupByFirstname() Group by the firstname column
- * @method     ChildUserQuery groupByLastname() Group by the lastname column
+ * @method     ChildUserQuery groupByFirstName() Group by the firstname column
+ * @method     ChildUserQuery groupByLastName() Group by the lastname column
  *
  * @method     ChildUserQuery leftJoin($relation) Adds a LEFT JOIN clause to the query
  * @method     ChildUserQuery rightJoin($relation) Adds a RIGHT JOIN clause to the query
@@ -45,22 +45,22 @@ use Propel\Runtime\Exception\PropelException;
  *
  * @method     ChildUser findOneById(int $id) Return the first ChildUser filtered by the id column
  * @method     ChildUser findOneByLdap(string $ldap) Return the first ChildUser filtered by the ldap column
- * @method     ChildUser findOneByFirstname(string $firstname) Return the first ChildUser filtered by the firstname column
- * @method     ChildUser findOneByLastname(string $lastname) Return the first ChildUser filtered by the lastname column *
+ * @method     ChildUser findOneByFirstName(string $firstname) Return the first ChildUser filtered by the firstname column
+ * @method     ChildUser findOneByLastName(string $lastname) Return the first ChildUser filtered by the lastname column *
 
  * @method     ChildUser requirePk($key, ConnectionInterface $con = null) Return the ChildUser by primary key and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
  * @method     ChildUser requireOne(ConnectionInterface $con = null) Return the first ChildUser matching the query and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
  *
  * @method     ChildUser requireOneById(int $id) Return the first ChildUser filtered by the id column and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
  * @method     ChildUser requireOneByLdap(string $ldap) Return the first ChildUser filtered by the ldap column and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
- * @method     ChildUser requireOneByFirstname(string $firstname) Return the first ChildUser filtered by the firstname column and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
- * @method     ChildUser requireOneByLastname(string $lastname) Return the first ChildUser filtered by the lastname column and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
+ * @method     ChildUser requireOneByFirstName(string $firstname) Return the first ChildUser filtered by the firstname column and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
+ * @method     ChildUser requireOneByLastName(string $lastname) Return the first ChildUser filtered by the lastname column and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
  *
  * @method     ChildUser[]|ObjectCollection find(ConnectionInterface $con = null) Return ChildUser objects based on current ModelCriteria
  * @method     ChildUser[]|ObjectCollection findById(int $id) Return ChildUser objects filtered by the id column
  * @method     ChildUser[]|ObjectCollection findByLdap(string $ldap) Return ChildUser objects filtered by the ldap column
- * @method     ChildUser[]|ObjectCollection findByFirstname(string $firstname) Return ChildUser objects filtered by the firstname column
- * @method     ChildUser[]|ObjectCollection findByLastname(string $lastname) Return ChildUser objects filtered by the lastname column
+ * @method     ChildUser[]|ObjectCollection findByFirstName(string $firstname) Return ChildUser objects filtered by the firstname column
+ * @method     ChildUser[]|ObjectCollection findByLastName(string $lastname) Return ChildUser objects filtered by the lastname column
  * @method     ChildUser[]|\Propel\Runtime\Util\PropelModelPager paginate($page = 1, $maxPerPage = 10, ConnectionInterface $con = null) Issue a SELECT query based on the current ModelCriteria and uses a page and a maximum number of results per page to compute an offset and a limit
  *
  */
@@ -318,28 +318,28 @@ abstract class UserQuery extends ModelCriteria
      *
      * Example usage:
      * <code>
-     * $query->filterByFirstname('fooValue');   // WHERE firstname = 'fooValue'
-     * $query->filterByFirstname('%fooValue%'); // WHERE firstname LIKE '%fooValue%'
+     * $query->filterByFirstName('fooValue');   // WHERE firstname = 'fooValue'
+     * $query->filterByFirstName('%fooValue%'); // WHERE firstname LIKE '%fooValue%'
      * </code>
      *
-     * @param     string $firstname The value to use as filter.
+     * @param     string $firstName The value to use as filter.
      *              Accepts wildcards (* and % trigger a LIKE)
      * @param     string $comparison Operator to use for the column comparison, defaults to Criteria::EQUAL
      *
      * @return $this|ChildUserQuery The current query, for fluid interface
      */
-    public function filterByFirstname($firstname = null, $comparison = null)
+    public function filterByFirstName($firstName = null, $comparison = null)
     {
         if (null === $comparison) {
-            if (is_array($firstname)) {
+            if (is_array($firstName)) {
                 $comparison = Criteria::IN;
-            } elseif (preg_match('/[\%\*]/', $firstname)) {
-                $firstname = str_replace('*', '%', $firstname);
+            } elseif (preg_match('/[\%\*]/', $firstName)) {
+                $firstName = str_replace('*', '%', $firstName);
                 $comparison = Criteria::LIKE;
             }
         }
 
-        return $this->addUsingAlias(UserTableMap::COL_FIRSTNAME, $firstname, $comparison);
+        return $this->addUsingAlias(UserTableMap::COL_FIRSTNAME, $firstName, $comparison);
     }
 
     /**
@@ -347,28 +347,28 @@ abstract class UserQuery extends ModelCriteria
      *
      * Example usage:
      * <code>
-     * $query->filterByLastname('fooValue');   // WHERE lastname = 'fooValue'
-     * $query->filterByLastname('%fooValue%'); // WHERE lastname LIKE '%fooValue%'
+     * $query->filterByLastName('fooValue');   // WHERE lastname = 'fooValue'
+     * $query->filterByLastName('%fooValue%'); // WHERE lastname LIKE '%fooValue%'
      * </code>
      *
-     * @param     string $lastname The value to use as filter.
+     * @param     string $lastName The value to use as filter.
      *              Accepts wildcards (* and % trigger a LIKE)
      * @param     string $comparison Operator to use for the column comparison, defaults to Criteria::EQUAL
      *
      * @return $this|ChildUserQuery The current query, for fluid interface
      */
-    public function filterByLastname($lastname = null, $comparison = null)
+    public function filterByLastName($lastName = null, $comparison = null)
     {
         if (null === $comparison) {
-            if (is_array($lastname)) {
+            if (is_array($lastName)) {
                 $comparison = Criteria::IN;
-            } elseif (preg_match('/[\%\*]/', $lastname)) {
-                $lastname = str_replace('*', '%', $lastname);
+            } elseif (preg_match('/[\%\*]/', $lastName)) {
+                $lastName = str_replace('*', '%', $lastName);
                 $comparison = Criteria::LIKE;
             }
         }
 
-        return $this->addUsingAlias(UserTableMap::COL_LASTNAME, $lastname, $comparison);
+        return $this->addUsingAlias(UserTableMap::COL_LASTNAME, $lastName, $comparison);
     }
 
     /**

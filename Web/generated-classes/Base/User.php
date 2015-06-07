@@ -349,7 +349,7 @@ abstract class User implements ActiveRecordInterface
      *
      * @return string
      */
-    public function getFirstname()
+    public function getFirstName()
     {
         return $this->firstname;
     }
@@ -359,7 +359,7 @@ abstract class User implements ActiveRecordInterface
      *
      * @return string
      */
-    public function getLastname()
+    public function getLastName()
     {
         return $this->lastname;
     }
@@ -410,7 +410,7 @@ abstract class User implements ActiveRecordInterface
      * @param string $v new value
      * @return $this|\User The current object (for fluent API support)
      */
-    public function setFirstname($v)
+    public function setFirstName($v)
     {
         if ($v !== null) {
             $v = (string) $v;
@@ -422,7 +422,7 @@ abstract class User implements ActiveRecordInterface
         }
 
         return $this;
-    } // setFirstname()
+    } // setFirstName()
 
     /**
      * Set the value of [lastname] column.
@@ -430,7 +430,7 @@ abstract class User implements ActiveRecordInterface
      * @param string $v new value
      * @return $this|\User The current object (for fluent API support)
      */
-    public function setLastname($v)
+    public function setLastName($v)
     {
         if ($v !== null) {
             $v = (string) $v;
@@ -442,7 +442,7 @@ abstract class User implements ActiveRecordInterface
         }
 
         return $this;
-    } // setLastname()
+    } // setLastName()
 
     /**
      * Indicates whether the columns in this object are only set to default values.
@@ -486,10 +486,10 @@ abstract class User implements ActiveRecordInterface
             $col = $row[TableMap::TYPE_NUM == $indexType ? 1 + $startcol : UserTableMap::translateFieldName('Ldap', TableMap::TYPE_PHPNAME, $indexType)];
             $this->ldap = (null !== $col) ? (string) $col : null;
 
-            $col = $row[TableMap::TYPE_NUM == $indexType ? 2 + $startcol : UserTableMap::translateFieldName('Firstname', TableMap::TYPE_PHPNAME, $indexType)];
+            $col = $row[TableMap::TYPE_NUM == $indexType ? 2 + $startcol : UserTableMap::translateFieldName('FirstName', TableMap::TYPE_PHPNAME, $indexType)];
             $this->firstname = (null !== $col) ? (string) $col : null;
 
-            $col = $row[TableMap::TYPE_NUM == $indexType ? 3 + $startcol : UserTableMap::translateFieldName('Lastname', TableMap::TYPE_PHPNAME, $indexType)];
+            $col = $row[TableMap::TYPE_NUM == $indexType ? 3 + $startcol : UserTableMap::translateFieldName('LastName', TableMap::TYPE_PHPNAME, $indexType)];
             $this->lastname = (null !== $col) ? (string) $col : null;
             $this->resetModified();
 
@@ -819,10 +819,10 @@ abstract class User implements ActiveRecordInterface
                 return $this->getLdap();
                 break;
             case 2:
-                return $this->getFirstname();
+                return $this->getFirstName();
                 break;
             case 3:
-                return $this->getLastname();
+                return $this->getLastName();
                 break;
             default:
                 return null;
@@ -856,8 +856,8 @@ abstract class User implements ActiveRecordInterface
         $result = array(
             $keys[0] => $this->getId(),
             $keys[1] => $this->getLdap(),
-            $keys[2] => $this->getFirstname(),
-            $keys[3] => $this->getLastname(),
+            $keys[2] => $this->getFirstName(),
+            $keys[3] => $this->getLastName(),
         );
         $virtualColumns = $this->virtualColumns;
         foreach ($virtualColumns as $key => $virtualColumn) {
@@ -921,10 +921,10 @@ abstract class User implements ActiveRecordInterface
                 $this->setLdap($value);
                 break;
             case 2:
-                $this->setFirstname($value);
+                $this->setFirstName($value);
                 break;
             case 3:
-                $this->setLastname($value);
+                $this->setLastName($value);
                 break;
         } // switch()
 
@@ -959,10 +959,10 @@ abstract class User implements ActiveRecordInterface
             $this->setLdap($arr[$keys[1]]);
         }
         if (array_key_exists($keys[2], $arr)) {
-            $this->setFirstname($arr[$keys[2]]);
+            $this->setFirstName($arr[$keys[2]]);
         }
         if (array_key_exists($keys[3], $arr)) {
-            $this->setLastname($arr[$keys[3]]);
+            $this->setLastName($arr[$keys[3]]);
         }
     }
 
@@ -1104,8 +1104,8 @@ abstract class User implements ActiveRecordInterface
     public function copyInto($copyObj, $deepCopy = false, $makeNew = true)
     {
         $copyObj->setLdap($this->getLdap());
-        $copyObj->setFirstname($this->getFirstname());
-        $copyObj->setLastname($this->getLastname());
+        $copyObj->setFirstName($this->getFirstName());
+        $copyObj->setLastName($this->getLastName());
 
         if ($deepCopy) {
             // important: temporarily setNew(false) because this affects the behavior of

@@ -4,6 +4,7 @@ require '../vendor/autoload.php';
 require '../generated-conf/config.php';
 require '../config.php';
 require '../include/spotify.php';
+require '../include/csh.php';
 
 $app = new \Slim\Slim(array(
   'templates.path' => '../templates',
@@ -32,29 +33,10 @@ $app->view->parserExtensions = array(new \Slim\Views\TwigExtension());
 
 /* View Utilities */
 
-function get_webauth($app) {
-  global $cfg;
-
-  // This is just to fake webauth when developing on systems without it.
-  if ($cfg['webauth']) {
-    return [
-      'ldap' => $_SERVER['WEBAUTH_USER'],
-      'firstname' => $_SERVER['WEBAUTH_LDAP_GIVENNAME'],
-      'lastname' => $_SERVER['WEBAUTH_LDAP_SN'],
-    ];
-  } else {
-    return [
-      'ldap' => 'csher',
-      'firstname' => 'John',
-      'lastname' => 'Smith',
-    ];
-  }
-}
-
 function start_view($app, $require_spotify=false) {
   global $cfg, $base_url, $sp_auth_url;
 
-  $webauth = get_webauth($app);
+  $webauth = \CSH\get_webauth($app);
   $user = UserQuery::GetOrCreateUser($webauth);
   $spotifyacct = SpotifyAccountQuery::findByUser($user);
 

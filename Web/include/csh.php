@@ -22,3 +22,14 @@ function get_webauth($app) {
   }
 }
 
+function user_for_rfid($rfid) {
+  // TODO: Create LDAP lookup to map iButton/RFID tag to user.
+  //       This hard-coded mapping is just for development.
+
+  if ($rfid == "12345") {
+    return \UserQuery::create()->filterByLdap("csher")->findOne();
+  } else {
+    return null;
+  }
+}
+

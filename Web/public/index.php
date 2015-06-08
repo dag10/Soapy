@@ -33,21 +33,53 @@ $app->view->parserExtensions = array(new \Slim\Views\TwigExtension());
 
 /* View Utilities */
 
-function start_view($app, $require_spotify=false) {
+function start_view($app, $opts=[]) {
   global $cfg, $base_url, $sp_auth_url;
 
-  $webauth = \CSH\get_webauth($app);
-  $user = UserQuery::GetOrCreateUser($webauth);
+  $rfid = isset($opts['rfid']) ? $opts['rfid'] : null;
+  $require_spotify = isset($opts['require_spotify'])
+    ? $opts['require_spotify']
+    : false;
+
+  if ($rfid) {
+    $app->response->headers->set('Content-Type', 'application/json');
+    $user = \CSH\user_for_rfid($rfid);
+    if (!$user) {
+      echo json_encode(['error' => 'User not found.']);
+      exit;
+    }
+  } else {
+    $webauth = \CSH\get_webauth($app);
+    $user = UserQuery::GetOrCreateUser($webauth);
+  }
   $spotifyacct = SpotifyAccountQuery::findByUser($user);
 
   if ($require_spotify and !$spotifyacct) {
-    $app->flash('error', "You must connect a Spotify account.");
-    $app->redirect($base_url);
-    return;
+    if ($rfid) {
+      echo json_encode(['error' => 'No Spotify account has been linked.']);
+      exit;
+    } else {
+      $app->flash('error', "You must connect a Spotify account.");
+      $app->redirect($base_url);
+      return;
+    }
   }
 
   $me = null;
   $api = null;
+
+  if ($spotifyacct) {
+    $user_json = [
+      'ldap' => $user->getLdap(),
+      'username' => $spotifyacct->getUsername(),
+      'first_name' => $user->getFirstName(),
+      'last_name' => $user->getLastName(),
+      'access_token' => $spotifyacct->getAccessToken(),
+      'avatar' => $spotifyacct->getAvatar(),
+    ];
+  } else {
+    $user_json = [];
+  }
 
   if ($spotifyacct) {
     if (time() > $spotifyacct->getExpiration()->getTimestamp()) {
@@ -55,6 +87,7 @@ function start_view($app, $require_spotify=false) {
     }
 
     $api = \Spotify\get_api($spotifyacct->getAccessToken());
+    $api->setReturnAssoc(true);
   }
 
   return array(
@@ -64,6 +97,7 @@ function start_view($app, $require_spotify=false) {
     'authorized' => !!$spotifyacct,
     'sp_api' => $api,
     'user' => $user,
+    'user_json' => $user_json,
   );
 }
 
@@ -127,7 +161,7 @@ $app->get('/' . $cfg['spotify']['callback_route'] . '/?', function() use ($app) 
 $app->post('/unpair/spotify/?', function() use ($app) {
   global $base_url;
 
-  $ctx = start_view($app, $require_spotify=true);
+  $ctx = start_view($app, ['require_spotify' => true]);
   if (!$ctx) return;
 
   $ctx['spotifyacct']->delete();
@@ -137,11 +171,10 @@ $app->post('/unpair/spotify/?', function() use ($app) {
 
 // View spotify playlists.
 $app->get('/data/playlists/?', function() use ($app) {
-  $ctx = start_view($app, $require_spotify=true);
+  $ctx = start_view($app, ['require_spotify' => true]);
   if (!$ctx) return;
 
   $api = $ctx['sp_api'];
-  $api->setReturnAssoc(true);
 
   try {
     $ctx['playlists'] = \Spotify\get_playlists(
@@ -152,6 +185,19 @@ $app->get('/data/playlists/?', function() use ($app) {
   }
 
   $app->render('data_playlists.html', $ctx);
+});
+
+// API for fetching playlists for a user.
+$app->get('/api/rfid/:rfid/playlists/?', function($rfid) use ($app) {
+  $ctx = start_view($app, ['require_spotify' => true, 'rfid' => $rfid]);
+
+  $playlists = \Spotify\get_playlists(
+    $ctx['sp_api'], $ctx['spotifyacct']->getUsername());
+
+  echo json_encode(
+    ['user' => $ctx['user_json'], 'playlists' => $playlists],
+    JSON_UNESCAPED_SLASHES);
+  exit;
 });
 
 $app->run();

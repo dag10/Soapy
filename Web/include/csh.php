@@ -27,7 +27,7 @@ function user_for_rfid($rfid) {
   //       This hard-coded mapping is just for development.
 
   if ($rfid == "12345") {
-    return \UserQuery::create()->filterByLdap("csher")->findOne();
+    return \UserQuery::create()->findOne();
   } else {
     return null;
   }

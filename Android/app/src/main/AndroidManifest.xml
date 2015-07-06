@@ -6,19 +6,37 @@
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
-        android:theme="@style/AppTheme"
-        >
+        android:theme="@style/AppTheme" >
         <activity
             android:name=".IdleActivity"
+            android:label="@string/app_name"
             android:launchMode="singleTask"
-            android:stateNotNeeded="true"
-            android:label="@string/app_name" >
+            android:stateNotNeeded="true" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="androiintent.category.HOME" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".PlaylistListActivity"
+            android:label="@string/title_playlist_list" >
+        </activity>
+        <activity
+            android:name=".PlaylistDetailActivity"
+            android:label="@string/title_playlist_detail"
+            android:parentActivityName=".PlaylistListActivity" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="net.drewgottlieb.soapy.PlaylistListActivity" />
+        </activity>
+        <activity
+            android:name=".PlaylistSelectionActivity"
+            android:label="@string/title_activity_playlist_selection" >
+        </activity>
     </application>
+
+    <uses-permission android:name="android.permission.INTERNET" />
 
 </manifest>

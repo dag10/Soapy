@@ -11,6 +11,7 @@ public class SoapyPlaylist {
     private String name = null;
     private String uri = null;
     private String imageUrl = null;
+    private int totalTracks = 0;
 
     public SoapyPlaylist(JSONObject jPlaylist) throws JSONException {
         name = jPlaylist.getString("name");
@@ -22,6 +23,11 @@ public class SoapyPlaylist {
                 JSONObject jImage = jImages.getJSONObject(0);
                 imageUrl = jImage.getString("url");
             }
+        }
+
+        if (jPlaylist.has("tracks")) {
+            JSONObject jTracks = jPlaylist.getJSONObject("tracks");
+            totalTracks = jTracks.getInt("total");
         }
     }
 
@@ -40,5 +46,9 @@ public class SoapyPlaylist {
 
     public String getImageURL() {
         return this.imageUrl;
+    }
+
+    public int getTotalTracks() {
+        return this.totalTracks;
     }
 }

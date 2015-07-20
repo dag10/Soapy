@@ -3,18 +3,40 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:paddingLeft="@dimen/activity_horizontal_margin"
-    android:paddingRight="@dimen/activity_horizontal_margin"
-    android:paddingTop="@dimen/activity_vertical_margin"
-    android:paddingBottom="@dimen/activity_vertical_margin"
     tools:context="net.drewgottlieb.soapy.PlaylistSelectionActivity"
     >
 
-    <TextView
-        android:id="@+id/rfid_output"
-        android:text="@string/hello_world"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textSize="30dp" />
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="horizontal"
+        android:layout_alignParentEnd="false"
+        android:layout_alignParentStart="false"
+        android:background="#ff28004a"
+        >
+
+        <ListView
+            android:id="@+id/playlist_listview"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1.3"
+            android:background="#ff240046"
+            android:paddingLeft="10dp"
+            android:layout_gravity="center_vertical"
+            android:choiceMode="singleChoice"
+            android:listSelector="#ff310062" />
+
+        <TextView
+            android:id="@+id/rfid_output"
+            android:text="@string/hello_world"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:textSize="45dp"
+            android:layout_weight="2"
+            android:padding="30dp"
+            android:textColor="#ffffffff"
+            />
+    </LinearLayout>
+
 
 </RelativeLayout>

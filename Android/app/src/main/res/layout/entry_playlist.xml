@@ -4,8 +4,7 @@ xmlns:android="http://schemas.android.com/apk/res/android"
 android:layout_width="match_parent"
 android:layout_height="wrap_content"
 android:orientation="horizontal"
-    android:padding="10dp"
-    android:background="#ff240046">
+    android:padding="10dp">
 
     <ImageView
         android:id="@+id/playlist_fragment_image"
@@ -13,7 +12,8 @@ android:orientation="horizontal"
         android:layout_height="60dp"
         android:layout_gravity="center_vertical"
         android:layout_marginRight="10dp"
-        android:background="#ff3fff7a" />
+        android:background="#ff3fff7a"
+        />
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -30,7 +30,10 @@ android:orientation="horizontal"
             android:textSize="30dp"
             android:maxLines="1"
             android:textColor="#ffffffff"
-            android:phoneNumber="false" />
+            android:phoneNumber="false"
+            android:layout_marginBottom="-6dp"
+            style="@style/TextShadow"
+            />
         <TextView
             android:id="@+id/playlist_fragment_songcount_text"
             android:layout_weight="1"
@@ -39,7 +42,9 @@ android:orientation="horizontal"
             android:text="23 songs"
             android:textSize="20dp"
             android:maxLines="1"
-            android:textColor="#ffffffff" />
+            android:textColor="#ffffffff"
+            style="@style/TextShadow"
+            />
     </LinearLayout>
 
 </LinearLayout>

@@ -6,6 +6,7 @@ import android.util.Log;
 import android.view.KeyEvent;
 
 public class IdleActivity extends SoapyActivity {
+    @Override
     protected void rfidTapped(String rfid) {
         Log.w("Soapy", "RFID tapped: " + rfid);
 

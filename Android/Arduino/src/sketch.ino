@@ -17,7 +17,7 @@ const int RFID_BAUD = 9600;
 bool doorStatus[NUM_DOORS];
 bool lampStatus[NUM_LAMPS];
 char *rfidBuffer[NUM_RFIDS];
-int rfidBufIdx[NUM_RFIDS];
+int rfidBufIdx[NUM_RFIDS]; // -1 means not scanning
 
 void setup() {
   // Serial for communicating with android tablet.
@@ -39,7 +39,7 @@ void setup() {
 
   for (int i = 0; i < NUM_RFIDS; i++) {
     rfidBuffer[i] = new char[15];
-    rfidBufIdx[i] = 0;
+    rfidBufIdx[i] = -1; // not scanning
   }
 
   switch (NUM_RFIDS) {
@@ -145,11 +145,20 @@ int serialRead(int index) {
 void scanRfid(int rfidId) {
   int c;
   while ((c = serialRead(rfidId + 1)) != -1) {
-    rfidBuffer[rfidId][rfidBufIdx[rfidId]++] = c;
-    if (rfidBufIdx[rfidId] == 14) {
-      rfidBuffer[rfidId][14] = '\0';
-      handleRfid(rfidId, rfidBuffer[rfidId]);
-      rfidBufIdx[rfidId] = 0;
+    if (rfidBufIdx[rfidId] == -1) {
+      if (c == '\x02') { // stx
+        rfidBufIdx[rfidId] = 0;
+      } else {
+        continue;
+      }
+    } else {
+      if (c == '\x03') { // etx
+        rfidBuffer[rfidId][rfidBufIdx[rfidId]] = 0;
+        handleRfid(rfidId, rfidBuffer[rfidId]);
+        rfidBufIdx[rfidId] = -1;
+      } else {
+        rfidBuffer[rfidId][rfidBufIdx[rfidId]++] = c;
+      }
     }
   }
 }

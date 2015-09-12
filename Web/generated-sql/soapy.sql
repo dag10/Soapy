@@ -33,6 +33,7 @@ CREATE TABLE `spotifyaccount`
     `refreshtoken` TEXT NOT NULL,
     `expiration` DATETIME NOT NULL,
     `avatar` TEXT,
+    `playlist` TEXT,
     PRIMARY KEY (`id`),
     INDEX `spotifyaccount_fi_29554a` (`user_id`),
     CONSTRAINT `spotifyaccount_fk_29554a`

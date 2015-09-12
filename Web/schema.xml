@@ -17,6 +17,7 @@
     <column name="refreshtoken" phpName="RefreshToken" type="longvarchar" required="true" />
     <column name="expiration" type="timestamp" required="true" />
     <column name="avatar" type="longvarchar" required="false" />
+    <column name="playlist" type="longvarchar" required="false" />
   </table>
 </database>
 

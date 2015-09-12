@@ -205,6 +205,16 @@ $app->get('/api/rfid/:rfid/songs/?', function($rfid) use ($app) {
   $ctx = start_view($app, ['require_spotify' => true, 'rfid' => $rfid]);
 
   $playlist_uri = $ctx['spotifyacct']->getPlaylist();
+
+  if (!$playlist_uri) {
+    echo json_encode(
+      ['user' => $ctx['user_json'],
+       'error' => 'User has not selected a playlist.',
+      ],
+      JSON_UNESCAPED_SLASHES);
+    exit;
+  }
+
   $playlist_id = end(explode(':', $playlist_uri));
 
   $playlist_data = [ 'uri' => $playlist_uri ];

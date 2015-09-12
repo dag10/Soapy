@@ -194,6 +194,7 @@ $app->get('/api/rfid/:rfid/playlists/?', function($rfid) use ($app) {
   $playlists = \Spotify\get_playlists(
     $ctx['sp_api'], $ctx['spotifyacct']->getUsername());
 
+  header("content-type: text/json");
   echo json_encode(
     ['user' => $ctx['user_json'], 'playlists' => $playlists],
     JSON_UNESCAPED_SLASHES);
@@ -201,7 +202,7 @@ $app->get('/api/rfid/:rfid/playlists/?', function($rfid) use ($app) {
 });
 
 // API for fetching songs for a user from their selected playlist.
-$app->get('/api/rfid/:rfid/songs/?', function($rfid) use ($app) {
+$app->get('/api/rfid/:rfid/tracks/?', function($rfid) use ($app) {
   $ctx = start_view($app, ['require_spotify' => true, 'rfid' => $rfid]);
 
   $playlist_uri = $ctx['spotifyacct']->getPlaylist();
@@ -218,13 +219,21 @@ $app->get('/api/rfid/:rfid/songs/?', function($rfid) use ($app) {
   $playlist_id = end(explode(':', $playlist_uri));
 
   $playlist_data = [ 'uri' => $playlist_uri ];
+
   $songs = \Spotify\get_playlist_tracks(
     $ctx['sp_api'], $ctx['spotifyacct']->getUsername(), $playlist_id);
 
+  for ($i = 0; $i < sizeof($songs); $i++) {
+    $song = $songs[$i];
+    $song['track']['is_local'] = $song['is_local'];
+    $songs[$i] = $song['track'];
+  }
+
+  header("content-type: text/json");
   echo json_encode(
     ['user' => $ctx['user_json'],
      'playlist' => $playlist_data,
-     'songs' => $songs],
+     'tracks' => $songs],
     JSON_UNESCAPED_SLASHES);
   exit;
 });

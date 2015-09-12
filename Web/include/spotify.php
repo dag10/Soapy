@@ -70,3 +70,10 @@ function get_playlists($api, $username) {
   return $api->getUserPlaylists($username, $options)['items'];
 }
 
+function get_playlist_tracks($api, $username, $playlist_uri) {
+  $options = [
+    'limit' => 50,
+  ];
+  return $api->getUserPlaylistTracks($username, $playlist_uri)['items'];
+}
+

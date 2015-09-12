@@ -200,5 +200,24 @@ $app->get('/api/rfid/:rfid/playlists/?', function($rfid) use ($app) {
   exit;
 });
 
+// API for fetching songs for a user from their selected playlist.
+$app->get('/api/rfid/:rfid/songs/?', function($rfid) use ($app) {
+  $ctx = start_view($app, ['require_spotify' => true, 'rfid' => $rfid]);
+
+  $playlist_uri = $ctx['spotifyacct']->getPlaylist();
+  $playlist_id = end(explode(':', $playlist_uri));
+
+  $playlist_data = [ 'uri' => $playlist_uri ];
+  $songs = \Spotify\get_playlist_tracks(
+    $ctx['sp_api'], $ctx['spotifyacct']->getUsername(), $playlist_id);
+
+  echo json_encode(
+    ['user' => $ctx['user_json'],
+     'playlist' => $playlist_data,
+     'songs' => $songs],
+    JSON_UNESCAPED_SLASHES);
+  exit;
+});
+
 $app->run();
 

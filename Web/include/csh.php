@@ -15,7 +15,7 @@ function get_webauth($app) {
     ];
   } else {
     return [
-      'ldap' => 'csher',
+      'ldap' => 'dag10',
       'firstname' => 'John',
       'lastname' => 'Smith',
     ];
@@ -23,12 +23,28 @@ function get_webauth($app) {
 }
 
 function user_for_rfid($rfid) {
-  // TODO: Create LDAP lookup to map iButton/RFID tag to user.
-  //       This hard-coded mapping is just for development.
+  // Only for development.
+  if ($rfid == '12345') {
+    return \UserQuery::create()->findOneByLDAP('dag10');
+  } else if ($rfid == "0800B3E4E6B9") {
+    return \UserQuery::create()->findOneByLDAP("smirabito");
+  } else if ($rfid == "28006DD3E177") {
+    return \UserQuery::create()->findOneByLDAP("jmf");
+  }
 
-  if ($rfid == "12345") {
-    return \UserQuery::create()->findOne();
-  } else {
+  // Use JD's server for fetching user info for iButton/RFID id.
+  if (($json = @file_get_contents(
+      "http://www.csh.rit.edu:56124/?ibutton=" . $rfid)) === false) {
+    return null;
+  }
+
+  // TODO: Cache RFID->LDAP mappings in db.
+
+  try {
+    $user_data = json_decode($json, true);
+    $uid = $user_data['uid'];
+    return \UserQuery::create()->findOneByLDAP($uid);
+  } catch (Exception $e) {
     return null;
   }
 }

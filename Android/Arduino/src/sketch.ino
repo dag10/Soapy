@@ -5,7 +5,7 @@
 
 const int NUM_DOORS = 2;
 const int NUM_LAMPS = 2;
-const int NUM_RFIDS = 2;
+const int NUM_RFIDS = 3;
 
 const int PIN_DOOR[] = { 2, 3 };
 const int PIN_LAMP[] = { 5, 6 };

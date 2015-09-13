@@ -13,7 +13,6 @@ public class SoapyActivity extends AppCompatActivity {
     protected String TAG = "SoapyActivity";
 
     protected void rfidTapped(String rfid) {
-        // nothing
     }
 
     private BroadcastReceiver receiver = new BroadcastReceiver() {
@@ -27,9 +26,6 @@ public class SoapyActivity extends AppCompatActivity {
                         rfidTapped(rfid);
                     }
                     break;
-                case ArduinoService.DOOR_INTENT:
-                    // TODO: Anything?
-                    break;
             }
         }
     };
@@ -38,6 +34,7 @@ public class SoapyActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         startService(new Intent(this, ArduinoService.class));
+        startService(new Intent(this, SpotifyService.class));
     }
 
     @Override

@@ -55,8 +55,7 @@ public class PlaylistSelectionActivity extends SoapyActivity {
         });
 
         DeferredManager dm = new AndroidDeferredManager();
-        dm.when(SoapyUser.fetchUser(rfid))
-        .done(new DoneCallback<SoapyUser>() {
+        dm.when(SoapyWebAPI.getInstance().fetchUserAndPlaylists(rfid)).done(new DoneCallback<SoapyUser>() {
             public void onDone(SoapyUser user) {
                 activity.user = user;
 
@@ -68,9 +67,9 @@ public class PlaylistSelectionActivity extends SoapyActivity {
                 String playlistsStr = "\n\nChoose a playlist";
                 rfid_out.setText(playlistsStr);
             }
-        })
-        .fail(new FailCallback<SoapyWebAPI.SoapyWebError>() {
+        }).fail(new FailCallback<SoapyWebAPI.SoapyWebError>() {
             public void onFail(SoapyWebAPI.SoapyWebError e) {
+                e.printStackTrace();
                 rfid_out.setText("Failed to fetch user: " + e.getMessage());
             }
         });

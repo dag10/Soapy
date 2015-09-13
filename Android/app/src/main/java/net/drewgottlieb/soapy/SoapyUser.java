@@ -1,5 +1,6 @@
 package net.drewgottlieb.soapy;
 
+import android.util.Log;
 import org.jdeferred.Deferred;
 import org.jdeferred.DeferredManager;
 import org.jdeferred.DoneCallback;
@@ -18,7 +19,6 @@ import java.util.List;
  * Created by drew on 7/5/15.
  */
 public class SoapyUser {
-    private SoapyWebAPI api;
     private String rfid;
 
     private String ldap = null;
@@ -28,11 +28,51 @@ public class SoapyUser {
     private String spotifyUsername = null;
     private String spotifyAccessToken = null;
     private ArrayList<SoapyPlaylist> playlists = null;
+    private ArrayList<SoapyTrack> tracks = null;
+    private SoapyPlaylist playlist = null;
 
-    public SoapyUser(SoapyWebAPI api, String rfid) {
-        this.api = api;
+    public SoapyUser(String rfid) {
         this.rfid = rfid;
         playlists = new ArrayList<SoapyPlaylist>();
+        tracks = new ArrayList<SoapyTrack>();
+    }
+
+    public SoapyUser(String rfid, JSONObject data) throws JSONException {
+        this(rfid);
+
+        JSONObject jUser = data.getJSONObject("user");
+        ldap = jUser.getString("ldap");
+        firstName = jUser.getString("first_name");
+        lastName = jUser.getString("last_name");
+        imageUrl = jUser.getString("avatar");
+        spotifyUsername = jUser.getString("username");
+        spotifyAccessToken = jUser.getString("access_token");
+
+        if (data.has("playlists")) {
+            JSONArray jPlaylists = data.getJSONArray("playlists");
+            for (int i = 0; i < jPlaylists.length(); i++) {
+                playlists.add(new SoapyPlaylist(jPlaylists.getJSONObject(i)));
+            }
+        }
+
+        if (data.has("playlist")) {
+            JSONObject jPlaylist = data.getJSONObject("playlist");
+            String uri = jPlaylist.getString("uri");
+
+            for (SoapyPlaylist playlist : playlists) {
+                if (playlist.getURI().equals(uri)) {
+                    this.playlist = playlist;
+                    break;
+                }
+            }
+        }
+
+        if (data.has("tracks")) {
+            JSONArray jTracks = data.getJSONArray("tracks");
+            for (int i = 0; i < jTracks.length(); i++) {
+                tracks.add(new SoapyTrack(jTracks.getJSONObject(i)));
+            }
+        }
     }
 
     public String getRfid() {
@@ -67,44 +107,11 @@ public class SoapyUser {
         return playlists;
     }
 
-    public static Promise<SoapyUser, SoapyWebAPI.SoapyWebError, Void> fetchUser(String rfid) {
-        final Deferred<SoapyUser, SoapyWebAPI.SoapyWebError, Void> deferred = new DeferredObject<SoapyUser, SoapyWebAPI.SoapyWebError, Void>();
-        final String rfid_id = rfid;
+    public SoapyPlaylist getPlaylist() {
+        return playlist;
+    }
 
-        SoapyWebAPI api = SoapyWebAPI.getInstance();
-        final SoapyUser user = new SoapyUser(api, rfid_id);
-
-        DeferredManager dm = new DefaultDeferredManager();
-        dm.when(api.get("api/rfid/" + rfid_id + "/playlists"))
-        .done(new DoneCallback<JSONObject>() {
-            public void onDone(JSONObject obj) {
-                try {
-                    JSONObject jUser = obj.getJSONObject("user");
-                    user.ldap = jUser.getString("ldap");
-                    user.firstName = jUser.getString("first_name");
-                    user.lastName = jUser.getString("last_name");
-                    user.imageUrl = jUser.getString("avatar");
-                    user.spotifyUsername = jUser.getString("username");
-                    user.spotifyAccessToken = jUser.getString("access_token");
-
-                    JSONArray jPlaylists = obj.getJSONArray("playlists");
-                    for (int i = 0; i < jPlaylists.length(); i++) {
-                        user.playlists.add(new SoapyPlaylist(jPlaylists.getJSONObject(i)));
-                    }
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                    deferred.reject(new SoapyWebAPI.SoapyWebError("Failed to parse playlist JSON: " + e.getMessage()));
-                }
-
-                deferred.resolve(user);
-            }
-        })
-        .fail(new FailCallback<SoapyWebAPI.SoapyWebError>() {
-            public void onFail(SoapyWebAPI.SoapyWebError e) {
-                deferred.reject(e);
-            }
-        });
-
-        return deferred.promise();
+    public List<SoapyTrack> getTracks() {
+        return tracks;
     }
 }

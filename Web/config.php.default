@@ -9,5 +9,7 @@ $cfg = array(
 
   'url' => 'http://soapy.csh.rit.edu',
   'webauth' => true,
+  'ldap' => true,
+  'soapy_secret' => 'caramel',
 );
 

@@ -23,6 +23,8 @@ function get_webauth($app) {
 }
 
 function user_for_rfid($rfid) {
+  global $cfg;
+
   // Only for development.
   if ($rfid == '12345') {
     return \UserQuery::create()->findOneByLDAP('dag10');
@@ -33,7 +35,7 @@ function user_for_rfid($rfid) {
   }
 
   // Use JD's server for fetching user info for iButton/RFID id.
-  if (($json = @file_get_contents(
+  if (!$cfg['ldap'] || ($json = @file_get_contents(
       "http://www.csh.rit.edu:56124/?ibutton=" . $rfid)) === false) {
     return null;
   }

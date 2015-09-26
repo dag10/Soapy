@@ -40,9 +40,21 @@ function start_view($app, $opts=[]) {
   $require_spotify = isset($opts['require_spotify'])
     ? $opts['require_spotify']
     : false;
+  $require_secret = isset($opts['require_secret'])
+    ? $opts['require_secret']
+    : false;
+
+  if ($require_secret) {
+    $request_secret = $app->request->headers->get('X-Soapy-Secret', '');
+    if ($request_secret != $cfg['soapy_secret']) {
+      header('Content-Type: application/json');
+      echo json_encode(['error' => 'Invalid Soapy secret.']);
+      exit;
+    }
+  }
 
   if ($rfid) {
-    $app->response->headers->set('Content-Type', 'application/json');
+    header('Content-Type: application/json');
     $user = \CSH\user_for_rfid($rfid);
     if (!$user) {
       echo json_encode(['error' => 'User not found.']);
@@ -189,12 +201,13 @@ $app->get('/data/playlists/?', function() use ($app) {
 
 // API for fetching playlists for a user.
 $app->get('/api/rfid/:rfid/playlists/?', function($rfid) use ($app) {
-  $ctx = start_view($app, ['require_spotify' => true, 'rfid' => $rfid]);
+  $ctx = start_view($app, [
+    'require_spotify' => true, 'rfid' => $rfid, 'require_secret' => true]);
 
   $playlists = \Spotify\get_playlists(
     $ctx['sp_api'], $ctx['spotifyacct']->getUsername());
 
-  header("content-type: text/json");
+  header("Content-Type: application/json");
   echo json_encode(
     ['user' => $ctx['user_json'], 'playlists' => $playlists],
     JSON_UNESCAPED_SLASHES);
@@ -203,7 +216,8 @@ $app->get('/api/rfid/:rfid/playlists/?', function($rfid) use ($app) {
 
 // API for fetching songs for a user from their selected playlist.
 $app->get('/api/rfid/:rfid/tracks/?', function($rfid) use ($app) {
-  $ctx = start_view($app, ['require_spotify' => true, 'rfid' => $rfid]);
+  $ctx = start_view($app, [
+    'require_spotify' => true, 'rfid' => $rfid, 'require_secret' => true]);
 
   $playlist_uri = $ctx['spotifyacct']->getPlaylist();
 
@@ -229,7 +243,7 @@ $app->get('/api/rfid/:rfid/tracks/?', function($rfid) use ($app) {
     $songs[$i] = $song['track'];
   }
 
-  header("content-type: text/json");
+  header("Content-Type: application/json");
   echo json_encode(
     ['user' => $ctx['user_json'],
      'playlist' => $playlist_data,

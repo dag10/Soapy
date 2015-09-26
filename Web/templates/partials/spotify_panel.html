@@ -6,15 +6,15 @@
   </div>
   <div class="panel-body">
     {% if authorized %}
-    <h3>{{ spotifyacct.getUsername }}</h3>
+    <h3 style="margin-top: 0;">{{ spotifyacct.getUsername }}</h3>
     {% if spotifyacct.avatar %}
-    <img style="width: 200px;" src="{{ spotifyacct.getAvatar }}" /><br />
+    <img style="width: 100%;" src="{{ spotifyacct.getAvatar }}" /><br />
     <br />
     {% endif %}
-    Access Token: <input value="{{ spotifyacct.getAccessToken }}" style="width: 100%;" readonly /><br />
+    Access Token: <input id="access-token" class="form-control" value="{{ spotifyacct.getAccessToken }}" style="width: 100%;" readonly />
     <br />
     <form action="{{ base_url }}/unpair/spotify" method="post">
-      <input type="submit" value="Unpair Spotify Account" />
+      <input type="submit" class="btn btn-xs btn-warning" style="width: 100%;" value="Unpair Spotify Account" />
     </form>
     {% else %}
     <a class="spotify-log-in-btn" href="{{ auth_url }}">

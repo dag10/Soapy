@@ -121,7 +121,7 @@ $app->get('/', function() use ($app) {
   $ctx = start_view($app);
 
   if ($ctx['spotifyacct']) {
-    $app->redirect($base_url . 'data/playlists');
+    $app->redirect($base_url . 'me/playlists');
     return;
   }
 
@@ -182,7 +182,7 @@ $app->post('/unpair/spotify/?', function() use ($app) {
 });
 
 // View spotify playlists.
-$app->get('/data/playlists/?', function() use ($app) {
+$app->get('/me/playlists/?', function() use ($app) {
   $ctx = start_view($app, ['require_spotify' => true]);
   if (!$ctx) return;
 

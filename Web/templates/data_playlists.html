@@ -6,9 +6,40 @@ Playlists
 
 {% block panel_body %}
 {% for playlist in playlists %}
-<strong><a href="{{ playlist.external_urls.spotify }}">{{ playlist.name }}</a></strong><br />
+<strong>
+  {% if selected_playlist_uri == playlist.uri %}
+  <button class="btn btn-xs btn-select-playlist playlist-selected btn-success" data-uri="{{ playlist.uri }}" disabled="disabled">Selected</button>
+  {% else %}
+  <button class="btn btn-xs btn-select-playlist" data-uri="{{ playlist.uri }}">Select</button>
+  {% endif %}
+  <a href="{{ playlist.external_urls.spotify }}">{{ playlist.name }}</a>
+</strong><br />
 (id: {{ playlist.uri }})<br />
 <br />
 {% endfor %}
+{% endblock %}
+
+{% block scripts %}
+<script type="text/javascript">
+  $(function() {
+    $(".btn-select-playlist").click(function() {
+      var btn = $(this);
+      $.post("/me/playlist/set", {
+        playlist_uri: $(this).data("uri")
+      }, function() {
+        $(".btn-select-playlist.playlist-selected")
+          .removeAttr("disabled")
+          .removeClass("playlist-selected")
+          .removeClass("btn-success")
+          .text("Select");
+        btn
+          .attr("disabled", "disabled")
+          .addClass("playlist-selected")
+          .addClass("btn-success")
+          .text("Selected");
+      });
+    });
+  });
+</script>
 {% endblock %}
 

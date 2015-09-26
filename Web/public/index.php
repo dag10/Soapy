@@ -193,12 +193,28 @@ $app->get('/me/playlists/?', function() use ($app) {
   try {
     $ctx['playlists'] = \Spotify\get_playlists(
         $api, $ctx['spotifyacct']->getUsername());
+    $ctx['selected_playlist_uri'] = $ctx['spotifyacct']->getPlaylist();
   } catch (Exception $e) {
     $app->flash('error', 'Spotify error: ' . $e->getMessage());
     $ctx['playlists'] = array();
   }
 
   $app->render('data_playlists.html', $ctx);
+});
+
+// AJAX endpoint for setting the selected playlist for a user.
+$app->post('/me/playlist/set', function() use ($app) {
+  $ctx = start_view($app, ['require_spotify' => true]);
+
+  $new_playlist = $app->request->post('playlist_uri');
+  $ctx['spotifyacct']->setPlaylist($new_playlist);
+  $ctx['spotifyacct']->save();
+
+  header("Content-Type: application/json");
+  echo json_encode(
+    ['success' => true],
+    JSON_UNESCAPED_SLASHES);
+  exit;
 });
 
 // API for fetching playlists for a user.
@@ -250,6 +266,22 @@ $app->get('/api/rfid/:rfid/tracks/?', function($rfid) use ($app) {
     ['user' => $ctx['user_json'],
      'playlist' => $playlist_data,
      'tracks' => $songs],
+    JSON_UNESCAPED_SLASHES);
+  exit;
+});
+
+// API for setting the selected playlist for a user.
+$app->post('/api/rfid/:rfid/playlist/set', function($rfid) use ($app) {
+  $ctx = start_view($app, [
+    'require_spotify' => true, 'rfid' => $rfid, 'require_secret' => true]);
+
+  $new_playlist = $app->request->post('playlist_uri');
+  $ctx['spotifyacct']->setPlaylist($new_playlist);
+  $ctx['spotifyacct']->save();
+
+  header("Content-Type: application/json");
+  echo json_encode(
+    ['success' => true],
     JSON_UNESCAPED_SLASHES);
   exit;
 });

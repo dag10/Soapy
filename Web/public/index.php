@@ -17,7 +17,8 @@ $app->add(new \Slim\Middleware\SessionCookie());
 
 $app->container->singleton('log', function() {
   $log = new \Monolog\Logger('slim-skeleton');
-  $log->pushHandler(new \Monolog\Handler\StreamHandler('../logs/app.log', \Monolog\Logger::DEBUG));
+  $log->pushHandler(new \Monolog\Handler\StreamHandler(
+    '../logs/app.log', \Monolog\Logger::DEBUG));
   return $log;
 });
 
@@ -129,7 +130,8 @@ $app->get('/', function() use ($app) {
 });
 
 // Spotify redirects here after user authenticates.
-$app->get('/' . $cfg['spotify']['callback_route'] . '/?', function() use ($app) {
+$app->get(
+    '/' . $cfg['spotify']['callback_route'] . '/?', function() use ($app) {
   global $base_url;
 
   $ctx = start_view($app);

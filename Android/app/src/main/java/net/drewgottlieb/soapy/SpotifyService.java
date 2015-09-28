@@ -31,6 +31,7 @@ public class SpotifyService extends Service implements PlayerNotificationCallbac
     public static final int NUM_SHOWERS = 2;
     private static String TAG = "SpotifyService";
 
+    private SoapyPreferences preferences = null;
     private final SpotifyBinder mBinder = new SpotifyBinder();
     private Player mPlayer = null;
     private ExecutorService executorService = Executors.newCachedThreadPool();
@@ -40,9 +41,6 @@ public class SpotifyService extends Service implements PlayerNotificationCallbac
     private String currentAccessToken = null;
     private String nextAccessToken = null;
     private int trackStartSkips = 0;
-
-    // TODO: Don't hard-code this. Get it from a config perhaps?
-    private static final String CLIENT_ID = "1cc17e3b20364be7910428b1d8c534ed";
 
     public class SpotifyBinder extends Binder {
         SpotifyService getService() {
@@ -83,6 +81,7 @@ public class SpotifyService extends Service implements PlayerNotificationCallbac
     };
 
     public SpotifyService() {
+        preferences = SoapyPreferences.getInstance();
     }
 
     public void onPlaybackError(ErrorType errorType, String errorDetails) {
@@ -168,7 +167,7 @@ public class SpotifyService extends Service implements PlayerNotificationCallbac
             Log.i(TAG, "Creating player for token " + accessToken.substring(0, 50) + "...");
 
             currentAccessToken = accessToken;
-            Config playerConfig = new Config(SpotifyService.this, accessToken, CLIENT_ID);
+            Config playerConfig = new Config(SpotifyService.this, accessToken, preferences.getSpotifyClientId());
             mPlayer = Spotify.getPlayer(playerConfig, this, new Player.InitializationObserver() {
                 @Override
                 public void onInitialized(Player player) {
@@ -383,7 +382,7 @@ public class SpotifyService extends Service implements PlayerNotificationCallbac
             public void onFail(Object result) {
                 Log.e(TAG, "Failed to start player for shower " +
                         finalShowerIndex + ". Removing shower.");
-                destroyShower(finalShowerIndex);
+                resetShower(finalShowerIndex);
                 playNextSong();
             }
         });

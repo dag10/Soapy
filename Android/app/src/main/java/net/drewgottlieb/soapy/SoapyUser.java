@@ -1,13 +1,5 @@
 package net.drewgottlieb.soapy;
 
-import android.util.Log;
-import org.jdeferred.Deferred;
-import org.jdeferred.DeferredManager;
-import org.jdeferred.DoneCallback;
-import org.jdeferred.FailCallback;
-import org.jdeferred.Promise;
-import org.jdeferred.impl.DefaultDeferredManager;
-import org.jdeferred.impl.DeferredObject;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -33,8 +25,8 @@ public class SoapyUser {
 
     public SoapyUser(String rfid) {
         this.rfid = rfid;
-        playlists = new ArrayList<SoapyPlaylist>();
-        tracks = new ArrayList<SoapyTrack>();
+        playlists = new ArrayList<>();
+        tracks = new ArrayList<>();
     }
 
     public SoapyUser(String rfid, JSONObject data) throws JSONException {

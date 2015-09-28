@@ -2,10 +2,11 @@ package net.drewgottlieb.soapy;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
 import android.util.Log;
 import android.view.KeyEvent;
 
-public class IdleActivity extends SoapyActivity {
+public class IdleActivity extends SoapyActivity implements View.OnLongClickListener {
     @Override
     protected void rfidTapped(String rfid) {
         Log.w("Soapy", "RFID tapped: " + rfid);
@@ -17,8 +18,12 @@ public class IdleActivity extends SoapyActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        SoapyPreferences.createInstance(getApplicationContext());
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_idle);
+
+        View view = getWindow().getDecorView().findViewById(android.R.id.content);
+        view.setOnLongClickListener(this);
     }
 
     @Override
@@ -32,4 +37,10 @@ public class IdleActivity extends SoapyActivity {
         return false;
     }
 
+    public boolean onLongClick(View view) {
+        Intent intent = new Intent(this, SettingsActivity.class);
+        startActivity(intent);
+
+        return true;
+    }
 }

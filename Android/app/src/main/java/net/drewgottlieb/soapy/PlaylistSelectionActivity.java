@@ -1,14 +1,19 @@
 package net.drewgottlieb.soapy;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.util.Log;
+import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -17,16 +22,59 @@ import org.jdeferred.DeferredManager;
 import org.jdeferred.DoneCallback;
 import org.jdeferred.FailCallback;
 import org.jdeferred.android.AndroidDeferredManager;
+import org.jdeferred.impl.DefaultDeferredManager;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 
 public class PlaylistSelectionActivity extends SoapyActivity {
     public static final String EXTRA_RFID = "new.drewgottlieb.soapy.RFID";
 
     private SoapyUser user = null;
+    private String rfid = null;
+    private SoapyPlaylist selectedPlaylist = null;
+    private ListView playlistListview = null;
+    private PlaylistArrayAdapter playlistAdapter = null;
+
+    private void setSelectedPlaylist(SoapyPlaylist playlist) {
+        selectedPlaylist = playlist;
+        playlistAdapter.setSelectedPlaylist(playlist);
+
+
+        if (playlistListview != null && playlistAdapter != null) {
+            final int idx = playlist == null ? -1 : playlistAdapter.getPositionForPlaylist(playlist);
+
+            playlistListview.post(new Runnable() {
+                @Override
+                public void run() {
+                    int firstListItemPosition = playlistListview.getFirstVisiblePosition();
+                    int lastListItemPosition = firstListItemPosition + (int) (playlistListview.getChildCount() * 0.7);
+                    Log.i(TAG, "Visible Item Range: " + firstListItemPosition + " to " + lastListItemPosition);
+                    if (idx >= 0 && (idx < firstListItemPosition || idx > lastListItemPosition)) {
+                        int topMargin = (playlistListview.getHeight() / 2) -
+                                (playlistListview.getChildAt(0).getHeight() / 2);
+                        Log.i(TAG, "Scrolling to position " + idx + " with offset " + topMargin);
+                        playlistListview.smoothScrollToPositionFromTop(idx, topMargin);
+                    }
+                }
+            });
+        }
+
+        TextView rfid_out = (TextView) findViewById(R.id.rfid_output);
+        Button go_button = (Button) findViewById(R.id.go_button);
+
+        if (playlist == null) {
+            rfid_out.setText("\n\nChoose a playlist");
+            go_button.setVisibility(View.INVISIBLE);
+        } else {
+            rfid_out.setText(playlist.getName());
+            go_button.setVisibility(View.VISIBLE);
+        }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,37 +83,81 @@ public class PlaylistSelectionActivity extends SoapyActivity {
         setContentView(R.layout.activity_playlist_selection);
 
         Intent intent = getIntent();
-        String rfid = intent.getStringExtra(EXTRA_RFID);
+        rfid = intent.getStringExtra(EXTRA_RFID);
 
         final TextView rfid_out = (TextView) findViewById(R.id.rfid_output);
         final PlaylistSelectionActivity activity = this;
         rfid_out.setText("Loading user with RFID " + rfid);
 
-        final ListView playlist_listview = (ListView) findViewById(R.id.playlist_listview);
-        final List<SoapyPlaylist> playlists = new ArrayList<SoapyPlaylist>();
-        PlaylistArrayAdapter playlist_adapter = new PlaylistArrayAdapter(this, android.R.layout.simple_list_item_1, playlists);
-        playlist_listview.setAdapter(playlist_adapter);
-        playlist_listview.setDivider(null);
-        playlist_listview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        playlistListview = (ListView) findViewById(R.id.playlist_listview);
+        final List<SoapyPlaylist> playlists = new ArrayList<>();
+        playlistAdapter = new PlaylistArrayAdapter(this, android.R.layout.simple_list_item_1, playlists);
+        playlistListview.setAdapter(playlistAdapter);
+        playlistListview.setDivider(null);
+
+        playlistListview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, final View view, final int position, long id) {
-                SoapyPlaylist playlist = playlists.get(position);
-                rfid_out.setText(playlist.getName());
+                setSelectedPlaylist((SoapyPlaylist) playlistListview.getItemAtPosition(position));
             }
         });
 
-        DeferredManager dm = new AndroidDeferredManager();
-        dm.when(SoapyWebAPI.getInstance().fetchUserAndPlaylists(rfid)).done(new DoneCallback<SoapyUser>() {
+        final Button go_button = (Button) findViewById(R.id.go_button);
+        go_button.setVisibility(View.INVISIBLE);
+
+        final DeferredManager adm = new AndroidDeferredManager();
+        adm.when(SoapyWebAPI.getInstance().fetchUserAndPlaylists(rfid)).done(new DoneCallback<SoapyUser>() {
             public void onDone(SoapyUser user) {
-                activity.user = user;
+                PlaylistSelectionActivity.this.user = user;
 
                 List<SoapyPlaylist> fetchedPlaylists = user.getPlaylists();
                 for (SoapyPlaylist playlist : fetchedPlaylists) {
                     playlists.add(playlist);
                 }
 
-                String playlistsStr = "\n\nChoose a playlist";
-                rfid_out.setText(playlistsStr);
+                go_button.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        if (selectedPlaylist == null) {
+                            Log.w(TAG, "Go tapped, but no playlist selected.");
+                            return;
+                        }
+
+                        go_button.setEnabled(false);
+                        go_button.setAlpha(0.8f);
+                        playlistListview.setEnabled(false);
+
+                        adm.when(SoapyWebAPI.getInstance().setSelectedPlaylist(
+                                rfid, selectedPlaylist.getURI())).done(new DoneCallback<Void>() {
+                            @Override
+                            public void onDone(Void result) {
+                                PlaylistSelectionActivity.this.finish();
+                            }
+                        }).fail(new FailCallback<SoapyWebAPI.SoapyWebError>() {
+                            @Override
+                            public void onFail(SoapyWebAPI.SoapyWebError result) {
+                                new AlertDialog.Builder(
+                                        new ContextThemeWrapper(
+                                                PlaylistSelectionActivity.this,
+                                                R.style.SoapyDialog))
+                                        .setTitle("Failed to save selection")
+                                        .setMessage(result.getMessage())
+                                        .setPositiveButton("Dismiss", new DialogInterface.OnClickListener() {
+                                            @Override
+                                            public void onClick(DialogInterface dialog, int which) {
+                                                go_button.setEnabled(true);
+                                                go_button.setAlpha(1.f);
+                                                playlistListview.setEnabled(true);
+                                            }
+                                        })
+                                        .create().show();
+                                Log.e(TAG, "Failed to set playlist. " + result.getMessage());
+                            }
+                        });
+                    }
+                });
+
+                setSelectedPlaylist(user.getPlaylist());
             }
         }).fail(new FailCallback<SoapyWebAPI.SoapyWebError>() {
             public void onFail(SoapyWebAPI.SoapyWebError e) {
@@ -73,13 +165,19 @@ public class PlaylistSelectionActivity extends SoapyActivity {
                 rfid_out.setText("Failed to fetch user: " + e.getMessage());
             }
         });
-
     }
 }
 
 class PlaylistArrayAdapter extends ArrayAdapter<SoapyPlaylist> {
+    private SoapyPlaylist selectedPlaylist = null;
+
     public PlaylistArrayAdapter(Context context, int textViewResourceId, List<SoapyPlaylist> objects) {
         super(context, textViewResourceId, objects);
+    }
+
+    public void setSelectedPlaylist(SoapyPlaylist playlist) {
+        selectedPlaylist = playlist;
+        notifyDataSetChanged();
     }
 
     @Override
@@ -91,6 +189,17 @@ class PlaylistArrayAdapter extends ArrayAdapter<SoapyPlaylist> {
     @Override
     public boolean hasStableIds() {
         return true;
+    }
+
+    public int getPositionForPlaylist(SoapyPlaylist playlist) {
+        String uri = playlist.getURI();
+        for (int i = 0; i < getCount(); i++) {
+            if (uri.equals(getItem(i).getURI())) {
+                return i;
+            }
+        }
+
+        return -1;
     }
 
     @Override
@@ -110,12 +219,20 @@ class PlaylistArrayAdapter extends ArrayAdapter<SoapyPlaylist> {
 
         // TODO: Load actual album art.
         ImageView albumArt = (ImageView) convertView.findViewById(R.id.playlist_fragment_image);
-        Random random = new Random();
+        Random random = new Random(playlist.getURI().hashCode());
         int mix = Color.HSVToColor(new float[]{random.nextFloat(), 1.f, 0.5f});
         int red = (random.nextInt(256) + Color.red(mix)) / 2;
         int green = (random.nextInt(256) + Color.green(mix)) / 2;
         int blue = (random.nextInt(256) + Color.blue(mix)) / 2;
         albumArt.setBackgroundColor(Color.rgb(red, green, blue));
+
+        if (selectedPlaylist != null && playlist.getURI().equals(selectedPlaylist.getURI())) {
+            convertView.setBackgroundColor(
+                    convertView.getResources().getColor(R.color.PLAYLIST_SELECTED_BG));
+        } else {
+            convertView.setBackgroundColor(
+                    convertView.getResources().getColor(R.color.TRANSPARENT));
+        }
 
         return convertView;
     }

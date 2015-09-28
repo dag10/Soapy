@@ -12,7 +12,7 @@
         android:orientation="horizontal"
         android:layout_alignParentEnd="false"
         android:layout_alignParentStart="false"
-        android:background="#ff28004a"
+        android:background="@color/PLAYLIST_INFO_BG"
         >
 
         <ListView
@@ -20,11 +20,11 @@
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1.3"
-            android:background="#ff240046"
             android:layout_gravity="center_vertical"
-            android:choiceMode="singleChoice"
-            android:listSelector="#ff310062"
-            android:clickable="false" />
+            android:listSelector="@drawable/playlistbackground"
+            android:background="@color/PLAYLIST_LIST_BG"
+            android:scrollbars="none"
+            />
 
         <RelativeLayout
             android:layout_width="0dp"

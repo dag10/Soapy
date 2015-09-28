@@ -2,9 +2,14 @@ package net.drewgottlieb.soapy;
 
 import android.util.Log;
 
-import org.apache.http.client.HttpClient;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.params.BasicHttpParams;
+import com.squareup.okhttp.ConnectionSpec;
+import com.squareup.okhttp.FormEncodingBuilder;
+import com.squareup.okhttp.OkHttpClient;
+import com.squareup.okhttp.Request;
+import com.squareup.okhttp.RequestBody;
+import com.squareup.okhttp.Response;
+import com.squareup.okhttp.TlsVersion;
+
 import org.jdeferred.Deferred;
 import org.jdeferred.DeferredManager;
 import org.jdeferred.DoneCallback;
@@ -15,24 +20,22 @@ import org.jdeferred.impl.DeferredObject;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedReader;
-import java.io.EOFException;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+
+import javax.net.ssl.HttpsURLConnection;
 
 /**
  * Created by drew on 7/5/15.
  */
 public class SoapyWebAPI {
+    private static String TAG = "SoapyWebAPI";
     private static final ExecutorService executorService = Executors.newCachedThreadPool();
     private static final DeferredManager dm = new DefaultDeferredManager(executorService);
 
@@ -42,34 +45,47 @@ public class SoapyWebAPI {
         }
     }
 
-    private String host;
-    private int port;
-    private boolean secure;
+    protected enum RequestType {
+        GET,
+        POST
+    }
 
     private static SoapyWebAPI instance = null;
+    private SoapyPreferences preferences = null;
+    private OkHttpClient client = new OkHttpClient();
 
     public static SoapyWebAPI getInstance() {
         if (instance == null) {
-            // TODO: Load from a config, don't hard code.
-            instance = new SoapyWebAPI("soapy.csh.rit.edu", 80, false);
+            instance = new SoapyWebAPI();
         }
 
         return instance;
     }
 
-    protected SoapyWebAPI(String host, int port, boolean secure) {
-        this.host = host;
-        this.port = port;
-        this.secure = secure;
+    protected SoapyWebAPI() {
+        preferences = SoapyPreferences.getInstance();
+
+        // Only allow TLSv1.0 because CSH servers don't support SSLv3, and newer TLS doesn't seem to work.
+        ConnectionSpec spec = new ConnectionSpec.Builder(ConnectionSpec.MODERN_TLS)
+                .tlsVersions(TlsVersion.TLS_1_0)
+                .build();
+        client.setConnectionSpecs(Collections.singletonList(spec));
     }
 
     public Promise<JSONObject, SoapyWebError, Void> get(String route) {
-        final Deferred<JSONObject, SoapyWebError, Void> deferred = new DeferredObject<JSONObject, SoapyWebError, Void>();
+        return request(RequestType.GET, route, null);
+    }
 
-        String protocol = secure ? "https://" : "http://";
+    public Promise<JSONObject, SoapyWebError, Void> post(String route, Map<String, String> vars) {
+        return request(RequestType.POST, route, vars);
+    }
+
+    protected Promise<JSONObject, SoapyWebError, Void> request(final RequestType type, String route, final Map<String, String> vars) {
+        final Deferred<JSONObject, SoapyWebError, Void> deferred = new DeferredObject<>();
+
         URL url = null;
         try {
-            url = new URL(protocol + host + ":" + port + "/" + route);
+            url = new URL(preferences.getSoapyUrl() + route);
         } catch (MalformedURLException e) {
             e.printStackTrace();
             deferred.reject(new SoapyWebError("Malformed URL: " + url));
@@ -77,34 +93,32 @@ public class SoapyWebAPI {
         }
         final URL fURL = url;
 
-        (new Thread() {
+        executorService.submit(new Runnable() {
             public void run() {
-                HttpURLConnection conn = null;
                 String result = null;
                 try {
-                    Log.i("WebAPI", fURL.toExternalForm()); // TODO TMP
-                    conn = (HttpURLConnection) fURL.openConnection();
-                    BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream(), "UTF-8"), 8);
-                    StringBuilder sb = new StringBuilder();
+                    Request.Builder builder = new Request.Builder()
+                            .url(fURL)
+                            .header("X-Soapy-Secret", preferences.getSoapySecret());
 
-                    String line = null;
-                    while ((line = in.readLine()) != null) {
-                        sb.append(line + "\n");
+                    if (type == RequestType.POST) {
+                        FormEncodingBuilder bodyBuilder = new FormEncodingBuilder();
+
+                        if (vars != null) {
+                            for (String key : vars.keySet()) {
+                                bodyBuilder.add(key, vars.get(key));
+                            }
+                        }
+
+                        builder.method("POST", bodyBuilder.build());
                     }
 
-                    result = sb.toString();
-                } catch (EOFException e) {
-                    e.printStackTrace();
-                    deferred.reject(new SoapyWebError("Empty response from server."));
-                    return;
+                    Response response = client.newCall(builder.build()).execute();
+                    result = response.body().string();
                 } catch (IOException e) {
                     e.printStackTrace();
                     deferred.reject(new SoapyWebError("IOException: " + e.getMessage()));
                     return;
-                } finally {
-                    if (conn != null) {
-                        conn.disconnect();
-                    }
                 }
 
                 JSONObject obj = null;
@@ -113,6 +127,7 @@ public class SoapyWebAPI {
                 } catch (JSONException e) {
                     e.printStackTrace();
                     deferred.reject(new SoapyWebError("JSONException: " + e.getMessage()));
+                    Log.w(TAG, "Received JSON was:\n" + result);
                     return;
                 }
 
@@ -128,7 +143,39 @@ public class SoapyWebAPI {
 
                 deferred.resolve(obj);
             }
-        }).start();
+        });
+
+        return deferred.promise();
+    }
+
+    public Promise<Void, SoapyWebError, Void> setSelectedPlaylist(final String rfid, final String playlistUri) {
+        final Deferred<Void, SoapyWebError, Void> deferred = new DeferredObject<>();
+
+        HashMap<String, String> vars = new HashMap<>();
+        vars.put("playlist_uri", playlistUri);
+
+        dm.when(post("api/rfid/" + rfid + "/playlist/set", vars)).done(new DoneCallback<JSONObject>() {
+            @Override
+            public void onDone(JSONObject result) {
+                try {
+                    if (result.has("error")) {
+                        String errorMsg = result.getString("error");
+                        deferred.reject(new SoapyWebError("Remote error: " + errorMsg));
+                        return;
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                    deferred.reject(new SoapyWebError("Failed to parse response JSON: " + e.getMessage()));
+                }
+
+                deferred.resolve(null);
+            }
+        }).fail(new FailCallback<SoapyWebError>() {
+            @Override
+            public void onFail(SoapyWebError result) {
+                deferred.reject(result);
+            }
+        });
 
         return deferred.promise();
     }
@@ -145,11 +192,10 @@ public class SoapyWebAPI {
      * @param rfid
      * @param request either "playlists" or "tracks"
      */
-    protected Promise<SoapyUser, SoapyWebError, Void> fetchUser(String rfid, String request) {
+    protected Promise<SoapyUser, SoapyWebError, Void> fetchUser(final String rfid, String request) {
         final Deferred<SoapyUser, SoapyWebError, Void> deferred = new DeferredObject<>();
-        final String rfid_id = rfid;
 
-        dm.when(get("api/rfid/" + rfid_id + "/" + request)).done(new DoneCallback<JSONObject>() {
+        dm.when(get("api/rfid/" + rfid + "/" + request)).done(new DoneCallback<JSONObject>() {
             public void onDone(JSONObject obj) {
                 try {
                     if (obj.has("error")) {
@@ -158,7 +204,7 @@ public class SoapyWebAPI {
                         return;
                     }
 
-                    SoapyUser user = new SoapyUser(rfid_id, obj);
+                    SoapyUser user = new SoapyUser(rfid, obj);
                     deferred.resolve(user);
                 } catch (JSONException e) {
                     e.printStackTrace();

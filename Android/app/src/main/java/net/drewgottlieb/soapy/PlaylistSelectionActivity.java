@@ -4,7 +4,10 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.ContextThemeWrapper;
@@ -24,6 +27,7 @@ import org.jdeferred.FailCallback;
 import org.jdeferred.android.AndroidDeferredManager;
 import org.jdeferred.impl.DefaultDeferredManager;
 
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -168,6 +172,31 @@ public class PlaylistSelectionActivity extends SoapyActivity {
     }
 }
 
+class DownloadImageTask extends AsyncTask<String, Void, Bitmap> {
+    ImageView bmImage;
+
+    public DownloadImageTask(ImageView bmImage) {
+        this.bmImage = bmImage;
+    }
+
+    protected Bitmap doInBackground(String... urls) {
+        String urldisplay = urls[0];
+        Bitmap mIcon11 = null;
+        try {
+            InputStream in = new java.net.URL(urldisplay).openStream();
+            mIcon11 = BitmapFactory.decodeStream(in);
+        } catch (Exception e) {
+            //Log.e(TAG, "Failed to load image. " + e.getMessage());
+            e.printStackTrace();
+        }
+        return mIcon11;
+    }
+
+    protected void onPostExecute(Bitmap result) {
+        bmImage.setImageBitmap(result);
+    }
+}
+
 class PlaylistArrayAdapter extends ArrayAdapter<SoapyPlaylist> {
     private SoapyPlaylist selectedPlaylist = null;
 
@@ -233,6 +262,8 @@ class PlaylistArrayAdapter extends ArrayAdapter<SoapyPlaylist> {
             convertView.setBackgroundColor(
                     convertView.getResources().getColor(R.color.TRANSPARENT));
         }
+
+        new DownloadImageTask(albumArt).execute(playlist.getImageURL());
 
         return convertView;
     }

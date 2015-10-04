@@ -2,6 +2,13 @@
 
 {% block panel_title %}
 Playlists
+<div style="float: right;">
+  {% if selected_playlist_uri %}
+  <button class="btn btn-xs btn-deselect-playlists">Clear Selection</button>
+  {% else %}
+  <button class="btn btn-xs btn-deselect-playlists" disabled="disabled">Clear Selection</button>
+  {% endif %}
+</div>
 {% endblock %}
 
 {% block panel_body %}
@@ -22,6 +29,20 @@ Playlists
 {% block scripts %}
 <script type="text/javascript">
   $(function() {
+    $(".btn-deselect-playlists").click(function() {
+      var btn = $(this);
+      $.post("/me/playlist/set", {
+        playlist_uri: null
+      }, function() {
+        $(".btn-select-playlist.playlist-selected")
+          .removeAttr("disabled")
+          .removeClass("playlist-selected")
+          .removeClass("btn-success")
+          .text("Select");
+        btn.attr("disabled", "disabled");
+      });
+    });
+
     $(".btn-select-playlist").click(function() {
       var btn = $(this);
       $.post("/me/playlist/set", {
@@ -37,6 +58,8 @@ Playlists
           .addClass("playlist-selected")
           .addClass("btn-success")
           .text("Selected");
+        $(".btn-deselect-playlists")
+          .removeAttr("disabled");
       });
     });
   });

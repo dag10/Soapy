@@ -1,12 +1,9 @@
-Soapy-Web
+Soapy Web
 ==
 
-Soapy-Web is the website for Soapy to provide Spotify O-Auth and a web interface
+This is the website for Soapy to provide Spotify O-Auth and a web interface
 for pairing one's Computer Science House account with their personal Spotify
 account.
-
-Soapy is a project for making showers in the [Computer Science House](https://csh.rit.edu) a bit more
-musical. See the project plan [here](https://goo.gl/M6v6lI).
 
 Installation
 --
@@ -43,8 +40,4 @@ Follow the sql:build and model:build steps from the "Adding tables" section.
 I haven't set up any sort of migration system yet. So if you already have a
 database, you'll have to manually update the structure. If you don't, then just
 run the sql:insert command.
-
---
-
-[![CSH Logo](http://csh.rit.edu/images/logo.png)](http://csh.rit.edu)
 

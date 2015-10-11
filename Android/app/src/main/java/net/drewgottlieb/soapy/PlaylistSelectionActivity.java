@@ -9,6 +9,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
 import android.util.Log;
 import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
@@ -69,14 +70,14 @@ public class PlaylistSelectionActivity extends SoapyActivity {
         }
 
         TextView rfid_out = (TextView) findViewById(R.id.rfid_output);
-        Button go_button = (Button) findViewById(R.id.go_button);
+        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
 
         if (playlist == null) {
             rfid_out.setText("\n\nChoose a playlist");
-            go_button.setVisibility(View.INVISIBLE);
+            fab.hide();
         } else {
             rfid_out.setText(playlist.getName());
-            go_button.setVisibility(View.VISIBLE);
+            fab.show();
         }
     }
 
@@ -85,6 +86,9 @@ public class PlaylistSelectionActivity extends SoapyActivity {
         overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_playlist_selection);
+
+        final FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        fab.setImageDrawable(new SoapyFab.FabTextDrawable("GO", -1.f, 14.f));
 
         Intent intent = getIntent();
         rfid = intent.getStringExtra(EXTRA_RFID);
@@ -106,8 +110,7 @@ public class PlaylistSelectionActivity extends SoapyActivity {
             }
         });
 
-        final Button go_button = (Button) findViewById(R.id.go_button);
-        go_button.setVisibility(View.INVISIBLE);
+        fab.hide();
 
         final DeferredManager adm = new AndroidDeferredManager();
         adm.when(SoapyWebAPI.getInstance().fetchUserAndPlaylists(rfid)).done(new DoneCallback<SoapyUser>() {
@@ -119,7 +122,7 @@ public class PlaylistSelectionActivity extends SoapyActivity {
                     playlists.add(playlist);
                 }
 
-                go_button.setOnClickListener(new View.OnClickListener() {
+                fab.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         if (selectedPlaylist == null) {
@@ -127,8 +130,8 @@ public class PlaylistSelectionActivity extends SoapyActivity {
                             return;
                         }
 
-                        go_button.setEnabled(false);
-                        go_button.setAlpha(0.8f);
+                        fab.setEnabled(false);
+                        fab.setAlpha(0.8f);
                         playlistListview.setEnabled(false);
 
                         adm.when(SoapyWebAPI.getInstance().setSelectedPlaylist(
@@ -149,8 +152,8 @@ public class PlaylistSelectionActivity extends SoapyActivity {
                                         .setPositiveButton("Dismiss", new DialogInterface.OnClickListener() {
                                             @Override
                                             public void onClick(DialogInterface dialog, int which) {
-                                                go_button.setEnabled(true);
-                                                go_button.setAlpha(1.f);
+                                                fab.setEnabled(true);
+                                                fab.setAlpha(1.f);
                                                 playlistListview.setEnabled(true);
                                             }
                                         })

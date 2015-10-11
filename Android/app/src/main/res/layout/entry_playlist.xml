@@ -42,7 +42,7 @@
             android:text="23 songs"
             android:textSize="20dp"
             android:maxLines="1"
-            android:textColor="#ffffffff"
+            android:textColor="#ff8a72a2"
             style="@style/TextShadow"
             />
     </LinearLayout>

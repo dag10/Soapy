@@ -255,12 +255,14 @@ $app->get('/api/rfid/:rfid/tracks/?', function($rfid) use ($app) {
     exit;
   }
 
-  $playlist_id = end(explode(':', $playlist_uri));
+  $playlist_uri_expl = explode(':', $playlist_uri);
+  $playlist_username = $playlist_uri_expl[2];
+  $playlist_id = $playlist_uri_expl[4];
 
   $playlist_data = [ 'uri' => $playlist_uri ];
 
   $songs = \Spotify\get_playlist_tracks(
-    $ctx['sp_api'], $ctx['spotifyacct']->getUsername(), $playlist_id);
+    $ctx['sp_api'], $playlist_username, $playlist_id);
 
   for ($i = 0; $i < sizeof($songs); $i++) {
     $song = $songs[$i];

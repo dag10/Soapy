@@ -50,6 +50,7 @@ public class SoapyActivity extends AppCompatActivity {
         IntentFilter filter = new IntentFilter();
         filter.addAction(ArduinoService.RFID_INTENT);
         registerReceiver(receiver, filter);
+        overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
         goImmersive();
     }
 

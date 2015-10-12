@@ -49,7 +49,6 @@ public class PlaylistSelectionActivity extends SoapyActivity {
         selectedPlaylist = playlist;
         playlistAdapter.setSelectedPlaylist(playlist);
 
-
         if (playlistListview != null && playlistAdapter != null) {
             final int idx = playlist == null ? -1 : playlistAdapter.getPositionForPlaylist(playlist);
 
@@ -83,7 +82,6 @@ public class PlaylistSelectionActivity extends SoapyActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_playlist_selection);
 

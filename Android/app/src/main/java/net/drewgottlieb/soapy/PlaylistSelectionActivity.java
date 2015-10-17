@@ -17,7 +17,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -26,17 +25,14 @@ import org.jdeferred.DeferredManager;
 import org.jdeferred.DoneCallback;
 import org.jdeferred.FailCallback;
 import org.jdeferred.android.AndroidDeferredManager;
-import org.jdeferred.impl.DefaultDeferredManager;
 
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 
-public class PlaylistSelectionActivity extends SoapyActivity {
+public class PlaylistSelectionActivity extends SoapyActivity implements StatusStrip.OnFragmentInteractionListener {
     public static final String EXTRA_RFID = "new.drewgottlieb.soapy.RFID";
 
     private SoapyUser user = null;
@@ -44,6 +40,10 @@ public class PlaylistSelectionActivity extends SoapyActivity {
     private SoapyPlaylist selectedPlaylist = null;
     private ListView playlistListview = null;
     private PlaylistArrayAdapter playlistAdapter = null;
+
+    public void onCancelPressed() {
+        finish();
+    }
 
     private void setSelectedPlaylist(SoapyPlaylist playlist) {
         selectedPlaylist = playlist;
@@ -187,7 +187,6 @@ class DownloadImageTask extends AsyncTask<String, Void, Bitmap> {
             InputStream in = new java.net.URL(urldisplay).openStream();
             mIcon11 = BitmapFactory.decodeStream(in);
         } catch (Exception e) {
-            //Log.e(TAG, "Failed to load image. " + e.getMessage());
             e.printStackTrace();
         }
         return mIcon11;

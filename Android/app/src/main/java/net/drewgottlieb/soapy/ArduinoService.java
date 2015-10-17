@@ -10,6 +10,8 @@ import com.physicaloid.lib.Physicaloid;
 import com.physicaloid.lib.usb.driver.uart.ReadLisener;
 
 import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
+import java.util.List;
 
 class MessageIndexFormatException extends Exception {
     public MessageIndexFormatException(String msg) {
@@ -37,7 +39,8 @@ public class ArduinoService extends Service implements ReadLisener {
 
     private final ArduinoBinder mBinder = new ArduinoBinder();
     private final Physicaloid arduino = new Physicaloid(this);
-    private String buffer = "";
+    private List<Byte> buffer = new ArrayList<>();
+    private boolean readingMessage = false;
     private boolean[] lampStatus = new boolean[2];
 
     public ArduinoService() {
@@ -149,47 +152,67 @@ public class ArduinoService extends Service implements ReadLisener {
         }
     }
 
-    @Override
-    public void onRead(int size) {
-        byte[] buf = new byte[size];
-        String readString;
-
-        arduino.read(buf, size);
-        try {
-            readString = new String(buf, "UTF-8");
-        } catch (UnsupportedEncodingException e) {
-            Log.e(TAG, "Failed to read arduino string.");
+    protected void handleCompletedBuffer() {
+        if (buffer == null || buffer.isEmpty()) {
+            Log.e(TAG, "Can't handle empty message buffer.");
             return;
         }
 
-        if (buffer == null) {
+        int size = buffer.size() - 1;
+        byte[] bufArr = new byte[size];
+        byte check = 0;
+        for (int i = 0; i < size; i++) {
+            bufArr[i] = buffer.get(i);
+            check = (byte) (check ^ bufArr[i]);
+        }
+
+        // Verify checksum of data
+        if (check != buffer.get(size)) {
+            String failedString;
+            try {
+                failedString = new String(bufArr, "UTF-8");
+            } catch (UnsupportedEncodingException e) {
+                failedString = "<failed to decode UTF-8>";
+            }
+            Log.e(TAG, "Checksum mismatch! Sending poll request. (String: \"" + failedString + "\", Expected: " + buffer.get(size) + ", Computed: " + check);
+            sendMessage("poll");
+            return;
+        }
+
+        try {
+            handleReceivedString(new String(bufArr, "UTF-8"));
+        } catch (UnsupportedEncodingException e) {
+            Log.e(TAG, "Failed to read arduino string.");
+        }
+    }
+
+    @Override
+    public void onRead(int size) {
+        byte[] curBuf = new byte[size];
+        String readString;
+
+        arduino.read(curBuf, size);
+
+        if (curBuf == null) {
             Log.w(TAG, "Arduino sent null string.");
             return;
         }
 
-        buffer += readString;
+        for (int i = 0; i < curBuf.length; i++) {
+            byte b = curBuf[i];
 
-        int nlIdx = buffer.indexOf('\n');
-        while (nlIdx >= 0) {
-            if (nlIdx == 0) {
-                Log.w(TAG, "Received 0-length message from arduino.");
-                if (buffer.length() > 0) {
-                    buffer = buffer.substring(1);
+            if (b == 0x02) {
+                buffer.clear();
+                readingMessage = true;
+            } else if (b == 0x03) {
+                if (!readingMessage) {
                     continue;
-                } else {
-                    buffer = "";
-                    break;
                 }
-            }
 
-            handleReceivedString(buffer.substring(0, nlIdx - 1));
-
-            if (buffer.length() > nlIdx) {
-                buffer = buffer.substring(nlIdx + 1);
-                nlIdx = buffer.indexOf('\n');
+                handleCompletedBuffer();
+                readingMessage = false;
             } else {
-                buffer = "";
-                nlIdx = -1;
+                buffer.add(b);
             }
         }
     }

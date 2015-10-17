@@ -7,6 +7,8 @@ import android.util.Log;
 import android.view.KeyEvent;
 
 public class IdleActivity extends SoapyActivity implements View.OnLongClickListener {
+    private SoapyPreferences preferences = null;
+
     @Override
     protected void rfidTapped(String rfid) {
         Log.w("Soapy", "RFID tapped: " + rfid);
@@ -18,7 +20,7 @@ public class IdleActivity extends SoapyActivity implements View.OnLongClickListe
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        SoapyPreferences.createInstance(getApplicationContext());
+        preferences = SoapyPreferences.createInstance(getApplicationContext());
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_idle);
 
@@ -29,7 +31,7 @@ public class IdleActivity extends SoapyActivity implements View.OnLongClickListe
     @Override
     // TODO: Listen to an event from arduino, not from the volume key.
     public boolean onKeyDown(int keyCode, KeyEvent event) {
-        if ((keyCode == KeyEvent.KEYCODE_VOLUME_UP)) {
+        if (keyCode == KeyEvent.KEYCODE_VOLUME_UP && preferences.getEnableVolumeShortcut()) {
             rfidTapped("12345");
             return true;
         }

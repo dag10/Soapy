@@ -86,7 +86,7 @@ public class PlaylistSelectionActivity extends SoapyActivity implements StatusSt
         setContentView(R.layout.activity_playlist_selection);
 
         final FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setImageDrawable(new SoapyFab.FabTextDrawable("GO", -1.f, 14.f));
+        fab.setImageDrawable(new SoapyFab.FabTextDrawable("GO", 1.f, 16.f));
 
         Intent intent = getIntent();
         rfid = intent.getStringExtra(EXTRA_RFID);

@@ -1,15 +1,32 @@
 package net.drewgottlieb.soapy;
 
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.media.AudioManager;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.view.View;
 import android.util.Log;
 import android.view.KeyEvent;
 
 public class IdleActivity extends SoapyActivity implements View.OnLongClickListener {
+    private ArduinoService arduinoService = null;
     private SoapyPreferences preferences = null;
+
+    protected ServiceConnection arduinoServiceConnection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder binder) {
+            arduinoService = ((ArduinoService.ArduinoBinder) binder).getService();
+            arduinoService.connect();
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            arduinoService = null;
+        }
+    };
 
     @Override
     protected void rfidTapped(String rfid) {
@@ -51,5 +68,25 @@ public class IdleActivity extends SoapyActivity implements View.OnLongClickListe
         startActivity(intent);
 
         return true;
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        bindService(arduinoServiceIntent, arduinoServiceConnection, Context.BIND_AUTO_CREATE);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        unbindService(arduinoServiceConnection);
+    }
+
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+
+        if (arduinoService != null) {
+            arduinoService.connect();
+        }
     }
 }

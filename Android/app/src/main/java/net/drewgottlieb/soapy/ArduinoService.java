@@ -189,7 +189,6 @@ public class ArduinoService extends Service implements ReadLisener {
     @Override
     public void onRead(int size) {
         byte[] curBuf = new byte[size];
-        String readString;
 
         arduino.read(curBuf, size);
 
@@ -197,6 +196,23 @@ public class ArduinoService extends Service implements ReadLisener {
             Log.w(TAG, "Arduino sent null string.");
             return;
         }
+
+        String debugMessage = "Read hex:  ";
+        for (byte b : curBuf) {
+            debugMessage += String.format(" %02X", b);
+        }
+        Log.d(TAG, debugMessage);
+        debugMessage = "Read ascii:";
+        for (byte b : curBuf) {
+            if (b == '\n') {
+                debugMessage += "\\n ";
+            } else if (b == '\r') {
+                debugMessage += "\\r ";
+            } else {
+                debugMessage += String.format(" %c ", b >= 32 && b <= 126 ? (char) b : '.');
+            }
+        }
+        Log.d(TAG, debugMessage);
 
         for (int i = 0; i < curBuf.length; i++) {
             byte b = curBuf[i];

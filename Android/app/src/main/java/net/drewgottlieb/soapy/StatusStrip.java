@@ -1,8 +1,10 @@
 package net.drewgottlieb.soapy;
 
 import android.app.Activity;
+import android.content.res.TypedArray;
 import android.os.Bundle;
 import android.app.Fragment;
+import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -25,6 +27,19 @@ public class StatusStrip extends Fragment {
 
     public StatusStrip() {
         // Required empty public constructor
+    }
+
+    @Override
+    public void onInflate(Activity activity, AttributeSet attrs, Bundle savedInstanceState) {
+        super.onInflate(activity, attrs, savedInstanceState);
+
+        TypedArray a = activity.obtainStyledAttributes(attrs, R.styleable.StatusStrip);
+
+        boolean defaultValue = (cancelEnabled == null ? false : cancelEnabled);
+        cancelEnabled = new Boolean(a.getBoolean(
+                R.styleable.StatusStrip_showCancelButton, defaultValue));
+
+        a.recycle();
     }
 
     @Override
@@ -71,5 +86,4 @@ public class StatusStrip extends Fragment {
     public interface OnFragmentInteractionListener {
         public void onCancelPressed();
     }
-
 }

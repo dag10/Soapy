@@ -18,6 +18,8 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -288,20 +290,22 @@ public class ArduinoService extends Service {
     }
 
     private void sendMessage(String str) {
-        Log.i(TAG, "Sending: \"" + str + "\"");
-
-        str += "\n";
-
-        // TODO: Use usbSerialForAndroid API.
-        /*
-        if (!arduino.isOpened()) {
-            Log.e(TAG, "Tried to send message but arduino connection is closed.");
+        if (!connected) {
+            Log.w(TAG,
+                  "Tried to send message to Arduino but no connection found. (\"" + str + "\")");
             return;
         }
 
+        Log.i(TAG, "Sending: \"" + str + "\"");
+        str += "\n";
+
         byte[] buf = str.getBytes();
-        arduino.write(buf, buf.length);
-        */
+
+        try {
+            port.write(buf, buf.length);
+        } catch (IOException e) {
+            Log.e(TAG, "Failed to write message to Arduino: " + e.getMessage());
+        }
     }
 
     private void sendInitialPackets() {
@@ -377,6 +381,12 @@ public class ArduinoService extends Service {
         executorService.submit(serialIoManager);
         connected = true;
 
-        sendInitialPackets();
+        // after 2 seconds, send initial messages to arduino.
+        new Timer().schedule(new TimerTask() {
+            @Override
+            public void run() {
+                sendInitialPackets();
+            }
+        }, 2000);
     }
 }

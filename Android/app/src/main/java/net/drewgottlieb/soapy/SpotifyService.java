@@ -76,6 +76,10 @@ public class SpotifyService extends Service implements PlayerNotificationCallbac
                     SpotifyService.this.showerRfidTapped(index - 1, rfid);
 
                     break;
+
+                case ArduinoService.DISCONNECTED_INTENT:
+                    SpotifyService.this.arduinoDisconnected();
+                    break;
             }
         }
     };
@@ -294,6 +298,12 @@ public class SpotifyService extends Service implements PlayerNotificationCallbac
         }
     }
 
+    protected void arduinoDisconnected() {
+        for (int i = 0; i < NUM_SHOWERS; i++) {
+            doorOpened(i);
+        }
+    }
+
     protected void doorOpened(int index) {
         Log.i(TAG, "Door opened: " + index);
         destroyShower(index);
@@ -415,6 +425,7 @@ public class SpotifyService extends Service implements PlayerNotificationCallbac
         IntentFilter filter = new IntentFilter();
         filter.addAction(ArduinoService.DOOR_INTENT);
         filter.addAction(ArduinoService.RFID_INTENT);
+        filter.addAction(ArduinoService.DISCONNECTED_INTENT);
         registerReceiver(receiver, filter);
     }
 

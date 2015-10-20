@@ -1,6 +1,8 @@
 package net.drewgottlieb.soapy;
 
+import android.content.Context;
 import android.content.Intent;
+import android.media.AudioManager;
 import android.os.Bundle;
 import android.view.View;
 import android.util.Log;
@@ -45,7 +47,7 @@ public class IdleActivity extends SoapyActivity implements View.OnLongClickListe
     }
 
     public boolean onLongClick(View view) {
-        Intent intent = new Intent(this, SettingsActivity.class);
+        Intent intent = new Intent(this, LogViewActivity.class);
         startActivity(intent);
 
         return true;

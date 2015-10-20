@@ -4,14 +4,19 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 
 
-public class SoapyActivity extends AppCompatActivity {
+public class SoapyActivity extends AppCompatActivity implements StatusStrip.OnFragmentInteractionListener {
     protected String TAG = "SoapyActivity";
+
+    protected Intent logServiceIntent;
+    protected Intent arduinoServiceIntent;
+    protected Intent spotifyServiceIntent;
 
     protected void rfidTapped(String rfid) {
     }
@@ -31,11 +36,23 @@ public class SoapyActivity extends AppCompatActivity {
         }
     };
 
+    public void onCancelPressed() {
+        finish();
+    }
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        startService(new Intent(this, ArduinoService.class));
-        startService(new Intent(this, SpotifyService.class));
+
+        logServiceIntent = new Intent(this, LogService.class);
+        startService(logServiceIntent);
+
+        arduinoServiceIntent = new Intent(this, ArduinoService.class);
+        startService(arduinoServiceIntent);
+
+        spotifyServiceIntent = new Intent(this, SpotifyService.class);
+        startService(spotifyServiceIntent);
     }
 
     protected void goImmersive() {

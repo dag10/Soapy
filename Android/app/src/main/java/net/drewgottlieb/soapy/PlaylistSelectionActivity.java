@@ -32,7 +32,7 @@ import java.util.List;
 import java.util.Random;
 
 
-public class PlaylistSelectionActivity extends SoapyActivity implements StatusStrip.OnFragmentInteractionListener {
+public class PlaylistSelectionActivity extends SoapyActivity {
     public static final String EXTRA_RFID = "new.drewgottlieb.soapy.RFID";
 
     private SoapyUser user = null;
@@ -40,10 +40,6 @@ public class PlaylistSelectionActivity extends SoapyActivity implements StatusSt
     private SoapyPlaylist selectedPlaylist = null;
     private ListView playlistListview = null;
     private PlaylistArrayAdapter playlistAdapter = null;
-
-    public void onCancelPressed() {
-        finish();
-    }
 
     private void setSelectedPlaylist(SoapyPlaylist playlist) {
         selectedPlaylist = playlist;

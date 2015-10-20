@@ -38,6 +38,8 @@ class MessageValueFormatException extends Exception {
 public class ArduinoService extends Service {
     public static final String RFID_INTENT = "new.drewgottlieb.RFID_INTENT";
     public static final String DOOR_INTENT = "new.drewgottlieb.DOOR_INTENT";
+    public static final String CONNECTED_INTENT = "new.drewgottlieb.CONNECTED_INTENT";
+    public static final String DISCONNECTED_INTENT = "new.drewgottlieb.DISCONNECTED_INTENT";
 
     private static String TAG = "ArduinoService";
 
@@ -250,24 +252,6 @@ public class ArduinoService extends Service {
         }
     }
 
-    private void disconnect() {
-        if (serialIoManager != null) {
-            serialIoManager.stop();
-            serialIoManager = null;
-        }
-
-        if (port != null) {
-            try {
-                port.close();
-            } catch (IOException e) {
-                // nothing
-            }
-            port = null;
-        }
-
-        connected = false;
-    }
-
     @Override
     public IBinder onBind(Intent intent) {
         return mBinder;
@@ -325,6 +309,28 @@ public class ArduinoService extends Service {
 
     private void sendLamp(int lampId) {
         sendMessage("lamp[" + lampId + "]: " + (lampStatus[lampId] ? "on" : "off"));
+    }
+
+    private void disconnect() {
+        if (serialIoManager != null) {
+            serialIoManager.stop();
+            serialIoManager = null;
+        }
+
+        if (port != null) {
+            try {
+                port.close();
+            } catch (IOException e) {
+                // nothing
+            }
+            port = null;
+        }
+
+        connected = false;
+
+        Intent intent = new Intent();
+        intent.setAction(DISCONNECTED_INTENT);
+        sendBroadcast(intent);
     }
 
     public void connect() {
@@ -386,6 +392,9 @@ public class ArduinoService extends Service {
             @Override
             public void run() {
                 sendInitialPackets();
+                Intent intent = new Intent();
+                intent.setAction(CONNECTED_INTENT);
+                sendBroadcast(intent);
             }
         }, 2000);
     }

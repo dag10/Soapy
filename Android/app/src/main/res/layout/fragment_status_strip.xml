@@ -21,7 +21,9 @@
             android:textColor="@color/CANCEL_FG"
             android:textSize="25sp"
             android:paddingLeft="20dp"
-            android:paddingRight="20dp" />
+            android:paddingRight="20dp"
+            android:soundEffectsEnabled="false"
+            />
         </LinearLayout>
 
 </FrameLayout>

@@ -62,6 +62,7 @@
                     android:layout_marginBottom="60dp"
                     app:borderWidth="0dp"
                     app:backgroundTint="@color/FAB_GREEN"
+                    android:soundEffectsEnabled="false"
                     android:scaleX="2.3"
                     android:scaleY="2.3"
                     android:layout_above="@+id/rfid_output"

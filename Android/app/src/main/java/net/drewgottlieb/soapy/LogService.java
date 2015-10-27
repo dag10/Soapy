@@ -101,6 +101,11 @@ public class LogService extends Service {
             logListenThread.interrupt();
             logListenThread = null;
         }
+
+        if (uploadTimer != null) {
+            uploadTimer.cancel();
+            uploadTimer = null;
+        }
     }
 
     protected void uploadLogs() {

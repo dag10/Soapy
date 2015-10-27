@@ -42,9 +42,19 @@ use Propel\Runtime\Exception\PropelException;
  * @method     ChildSpotifyAccountQuery rightJoin($relation) Adds a RIGHT JOIN clause to the query
  * @method     ChildSpotifyAccountQuery innerJoin($relation) Adds a INNER JOIN clause to the query
  *
+ * @method     ChildSpotifyAccountQuery leftJoinWith($relation) Adds a LEFT JOIN clause and with to the query
+ * @method     ChildSpotifyAccountQuery rightJoinWith($relation) Adds a RIGHT JOIN clause and with to the query
+ * @method     ChildSpotifyAccountQuery innerJoinWith($relation) Adds a INNER JOIN clause and with to the query
+ *
  * @method     ChildSpotifyAccountQuery leftJoinUser($relationAlias = null) Adds a LEFT JOIN clause to the query using the User relation
  * @method     ChildSpotifyAccountQuery rightJoinUser($relationAlias = null) Adds a RIGHT JOIN clause to the query using the User relation
  * @method     ChildSpotifyAccountQuery innerJoinUser($relationAlias = null) Adds a INNER JOIN clause to the query using the User relation
+ *
+ * @method     ChildSpotifyAccountQuery joinWithUser($joinType = Criteria::INNER_JOIN) Adds a join clause and with to the query using the User relation
+ *
+ * @method     ChildSpotifyAccountQuery leftJoinWithUser() Adds a LEFT JOIN clause and with to the query using the User relation
+ * @method     ChildSpotifyAccountQuery rightJoinWithUser() Adds a RIGHT JOIN clause and with to the query using the User relation
+ * @method     ChildSpotifyAccountQuery innerJoinWithUser() Adds a INNER JOIN clause and with to the query using the User relation
  *
  * @method     \UserQuery endUse() Finalizes a secondary criteria and merges it with its primary Criteria
  *

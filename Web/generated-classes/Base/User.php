@@ -65,24 +65,28 @@ abstract class User implements ActiveRecordInterface
 
     /**
      * The value for the id field.
+     *
      * @var        int
      */
     protected $id;
 
     /**
      * The value for the ldap field.
+     *
      * @var        string
      */
     protected $ldap;
 
     /**
      * The value for the firstname field.
+     *
      * @var        string
      */
     protected $firstname;
 
     /**
      * The value for the lastname field.
+     *
      * @var        string
      */
     protected $lastname;

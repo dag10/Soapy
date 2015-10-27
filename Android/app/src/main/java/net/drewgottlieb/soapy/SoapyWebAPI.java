@@ -18,6 +18,7 @@ import org.jdeferred.FailCallback;
 import org.jdeferred.Promise;
 import org.jdeferred.impl.DefaultDeferredManager;
 import org.jdeferred.impl.DeferredObject;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -26,6 +27,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -182,6 +184,58 @@ public class SoapyWebAPI {
         vars.put("playlist_uri", playlistUri);
 
         dm.when(post("api/rfid/" + rfid + "/playlist/set", vars)).done(new DoneCallback<JSONObject>() {
+            @Override
+            public void onDone(JSONObject result) {
+                try {
+                    if (result.has("error")) {
+                        String errorMsg = result.getString("error");
+                        deferred.reject(new SoapyWebError("Remote error: " + errorMsg));
+                        return;
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                    deferred.reject(new SoapyWebError("Failed to parse response JSON: " + e.getMessage()));
+                }
+
+                deferred.resolve(null);
+            }
+        }).fail(new FailCallback<SoapyWebError>() {
+            @Override
+            public void onFail(SoapyWebError result) {
+                deferred.reject(result);
+            }
+        });
+
+        return deferred.promise();
+    }
+
+    public Promise<Void, Throwable, Void> uploadLogs(final List<LogService.LogEvent> events) {
+        final Deferred<Void, Throwable, Void> deferred = new DeferredObject<>();
+
+        String json = null;
+
+        try {
+            JSONObject jObj = new JSONObject();
+            jObj.put("bathroom", preferences.getBathroomName());
+
+            JSONArray jEvents = new JSONArray();
+            for (LogService.LogEvent event : events) {
+                JSONObject jEvent = new JSONObject();
+                jEvent.put("level",  event.getLevel().toString());
+                jEvent.put("time", event.getDate().toString());
+                jEvent.put("tag", event.getTag());
+                jEvent.put("message", event.getMessage());
+                jEvents.put(jEvent);
+            }
+
+            jObj.put("events", jEvents);
+            json = jObj.toString();
+        } catch (JSONException e) {
+            deferred.reject(e);
+            return deferred.promise();
+        }
+
+        dm.when(post("api/log/add", json)).done(new DoneCallback<JSONObject>() {
             @Override
             public void onDone(JSONObject result) {
                 try {

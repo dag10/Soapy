@@ -8,6 +8,12 @@ function get_webauth($app) {
 
   // This is just to fake webauth when developing on systems without it.
   if ($cfg['webauth']) {
+    foreach (['WEBAUTH_USER', 'WEBAUTH_LDAP_GIVENNAME', 'WEBAUTH_LDAP_SN'] as $key) {
+      if (!isset($_SERVER[$key])) {
+        return null;
+      }
+    }
+
     return [
       'ldap' => $_SERVER['WEBAUTH_USER'],
       'firstname' => $_SERVER['WEBAUTH_LDAP_GIVENNAME'],

@@ -63,23 +63,27 @@ function start_view($app, $opts=[]) {
     }
   } else {
     $webauth = \CSH\get_webauth($app);
-    $user = UserQuery::GetOrCreateUser($webauth);
-  }
-  $spotifyacct = SpotifyAccountQuery::findByUser($user);
-
-  if ($require_spotify and !$spotifyacct) {
-    if ($rfid) {
-      echo json_encode(['error' => 'No Spotify account has been linked.']);
-      exit;
-    } else {
-      $app->flash('error', "You must connect a Spotify account.");
-      $app->redirect($base_url);
-      return;
-    }
+    $user = $webauth == null ? null : UserQuery::GetOrCreateUser($webauth);
   }
 
+  $spotifyacct = null;
   $me = null;
   $api = null;
+  $user_json = [];
+
+  if ($user) {
+    $spotifyacct = SpotifyAccountQuery::findByUser($user);
+    if ($require_spotify and !$spotifyacct) {
+      if ($rfid) {
+        echo json_encode(['error' => 'No Spotify account has been linked.']);
+        exit;
+      } else {
+        $app->flash('error', "You must connect a Spotify account.");
+        $app->redirect($base_url);
+        return;
+      }
+    }
+  }
 
   if ($spotifyacct) {
     $user_json = [
@@ -90,11 +94,7 @@ function start_view($app, $opts=[]) {
       'access_token' => $spotifyacct->getAccessToken(),
       'avatar' => $spotifyacct->getAvatar(),
     ];
-  } else {
-    $user_json = [];
-  }
 
-  if ($spotifyacct) {
     if (time() > $spotifyacct->getExpiration()->getTimestamp()) {
       \Spotify\refresh_account($spotifyacct);
     }
@@ -112,6 +112,22 @@ function start_view($app, $opts=[]) {
     'user' => $user,
     'user_json' => $user_json,
   );
+}
+
+function dieWithJsonError($message) {
+  header("Content-Type: application/json");
+  echo json_encode(
+    ['error' => $message],
+    JSON_UNESCAPED_SLASHES);
+  exit;
+}
+
+function dieWithJsonSuccess() {
+  header("Content-Type: application/json");
+  echo json_encode(
+    ['success' => true],
+    JSON_UNESCAPED_SLASHES);
+  exit;
 }
 
 /* Routes */
@@ -288,11 +304,41 @@ $app->post('/api/rfid/:rfid/playlist/set', function($rfid) use ($app) {
   $ctx['spotifyacct']->setPlaylist($new_playlist);
   $ctx['spotifyacct']->save();
 
-  header("Content-Type: application/json");
-  echo json_encode(
-    ['success' => true],
-    JSON_UNESCAPED_SLASHES);
-  exit;
+  dieWithJsonSuccess();
+});
+
+// API for submitting log messages.
+$app->post('/api/log/add', function() use ($app) {
+  $ctx = start_view($app, ['require_secret' => true]);
+
+  $json = $app->request->getBody();
+  if (!$json) dieWithJsonError("No JSON body found.");
+
+  $data = json_decode($json, true);
+  if (!$data) dieWithJsonError("Failed to parse JSON.");
+
+  try {
+    $events = [];
+    $bathroom = $data['bathroom'];
+    foreach ($data['events'] as $event) {
+      $event['bathroom'] = $bathroom;
+      $log = new Log();
+
+      try {
+        $events[] = Log::CreateLog($event);
+      } catch (Exception $e) {
+        dieWithJsonError($e->getMessage());
+      }
+    }
+  } catch (Exception $e) {
+    dieWithJsonError($e->getMessage());
+  }
+
+  foreach ($events as $event) {
+    $event->save();
+  }
+
+  dieWithJsonSuccess();
 });
 
 $app->run();

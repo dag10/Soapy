@@ -4,6 +4,7 @@ import android.util.Log;
 
 import com.squareup.okhttp.ConnectionSpec;
 import com.squareup.okhttp.FormEncodingBuilder;
+import com.squareup.okhttp.MediaType;
 import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.Request;
 import com.squareup.okhttp.RequestBody;
@@ -38,6 +39,8 @@ public class SoapyWebAPI {
     private static String TAG = "SoapyWebAPI";
     private static final ExecutorService executorService = Executors.newCachedThreadPool();
     private static final DeferredManager dm = new DefaultDeferredManager(executorService);
+    private static final MediaType MEDIA_TYPE_JSON = MediaType.parse(
+            "application/json; charset=utf-8");
 
     public static class SoapyWebError extends Exception {
         public SoapyWebError(String message) {
@@ -73,14 +76,46 @@ public class SoapyWebAPI {
     }
 
     public Promise<JSONObject, SoapyWebError, Void> get(String route) {
-        return request(RequestType.GET, route, null);
+        return request(RequestType.GET, route, (RequestBody) null);
     }
 
     public Promise<JSONObject, SoapyWebError, Void> post(String route, Map<String, String> vars) {
         return request(RequestType.POST, route, vars);
     }
 
+    public Promise<JSONObject, SoapyWebError, Void> post(String route, String body) {
+        return request(RequestType.POST, route, body);
+    }
+
     protected Promise<JSONObject, SoapyWebError, Void> request(final RequestType type, String route, final Map<String, String> vars) {
+        RequestBody rBody = null;
+
+        if (type == RequestType.POST) {
+            FormEncodingBuilder bodyBuilder = new FormEncodingBuilder();
+
+            if (vars != null) {
+                for (String key : vars.keySet()) {
+                    bodyBuilder.add(key, vars.get(key));
+                }
+            }
+
+            rBody = bodyBuilder.build();
+        }
+
+        return request(type, route, rBody);
+    }
+
+    protected Promise<JSONObject, SoapyWebError, Void> request(final RequestType type, String route, final String body) {
+        RequestBody rBody = null;
+
+        if (type == RequestType.POST) {
+            rBody = RequestBody.create(MEDIA_TYPE_JSON, body);
+        }
+
+        return request(type, route, rBody);
+    }
+
+    protected Promise<JSONObject, SoapyWebError, Void> request(final RequestType type, String route, final RequestBody body) {
         final Deferred<JSONObject, SoapyWebError, Void> deferred = new DeferredObject<>();
 
         URL url = null;
@@ -102,15 +137,7 @@ public class SoapyWebAPI {
                             .header("X-Soapy-Secret", preferences.getSoapySecret());
 
                     if (type == RequestType.POST) {
-                        FormEncodingBuilder bodyBuilder = new FormEncodingBuilder();
-
-                        if (vars != null) {
-                            for (String key : vars.keySet()) {
-                                bodyBuilder.add(key, vars.get(key));
-                            }
-                        }
-
-                        builder.method("POST", bodyBuilder.build());
+                        builder.method("POST", body);
                     }
 
                     Response response = client.newCall(builder.build()).execute();

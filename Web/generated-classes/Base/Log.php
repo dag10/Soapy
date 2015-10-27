@@ -2,39 +2,37 @@
 
 namespace Base;
 
-use \SpotifyAccount as ChildSpotifyAccount;
-use \SpotifyAccountQuery as ChildSpotifyAccountQuery;
-use \User as ChildUser;
-use \UserQuery as ChildUserQuery;
+use \LogQuery as ChildLogQuery;
+use \DateTime;
 use \Exception;
 use \PDO;
-use Map\UserTableMap;
+use Map\LogTableMap;
 use Propel\Runtime\Propel;
 use Propel\Runtime\ActiveQuery\Criteria;
 use Propel\Runtime\ActiveQuery\ModelCriteria;
 use Propel\Runtime\ActiveRecord\ActiveRecordInterface;
 use Propel\Runtime\Collection\Collection;
-use Propel\Runtime\Collection\ObjectCollection;
 use Propel\Runtime\Connection\ConnectionInterface;
 use Propel\Runtime\Exception\BadMethodCallException;
 use Propel\Runtime\Exception\LogicException;
 use Propel\Runtime\Exception\PropelException;
 use Propel\Runtime\Map\TableMap;
 use Propel\Runtime\Parser\AbstractParser;
+use Propel\Runtime\Util\PropelDateTime;
 
 /**
- * Base class that represents a row from the 'user' table.
+ * Base class that represents a row from the 'log' table.
  *
  *
  *
 * @package    propel.generator..Base
 */
-abstract class User implements ActiveRecordInterface
+abstract class Log implements ActiveRecordInterface
 {
     /**
      * TableMap class name
      */
-    const TABLE_MAP = '\\Map\\UserTableMap';
+    const TABLE_MAP = '\\Map\\LogTableMap';
 
 
     /**
@@ -71,31 +69,39 @@ abstract class User implements ActiveRecordInterface
     protected $id;
 
     /**
-     * The value for the ldap field.
+     * The value for the bathroom field.
      *
      * @var        string
      */
-    protected $ldap;
+    protected $bathroom;
 
     /**
-     * The value for the firstname field.
+     * The value for the level field.
+     *
+     * @var        int
+     */
+    protected $level;
+
+    /**
+     * The value for the time field.
+     *
+     * @var        \DateTime
+     */
+    protected $time;
+
+    /**
+     * The value for the tag field.
      *
      * @var        string
      */
-    protected $firstname;
+    protected $tag;
 
     /**
-     * The value for the lastname field.
+     * The value for the message field.
      *
      * @var        string
      */
-    protected $lastname;
-
-    /**
-     * @var        ObjectCollection|ChildSpotifyAccount[] Collection to store aggregation of ChildSpotifyAccount objects.
-     */
-    protected $collSpotifyAccounts;
-    protected $collSpotifyAccountsPartial;
+    protected $message;
 
     /**
      * Flag to prevent endless save loop, if this object is referenced
@@ -106,13 +112,7 @@ abstract class User implements ActiveRecordInterface
     protected $alreadyInSave = false;
 
     /**
-     * An array of objects scheduled for deletion.
-     * @var ObjectCollection|ChildSpotifyAccount[]
-     */
-    protected $spotifyAccountsScheduledForDeletion = null;
-
-    /**
-     * Initializes internal state of Base\User object.
+     * Initializes internal state of Base\Log object.
      */
     public function __construct()
     {
@@ -207,9 +207,9 @@ abstract class User implements ActiveRecordInterface
     }
 
     /**
-     * Compares this with another <code>User</code> instance.  If
-     * <code>obj</code> is an instance of <code>User</code>, delegates to
-     * <code>equals(User)</code>.  Otherwise, returns <code>false</code>.
+     * Compares this with another <code>Log</code> instance.  If
+     * <code>obj</code> is an instance of <code>Log</code>, delegates to
+     * <code>equals(Log)</code>.  Otherwise, returns <code>false</code>.
      *
      * @param  mixed   $obj The object to compare to.
      * @return boolean Whether equal to the object specified.
@@ -275,7 +275,7 @@ abstract class User implements ActiveRecordInterface
      * @param string $name  The virtual column name
      * @param mixed  $value The value to give to the virtual column
      *
-     * @return $this|User The current object, for fluid interface
+     * @return $this|Log The current object, for fluid interface
      */
     public function setVirtualColumn($name, $value)
     {
@@ -339,40 +339,79 @@ abstract class User implements ActiveRecordInterface
     }
 
     /**
-     * Get the [ldap] column value.
+     * Get the [bathroom] column value.
      *
      * @return string
      */
-    public function getLdap()
+    public function getBathroom()
     {
-        return $this->ldap;
+        return $this->bathroom;
     }
 
     /**
-     * Get the [firstname] column value.
+     * Get the [level] column value.
      *
      * @return string
+     * @throws \Propel\Runtime\Exception\PropelException
      */
-    public function getFirstName()
+    public function getLevel()
     {
-        return $this->firstname;
+        if (null === $this->level) {
+            return null;
+        }
+        $valueSet = LogTableMap::getValueSet(LogTableMap::COL_LEVEL);
+        if (!isset($valueSet[$this->level])) {
+            throw new PropelException('Unknown stored enum key: ' . $this->level);
+        }
+
+        return $valueSet[$this->level];
     }
 
     /**
-     * Get the [lastname] column value.
+     * Get the [optionally formatted] temporal [time] column value.
+     *
+     *
+     * @param      string $format The date/time format string (either date()-style or strftime()-style).
+     *                            If format is NULL, then the raw DateTime object will be returned.
+     *
+     * @return string|DateTime Formatted date/time value as string or DateTime object (if format is NULL), NULL if column is NULL, and 0 if column value is 0000-00-00 00:00:00
+     *
+     * @throws PropelException - if unable to parse/validate the date/time value.
+     */
+    public function getTime($format = NULL)
+    {
+        if ($format === null) {
+            return $this->time;
+        } else {
+            return $this->time instanceof \DateTime ? $this->time->format($format) : null;
+        }
+    }
+
+    /**
+     * Get the [tag] column value.
      *
      * @return string
      */
-    public function getLastName()
+    public function getTag()
     {
-        return $this->lastname;
+        return $this->tag;
+    }
+
+    /**
+     * Get the [message] column value.
+     *
+     * @return string
+     */
+    public function getMessage()
+    {
+        return $this->message;
     }
 
     /**
      * Set the value of [id] column.
      *
      * @param int $v new value
-     * @return $this|\User The current object (for fluent API support)
+     * @return $this|\Log The current object (for fluent API support)
      */
     public function setId($v)
     {
@@ -382,71 +421,116 @@ abstract class User implements ActiveRecordInterface
 
         if ($this->id !== $v) {
             $this->id = $v;
-            $this->modifiedColumns[UserTableMap::COL_ID] = true;
+            $this->modifiedColumns[LogTableMap::COL_ID] = true;
         }
 
         return $this;
     } // setId()
 
     /**
-     * Set the value of [ldap] column.
+     * Set the value of [bathroom] column.
      *
      * @param string $v new value
-     * @return $this|\User The current object (for fluent API support)
+     * @return $this|\Log The current object (for fluent API support)
      */
-    public function setLdap($v)
+    public function setBathroom($v)
     {
         if ($v !== null) {
             $v = (string) $v;
         }
 
-        if ($this->ldap !== $v) {
-            $this->ldap = $v;
-            $this->modifiedColumns[UserTableMap::COL_LDAP] = true;
+        if ($this->bathroom !== $v) {
+            $this->bathroom = $v;
+            $this->modifiedColumns[LogTableMap::COL_BATHROOM] = true;
         }
 
         return $this;
-    } // setLdap()
+    } // setBathroom()
 
     /**
-     * Set the value of [firstname] column.
+     * Set the value of [level] column.
      *
-     * @param string $v new value
-     * @return $this|\User The current object (for fluent API support)
+     * @param  string $v new value
+     * @return $this|\Log The current object (for fluent API support)
+     * @throws \Propel\Runtime\Exception\PropelException
      */
-    public function setFirstName($v)
+    public function setLevel($v)
     {
         if ($v !== null) {
-            $v = (string) $v;
+            $valueSet = LogTableMap::getValueSet(LogTableMap::COL_LEVEL);
+            if (!in_array($v, $valueSet)) {
+                throw new PropelException(sprintf('Value "%s" is not accepted in this enumerated column', $v));
+            }
+            $v = array_search($v, $valueSet);
         }
 
-        if ($this->firstname !== $v) {
-            $this->firstname = $v;
-            $this->modifiedColumns[UserTableMap::COL_FIRSTNAME] = true;
+        if ($this->level !== $v) {
+            $this->level = $v;
+            $this->modifiedColumns[LogTableMap::COL_LEVEL] = true;
         }
 
         return $this;
-    } // setFirstName()
+    } // setLevel()
 
     /**
-     * Set the value of [lastname] column.
+     * Sets the value of [time] column to a normalized version of the date/time value specified.
+     *
+     * @param  mixed $v string, integer (timestamp), or \DateTime value.
+     *               Empty strings are treated as NULL.
+     * @return $this|\Log The current object (for fluent API support)
+     */
+    public function setTime($v)
+    {
+        $dt = PropelDateTime::newInstance($v, null, 'DateTime');
+        if ($this->time !== null || $dt !== null) {
+            if ($this->time === null || $dt === null || $dt->format("Y-m-d H:i:s") !== $this->time->format("Y-m-d H:i:s")) {
+                $this->time = $dt === null ? null : clone $dt;
+                $this->modifiedColumns[LogTableMap::COL_TIME] = true;
+            }
+        } // if either are not null
+
+        return $this;
+    } // setTime()
+
+    /**
+     * Set the value of [tag] column.
      *
      * @param string $v new value
-     * @return $this|\User The current object (for fluent API support)
+     * @return $this|\Log The current object (for fluent API support)
      */
-    public function setLastName($v)
+    public function setTag($v)
     {
         if ($v !== null) {
             $v = (string) $v;
         }
 
-        if ($this->lastname !== $v) {
-            $this->lastname = $v;
-            $this->modifiedColumns[UserTableMap::COL_LASTNAME] = true;
+        if ($this->tag !== $v) {
+            $this->tag = $v;
+            $this->modifiedColumns[LogTableMap::COL_TAG] = true;
         }
 
         return $this;
-    } // setLastName()
+    } // setTag()
+
+    /**
+     * Set the value of [message] column.
+     *
+     * @param string $v new value
+     * @return $this|\Log The current object (for fluent API support)
+     */
+    public function setMessage($v)
+    {
+        if ($v !== null) {
+            $v = (string) $v;
+        }
+
+        if ($this->message !== $v) {
+            $this->message = $v;
+            $this->modifiedColumns[LogTableMap::COL_MESSAGE] = true;
+        }
+
+        return $this;
+    } // setMessage()
 
     /**
      * Indicates whether the columns in this object are only set to default values.
@@ -484,17 +568,26 @@ abstract class User implements ActiveRecordInterface
     {
         try {
 
-            $col = $row[TableMap::TYPE_NUM == $indexType ? 0 + $startcol : UserTableMap::translateFieldName('Id', TableMap::TYPE_PHPNAME, $indexType)];
+            $col = $row[TableMap::TYPE_NUM == $indexType ? 0 + $startcol : LogTableMap::translateFieldName('Id', TableMap::TYPE_PHPNAME, $indexType)];
             $this->id = (null !== $col) ? (int) $col : null;
 
-            $col = $row[TableMap::TYPE_NUM == $indexType ? 1 + $startcol : UserTableMap::translateFieldName('Ldap', TableMap::TYPE_PHPNAME, $indexType)];
-            $this->ldap = (null !== $col) ? (string) $col : null;
+            $col = $row[TableMap::TYPE_NUM == $indexType ? 1 + $startcol : LogTableMap::translateFieldName('Bathroom', TableMap::TYPE_PHPNAME, $indexType)];
+            $this->bathroom = (null !== $col) ? (string) $col : null;
 
-            $col = $row[TableMap::TYPE_NUM == $indexType ? 2 + $startcol : UserTableMap::translateFieldName('FirstName', TableMap::TYPE_PHPNAME, $indexType)];
-            $this->firstname = (null !== $col) ? (string) $col : null;
+            $col = $row[TableMap::TYPE_NUM == $indexType ? 2 + $startcol : LogTableMap::translateFieldName('Level', TableMap::TYPE_PHPNAME, $indexType)];
+            $this->level = (null !== $col) ? (int) $col : null;
 
-            $col = $row[TableMap::TYPE_NUM == $indexType ? 3 + $startcol : UserTableMap::translateFieldName('LastName', TableMap::TYPE_PHPNAME, $indexType)];
-            $this->lastname = (null !== $col) ? (string) $col : null;
+            $col = $row[TableMap::TYPE_NUM == $indexType ? 3 + $startcol : LogTableMap::translateFieldName('Time', TableMap::TYPE_PHPNAME, $indexType)];
+            if ($col === '0000-00-00 00:00:00') {
+                $col = null;
+            }
+            $this->time = (null !== $col) ? PropelDateTime::newInstance($col, null, 'DateTime') : null;
+
+            $col = $row[TableMap::TYPE_NUM == $indexType ? 4 + $startcol : LogTableMap::translateFieldName('Tag', TableMap::TYPE_PHPNAME, $indexType)];
+            $this->tag = (null !== $col) ? (string) $col : null;
+
+            $col = $row[TableMap::TYPE_NUM == $indexType ? 5 + $startcol : LogTableMap::translateFieldName('Message', TableMap::TYPE_PHPNAME, $indexType)];
+            $this->message = (null !== $col) ? (string) $col : null;
             $this->resetModified();
 
             $this->setNew(false);
@@ -503,10 +596,10 @@ abstract class User implements ActiveRecordInterface
                 $this->ensureConsistency();
             }
 
-            return $startcol + 4; // 4 = UserTableMap::NUM_HYDRATE_COLUMNS.
+            return $startcol + 6; // 6 = LogTableMap::NUM_HYDRATE_COLUMNS.
 
         } catch (Exception $e) {
-            throw new PropelException(sprintf('Error populating %s object', '\\User'), 0, $e);
+            throw new PropelException(sprintf('Error populating %s object', '\\Log'), 0, $e);
         }
     }
 
@@ -548,13 +641,13 @@ abstract class User implements ActiveRecordInterface
         }
 
         if ($con === null) {
-            $con = Propel::getServiceContainer()->getReadConnection(UserTableMap::DATABASE_NAME);
+            $con = Propel::getServiceContainer()->getReadConnection(LogTableMap::DATABASE_NAME);
         }
 
         // We don't need to alter the object instance pool; we're just modifying this instance
         // already in the pool.
 
-        $dataFetcher = ChildUserQuery::create(null, $this->buildPkeyCriteria())->setFormatter(ModelCriteria::FORMAT_STATEMENT)->find($con);
+        $dataFetcher = ChildLogQuery::create(null, $this->buildPkeyCriteria())->setFormatter(ModelCriteria::FORMAT_STATEMENT)->find($con);
         $row = $dataFetcher->fetch();
         $dataFetcher->close();
         if (!$row) {
@@ -563,8 +656,6 @@ abstract class User implements ActiveRecordInterface
         $this->hydrate($row, 0, true, $dataFetcher->getIndexType()); // rehydrate
 
         if ($deep) {  // also de-associate any related objects?
-
-            $this->collSpotifyAccounts = null;
 
         } // if (deep)
     }
@@ -575,8 +666,8 @@ abstract class User implements ActiveRecordInterface
      * @param      ConnectionInterface $con
      * @return void
      * @throws PropelException
-     * @see User::setDeleted()
-     * @see User::isDeleted()
+     * @see Log::setDeleted()
+     * @see Log::isDeleted()
      */
     public function delete(ConnectionInterface $con = null)
     {
@@ -585,11 +676,11 @@ abstract class User implements ActiveRecordInterface
         }
 
         if ($con === null) {
-            $con = Propel::getServiceContainer()->getWriteConnection(UserTableMap::DATABASE_NAME);
+            $con = Propel::getServiceContainer()->getWriteConnection(LogTableMap::DATABASE_NAME);
         }
 
         $con->transaction(function () use ($con) {
-            $deleteQuery = ChildUserQuery::create()
+            $deleteQuery = ChildLogQuery::create()
                 ->filterByPrimaryKey($this->getPrimaryKey());
             $ret = $this->preDelete($con);
             if ($ret) {
@@ -620,7 +711,7 @@ abstract class User implements ActiveRecordInterface
         }
 
         if ($con === null) {
-            $con = Propel::getServiceContainer()->getWriteConnection(UserTableMap::DATABASE_NAME);
+            $con = Propel::getServiceContainer()->getWriteConnection(LogTableMap::DATABASE_NAME);
         }
 
         return $con->transaction(function () use ($con) {
@@ -639,7 +730,7 @@ abstract class User implements ActiveRecordInterface
                     $this->postUpdate($con);
                 }
                 $this->postSave($con);
-                UserTableMap::addInstanceToPool($this);
+                LogTableMap::addInstanceToPool($this);
             } else {
                 $affectedRows = 0;
             }
@@ -676,23 +767,6 @@ abstract class User implements ActiveRecordInterface
                 $this->resetModified();
             }
 
-            if ($this->spotifyAccountsScheduledForDeletion !== null) {
-                if (!$this->spotifyAccountsScheduledForDeletion->isEmpty()) {
-                    \SpotifyAccountQuery::create()
-                        ->filterByPrimaryKeys($this->spotifyAccountsScheduledForDeletion->getPrimaryKeys(false))
-                        ->delete($con);
-                    $this->spotifyAccountsScheduledForDeletion = null;
-                }
-            }
-
-            if ($this->collSpotifyAccounts !== null) {
-                foreach ($this->collSpotifyAccounts as $referrerFK) {
-                    if (!$referrerFK->isDeleted() && ($referrerFK->isNew() || $referrerFK->isModified())) {
-                        $affectedRows += $referrerFK->save($con);
-                    }
-                }
-            }
-
             $this->alreadyInSave = false;
 
         }
@@ -713,27 +787,33 @@ abstract class User implements ActiveRecordInterface
         $modifiedColumns = array();
         $index = 0;
 
-        $this->modifiedColumns[UserTableMap::COL_ID] = true;
+        $this->modifiedColumns[LogTableMap::COL_ID] = true;
         if (null !== $this->id) {
-            throw new PropelException('Cannot insert a value for auto-increment primary key (' . UserTableMap::COL_ID . ')');
+            throw new PropelException('Cannot insert a value for auto-increment primary key (' . LogTableMap::COL_ID . ')');
         }
 
          // check the columns in natural order for more readable SQL queries
-        if ($this->isColumnModified(UserTableMap::COL_ID)) {
+        if ($this->isColumnModified(LogTableMap::COL_ID)) {
             $modifiedColumns[':p' . $index++]  = 'id';
         }
-        if ($this->isColumnModified(UserTableMap::COL_LDAP)) {
-            $modifiedColumns[':p' . $index++]  = 'ldap';
+        if ($this->isColumnModified(LogTableMap::COL_BATHROOM)) {
+            $modifiedColumns[':p' . $index++]  = 'bathroom';
         }
-        if ($this->isColumnModified(UserTableMap::COL_FIRSTNAME)) {
-            $modifiedColumns[':p' . $index++]  = 'firstname';
+        if ($this->isColumnModified(LogTableMap::COL_LEVEL)) {
+            $modifiedColumns[':p' . $index++]  = 'level';
         }
-        if ($this->isColumnModified(UserTableMap::COL_LASTNAME)) {
-            $modifiedColumns[':p' . $index++]  = 'lastname';
+        if ($this->isColumnModified(LogTableMap::COL_TIME)) {
+            $modifiedColumns[':p' . $index++]  = 'time';
+        }
+        if ($this->isColumnModified(LogTableMap::COL_TAG)) {
+            $modifiedColumns[':p' . $index++]  = 'tag';
+        }
+        if ($this->isColumnModified(LogTableMap::COL_MESSAGE)) {
+            $modifiedColumns[':p' . $index++]  = 'message';
         }
 
         $sql = sprintf(
-            'INSERT INTO user (%s) VALUES (%s)',
+            'INSERT INTO log (%s) VALUES (%s)',
             implode(', ', $modifiedColumns),
             implode(', ', array_keys($modifiedColumns))
         );
@@ -745,14 +825,20 @@ abstract class User implements ActiveRecordInterface
                     case 'id':
                         $stmt->bindValue($identifier, $this->id, PDO::PARAM_INT);
                         break;
-                    case 'ldap':
-                        $stmt->bindValue($identifier, $this->ldap, PDO::PARAM_STR);
+                    case 'bathroom':
+                        $stmt->bindValue($identifier, $this->bathroom, PDO::PARAM_STR);
                         break;
-                    case 'firstname':
-                        $stmt->bindValue($identifier, $this->firstname, PDO::PARAM_STR);
+                    case 'level':
+                        $stmt->bindValue($identifier, $this->level, PDO::PARAM_INT);
                         break;
-                    case 'lastname':
-                        $stmt->bindValue($identifier, $this->lastname, PDO::PARAM_STR);
+                    case 'time':
+                        $stmt->bindValue($identifier, $this->time ? $this->time->format("Y-m-d H:i:s") : null, PDO::PARAM_STR);
+                        break;
+                    case 'tag':
+                        $stmt->bindValue($identifier, $this->tag, PDO::PARAM_STR);
+                        break;
+                    case 'message':
+                        $stmt->bindValue($identifier, $this->message, PDO::PARAM_STR);
                         break;
                 }
             }
@@ -800,7 +886,7 @@ abstract class User implements ActiveRecordInterface
      */
     public function getByName($name, $type = TableMap::TYPE_PHPNAME)
     {
-        $pos = UserTableMap::translateFieldName($name, $type, TableMap::TYPE_NUM);
+        $pos = LogTableMap::translateFieldName($name, $type, TableMap::TYPE_NUM);
         $field = $this->getByPosition($pos);
 
         return $field;
@@ -820,13 +906,19 @@ abstract class User implements ActiveRecordInterface
                 return $this->getId();
                 break;
             case 1:
-                return $this->getLdap();
+                return $this->getBathroom();
                 break;
             case 2:
-                return $this->getFirstName();
+                return $this->getLevel();
                 break;
             case 3:
-                return $this->getLastName();
+                return $this->getTime();
+                break;
+            case 4:
+                return $this->getTag();
+                break;
+            case 5:
+                return $this->getMessage();
                 break;
             default:
                 return null;
@@ -845,46 +937,38 @@ abstract class User implements ActiveRecordInterface
      *                    Defaults to TableMap::TYPE_PHPNAME.
      * @param     boolean $includeLazyLoadColumns (optional) Whether to include lazy loaded columns. Defaults to TRUE.
      * @param     array $alreadyDumpedObjects List of objects to skip to avoid recursion
-     * @param     boolean $includeForeignObjects (optional) Whether to include hydrated related objects. Default to FALSE.
      *
      * @return array an associative array containing the field names (as keys) and field values
      */
-    public function toArray($keyType = TableMap::TYPE_PHPNAME, $includeLazyLoadColumns = true, $alreadyDumpedObjects = array(), $includeForeignObjects = false)
+    public function toArray($keyType = TableMap::TYPE_PHPNAME, $includeLazyLoadColumns = true, $alreadyDumpedObjects = array())
     {
 
-        if (isset($alreadyDumpedObjects['User'][$this->hashCode()])) {
+        if (isset($alreadyDumpedObjects['Log'][$this->hashCode()])) {
             return '*RECURSION*';
         }
-        $alreadyDumpedObjects['User'][$this->hashCode()] = true;
-        $keys = UserTableMap::getFieldNames($keyType);
+        $alreadyDumpedObjects['Log'][$this->hashCode()] = true;
+        $keys = LogTableMap::getFieldNames($keyType);
         $result = array(
             $keys[0] => $this->getId(),
-            $keys[1] => $this->getLdap(),
-            $keys[2] => $this->getFirstName(),
-            $keys[3] => $this->getLastName(),
+            $keys[1] => $this->getBathroom(),
+            $keys[2] => $this->getLevel(),
+            $keys[3] => $this->getTime(),
+            $keys[4] => $this->getTag(),
+            $keys[5] => $this->getMessage(),
         );
+
+        $utc = new \DateTimeZone('utc');
+        if ($result[$keys[3]] instanceof \DateTime) {
+            // When changing timezone we don't want to change existing instances
+            $dateTime = clone $result[$keys[3]];
+            $result[$keys[3]] = $dateTime->setTimezone($utc)->format('Y-m-d\TH:i:s\Z');
+        }
+
         $virtualColumns = $this->virtualColumns;
         foreach ($virtualColumns as $key => $virtualColumn) {
             $result[$key] = $virtualColumn;
         }
 
-        if ($includeForeignObjects) {
-            if (null !== $this->collSpotifyAccounts) {
-
-                switch ($keyType) {
-                    case TableMap::TYPE_CAMELNAME:
-                        $key = 'spotifyAccounts';
-                        break;
-                    case TableMap::TYPE_FIELDNAME:
-                        $key = 'spotifyaccounts';
-                        break;
-                    default:
-                        $key = 'SpotifyAccounts';
-                }
-
-                $result[$key] = $this->collSpotifyAccounts->toArray(null, false, $keyType, $includeLazyLoadColumns, $alreadyDumpedObjects);
-            }
-        }
 
         return $result;
     }
@@ -898,11 +982,11 @@ abstract class User implements ActiveRecordInterface
      *                one of the class type constants TableMap::TYPE_PHPNAME, TableMap::TYPE_CAMELNAME
      *                TableMap::TYPE_COLNAME, TableMap::TYPE_FIELDNAME, TableMap::TYPE_NUM.
      *                Defaults to TableMap::TYPE_PHPNAME.
-     * @return $this|\User
+     * @return $this|\Log
      */
     public function setByName($name, $value, $type = TableMap::TYPE_PHPNAME)
     {
-        $pos = UserTableMap::translateFieldName($name, $type, TableMap::TYPE_NUM);
+        $pos = LogTableMap::translateFieldName($name, $type, TableMap::TYPE_NUM);
 
         return $this->setByPosition($pos, $value);
     }
@@ -913,7 +997,7 @@ abstract class User implements ActiveRecordInterface
      *
      * @param  int $pos position in xml schema
      * @param  mixed $value field value
-     * @return $this|\User
+     * @return $this|\Log
      */
     public function setByPosition($pos, $value)
     {
@@ -922,13 +1006,23 @@ abstract class User implements ActiveRecordInterface
                 $this->setId($value);
                 break;
             case 1:
-                $this->setLdap($value);
+                $this->setBathroom($value);
                 break;
             case 2:
-                $this->setFirstName($value);
+                $valueSet = LogTableMap::getValueSet(LogTableMap::COL_LEVEL);
+                if (isset($valueSet[$value])) {
+                    $value = $valueSet[$value];
+                }
+                $this->setLevel($value);
                 break;
             case 3:
-                $this->setLastName($value);
+                $this->setTime($value);
+                break;
+            case 4:
+                $this->setTag($value);
+                break;
+            case 5:
+                $this->setMessage($value);
                 break;
         } // switch()
 
@@ -954,19 +1048,25 @@ abstract class User implements ActiveRecordInterface
      */
     public function fromArray($arr, $keyType = TableMap::TYPE_PHPNAME)
     {
-        $keys = UserTableMap::getFieldNames($keyType);
+        $keys = LogTableMap::getFieldNames($keyType);
 
         if (array_key_exists($keys[0], $arr)) {
             $this->setId($arr[$keys[0]]);
         }
         if (array_key_exists($keys[1], $arr)) {
-            $this->setLdap($arr[$keys[1]]);
+            $this->setBathroom($arr[$keys[1]]);
         }
         if (array_key_exists($keys[2], $arr)) {
-            $this->setFirstName($arr[$keys[2]]);
+            $this->setLevel($arr[$keys[2]]);
         }
         if (array_key_exists($keys[3], $arr)) {
-            $this->setLastName($arr[$keys[3]]);
+            $this->setTime($arr[$keys[3]]);
+        }
+        if (array_key_exists($keys[4], $arr)) {
+            $this->setTag($arr[$keys[4]]);
+        }
+        if (array_key_exists($keys[5], $arr)) {
+            $this->setMessage($arr[$keys[5]]);
         }
     }
 
@@ -987,7 +1087,7 @@ abstract class User implements ActiveRecordInterface
      * @param string $data The source data to import from
      * @param string $keyType The type of keys the array uses.
      *
-     * @return $this|\User The current object, for fluid interface
+     * @return $this|\Log The current object, for fluid interface
      */
     public function importFrom($parser, $data, $keyType = TableMap::TYPE_PHPNAME)
     {
@@ -1007,19 +1107,25 @@ abstract class User implements ActiveRecordInterface
      */
     public function buildCriteria()
     {
-        $criteria = new Criteria(UserTableMap::DATABASE_NAME);
+        $criteria = new Criteria(LogTableMap::DATABASE_NAME);
 
-        if ($this->isColumnModified(UserTableMap::COL_ID)) {
-            $criteria->add(UserTableMap::COL_ID, $this->id);
+        if ($this->isColumnModified(LogTableMap::COL_ID)) {
+            $criteria->add(LogTableMap::COL_ID, $this->id);
         }
-        if ($this->isColumnModified(UserTableMap::COL_LDAP)) {
-            $criteria->add(UserTableMap::COL_LDAP, $this->ldap);
+        if ($this->isColumnModified(LogTableMap::COL_BATHROOM)) {
+            $criteria->add(LogTableMap::COL_BATHROOM, $this->bathroom);
         }
-        if ($this->isColumnModified(UserTableMap::COL_FIRSTNAME)) {
-            $criteria->add(UserTableMap::COL_FIRSTNAME, $this->firstname);
+        if ($this->isColumnModified(LogTableMap::COL_LEVEL)) {
+            $criteria->add(LogTableMap::COL_LEVEL, $this->level);
         }
-        if ($this->isColumnModified(UserTableMap::COL_LASTNAME)) {
-            $criteria->add(UserTableMap::COL_LASTNAME, $this->lastname);
+        if ($this->isColumnModified(LogTableMap::COL_TIME)) {
+            $criteria->add(LogTableMap::COL_TIME, $this->time);
+        }
+        if ($this->isColumnModified(LogTableMap::COL_TAG)) {
+            $criteria->add(LogTableMap::COL_TAG, $this->tag);
+        }
+        if ($this->isColumnModified(LogTableMap::COL_MESSAGE)) {
+            $criteria->add(LogTableMap::COL_MESSAGE, $this->message);
         }
 
         return $criteria;
@@ -1037,8 +1143,8 @@ abstract class User implements ActiveRecordInterface
      */
     public function buildPkeyCriteria()
     {
-        $criteria = ChildUserQuery::create();
-        $criteria->add(UserTableMap::COL_ID, $this->id);
+        $criteria = ChildLogQuery::create();
+        $criteria->add(LogTableMap::COL_ID, $this->id);
 
         return $criteria;
     }
@@ -1100,30 +1206,18 @@ abstract class User implements ActiveRecordInterface
      * If desired, this method can also make copies of all associated (fkey referrers)
      * objects.
      *
-     * @param      object $copyObj An object of \User (or compatible) type.
+     * @param      object $copyObj An object of \Log (or compatible) type.
      * @param      boolean $deepCopy Whether to also copy all rows that refer (by fkey) to the current row.
      * @param      boolean $makeNew Whether to reset autoincrement PKs and make the object new.
      * @throws PropelException
      */
     public function copyInto($copyObj, $deepCopy = false, $makeNew = true)
     {
-        $copyObj->setLdap($this->getLdap());
-        $copyObj->setFirstName($this->getFirstName());
-        $copyObj->setLastName($this->getLastName());
-
-        if ($deepCopy) {
-            // important: temporarily setNew(false) because this affects the behavior of
-            // the getter/setter methods for fkey referrer objects.
-            $copyObj->setNew(false);
-
-            foreach ($this->getSpotifyAccounts() as $relObj) {
-                if ($relObj !== $this) {  // ensure that we don't try to copy a reference to ourselves
-                    $copyObj->addSpotifyAccount($relObj->copy($deepCopy));
-                }
-            }
-
-        } // if ($deepCopy)
-
+        $copyObj->setBathroom($this->getBathroom());
+        $copyObj->setLevel($this->getLevel());
+        $copyObj->setTime($this->getTime());
+        $copyObj->setTag($this->getTag());
+        $copyObj->setMessage($this->getMessage());
         if ($makeNew) {
             $copyObj->setNew(true);
             $copyObj->setId(NULL); // this is a auto-increment column, so set to default value
@@ -1139,7 +1233,7 @@ abstract class User implements ActiveRecordInterface
      * objects.
      *
      * @param  boolean $deepCopy Whether to also copy all rows that refer (by fkey) to the current row.
-     * @return \User Clone of current object.
+     * @return \Log Clone of current object.
      * @throws PropelException
      */
     public function copy($deepCopy = false)
@@ -1152,240 +1246,6 @@ abstract class User implements ActiveRecordInterface
         return $copyObj;
     }
 
-
-    /**
-     * Initializes a collection based on the name of a relation.
-     * Avoids crafting an 'init[$relationName]s' method name
-     * that wouldn't work when StandardEnglishPluralizer is used.
-     *
-     * @param      string $relationName The name of the relation to initialize
-     * @return void
-     */
-    public function initRelation($relationName)
-    {
-        if ('SpotifyAccount' == $relationName) {
-            return $this->initSpotifyAccounts();
-        }
-    }
-
-    /**
-     * Clears out the collSpotifyAccounts collection
-     *
-     * This does not modify the database; however, it will remove any associated objects, causing
-     * them to be refetched by subsequent calls to accessor method.
-     *
-     * @return void
-     * @see        addSpotifyAccounts()
-     */
-    public function clearSpotifyAccounts()
-    {
-        $this->collSpotifyAccounts = null; // important to set this to NULL since that means it is uninitialized
-    }
-
-    /**
-     * Reset is the collSpotifyAccounts collection loaded partially.
-     */
-    public function resetPartialSpotifyAccounts($v = true)
-    {
-        $this->collSpotifyAccountsPartial = $v;
-    }
-
-    /**
-     * Initializes the collSpotifyAccounts collection.
-     *
-     * By default this just sets the collSpotifyAccounts collection to an empty array (like clearcollSpotifyAccounts());
-     * however, you may wish to override this method in your stub class to provide setting appropriate
-     * to your application -- for example, setting the initial array to the values stored in database.
-     *
-     * @param      boolean $overrideExisting If set to true, the method call initializes
-     *                                        the collection even if it is not empty
-     *
-     * @return void
-     */
-    public function initSpotifyAccounts($overrideExisting = true)
-    {
-        if (null !== $this->collSpotifyAccounts && !$overrideExisting) {
-            return;
-        }
-        $this->collSpotifyAccounts = new ObjectCollection();
-        $this->collSpotifyAccounts->setModel('\SpotifyAccount');
-    }
-
-    /**
-     * Gets an array of ChildSpotifyAccount objects which contain a foreign key that references this object.
-     *
-     * If the $criteria is not null, it is used to always fetch the results from the database.
-     * Otherwise the results are fetched from the database the first time, then cached.
-     * Next time the same method is called without $criteria, the cached collection is returned.
-     * If this ChildUser is new, it will return
-     * an empty collection or the current collection; the criteria is ignored on a new object.
-     *
-     * @param      Criteria $criteria optional Criteria object to narrow the query
-     * @param      ConnectionInterface $con optional connection object
-     * @return ObjectCollection|ChildSpotifyAccount[] List of ChildSpotifyAccount objects
-     * @throws PropelException
-     */
-    public function getSpotifyAccounts(Criteria $criteria = null, ConnectionInterface $con = null)
-    {
-        $partial = $this->collSpotifyAccountsPartial && !$this->isNew();
-        if (null === $this->collSpotifyAccounts || null !== $criteria  || $partial) {
-            if ($this->isNew() && null === $this->collSpotifyAccounts) {
-                // return empty collection
-                $this->initSpotifyAccounts();
-            } else {
-                $collSpotifyAccounts = ChildSpotifyAccountQuery::create(null, $criteria)
-                    ->filterByUser($this)
-                    ->find($con);
-
-                if (null !== $criteria) {
-                    if (false !== $this->collSpotifyAccountsPartial && count($collSpotifyAccounts)) {
-                        $this->initSpotifyAccounts(false);
-
-                        foreach ($collSpotifyAccounts as $obj) {
-                            if (false == $this->collSpotifyAccounts->contains($obj)) {
-                                $this->collSpotifyAccounts->append($obj);
-                            }
-                        }
-
-                        $this->collSpotifyAccountsPartial = true;
-                    }
-
-                    return $collSpotifyAccounts;
-                }
-
-                if ($partial && $this->collSpotifyAccounts) {
-                    foreach ($this->collSpotifyAccounts as $obj) {
-                        if ($obj->isNew()) {
-                            $collSpotifyAccounts[] = $obj;
-                        }
-                    }
-                }
-
-                $this->collSpotifyAccounts = $collSpotifyAccounts;
-                $this->collSpotifyAccountsPartial = false;
-            }
-        }
-
-        return $this->collSpotifyAccounts;
-    }
-
-    /**
-     * Sets a collection of ChildSpotifyAccount objects related by a one-to-many relationship
-     * to the current object.
-     * It will also schedule objects for deletion based on a diff between old objects (aka persisted)
-     * and new objects from the given Propel collection.
-     *
-     * @param      Collection $spotifyAccounts A Propel collection.
-     * @param      ConnectionInterface $con Optional connection object
-     * @return $this|ChildUser The current object (for fluent API support)
-     */
-    public function setSpotifyAccounts(Collection $spotifyAccounts, ConnectionInterface $con = null)
-    {
-        /** @var ChildSpotifyAccount[] $spotifyAccountsToDelete */
-        $spotifyAccountsToDelete = $this->getSpotifyAccounts(new Criteria(), $con)->diff($spotifyAccounts);
-
-
-        $this->spotifyAccountsScheduledForDeletion = $spotifyAccountsToDelete;
-
-        foreach ($spotifyAccountsToDelete as $spotifyAccountRemoved) {
-            $spotifyAccountRemoved->setUser(null);
-        }
-
-        $this->collSpotifyAccounts = null;
-        foreach ($spotifyAccounts as $spotifyAccount) {
-            $this->addSpotifyAccount($spotifyAccount);
-        }
-
-        $this->collSpotifyAccounts = $spotifyAccounts;
-        $this->collSpotifyAccountsPartial = false;
-
-        return $this;
-    }
-
-    /**
-     * Returns the number of related SpotifyAccount objects.
-     *
-     * @param      Criteria $criteria
-     * @param      boolean $distinct
-     * @param      ConnectionInterface $con
-     * @return int             Count of related SpotifyAccount objects.
-     * @throws PropelException
-     */
-    public function countSpotifyAccounts(Criteria $criteria = null, $distinct = false, ConnectionInterface $con = null)
-    {
-        $partial = $this->collSpotifyAccountsPartial && !$this->isNew();
-        if (null === $this->collSpotifyAccounts || null !== $criteria || $partial) {
-            if ($this->isNew() && null === $this->collSpotifyAccounts) {
-                return 0;
-            }
-
-            if ($partial && !$criteria) {
-                return count($this->getSpotifyAccounts());
-            }
-
-            $query = ChildSpotifyAccountQuery::create(null, $criteria);
-            if ($distinct) {
-                $query->distinct();
-            }
-
-            return $query
-                ->filterByUser($this)
-                ->count($con);
-        }
-
-        return count($this->collSpotifyAccounts);
-    }
-
-    /**
-     * Method called to associate a ChildSpotifyAccount object to this object
-     * through the ChildSpotifyAccount foreign key attribute.
-     *
-     * @param  ChildSpotifyAccount $l ChildSpotifyAccount
-     * @return $this|\User The current object (for fluent API support)
-     */
-    public function addSpotifyAccount(ChildSpotifyAccount $l)
-    {
-        if ($this->collSpotifyAccounts === null) {
-            $this->initSpotifyAccounts();
-            $this->collSpotifyAccountsPartial = true;
-        }
-
-        if (!$this->collSpotifyAccounts->contains($l)) {
-            $this->doAddSpotifyAccount($l);
-        }
-
-        return $this;
-    }
-
-    /**
-     * @param ChildSpotifyAccount $spotifyAccount The ChildSpotifyAccount object to add.
-     */
-    protected function doAddSpotifyAccount(ChildSpotifyAccount $spotifyAccount)
-    {
-        $this->collSpotifyAccounts[]= $spotifyAccount;
-        $spotifyAccount->setUser($this);
-    }
-
-    /**
-     * @param  ChildSpotifyAccount $spotifyAccount The ChildSpotifyAccount object to remove.
-     * @return $this|ChildUser The current object (for fluent API support)
-     */
-    public function removeSpotifyAccount(ChildSpotifyAccount $spotifyAccount)
-    {
-        if ($this->getSpotifyAccounts()->contains($spotifyAccount)) {
-            $pos = $this->collSpotifyAccounts->search($spotifyAccount);
-            $this->collSpotifyAccounts->remove($pos);
-            if (null === $this->spotifyAccountsScheduledForDeletion) {
-                $this->spotifyAccountsScheduledForDeletion = clone $this->collSpotifyAccounts;
-                $this->spotifyAccountsScheduledForDeletion->clear();
-            }
-            $this->spotifyAccountsScheduledForDeletion[]= clone $spotifyAccount;
-            $spotifyAccount->setUser(null);
-        }
-
-        return $this;
-    }
-
     /**
      * Clears the current object, sets all attributes to their default values and removes
      * outgoing references as well as back-references (from other objects to this one. Results probably in a database
@@ -1394,9 +1254,11 @@ abstract class User implements ActiveRecordInterface
     public function clear()
     {
         $this->id = null;
-        $this->ldap = null;
-        $this->firstname = null;
-        $this->lastname = null;
+        $this->bathroom = null;
+        $this->level = null;
+        $this->time = null;
+        $this->tag = null;
+        $this->message = null;
         $this->alreadyInSave = false;
         $this->clearAllReferences();
         $this->resetModified();
@@ -1415,14 +1277,8 @@ abstract class User implements ActiveRecordInterface
     public function clearAllReferences($deep = false)
     {
         if ($deep) {
-            if ($this->collSpotifyAccounts) {
-                foreach ($this->collSpotifyAccounts as $o) {
-                    $o->clearAllReferences($deep);
-                }
-            }
         } // if ($deep)
 
-        $this->collSpotifyAccounts = null;
     }
 
     /**
@@ -1432,7 +1288,7 @@ abstract class User implements ActiveRecordInterface
      */
     public function __toString()
     {
-        return (string) $this->exportTo(UserTableMap::DEFAULT_STRING_FORMAT);
+        return (string) $this->exportTo(LogTableMap::DEFAULT_STRING_FORMAT);
     }
 
     /**

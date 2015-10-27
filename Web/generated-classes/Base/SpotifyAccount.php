@@ -65,48 +65,56 @@ abstract class SpotifyAccount implements ActiveRecordInterface
 
     /**
      * The value for the id field.
+     *
      * @var        int
      */
     protected $id;
 
     /**
      * The value for the user_id field.
+     *
      * @var        int
      */
     protected $user_id;
 
     /**
      * The value for the username field.
+     *
      * @var        string
      */
     protected $username;
 
     /**
      * The value for the accesstoken field.
+     *
      * @var        string
      */
     protected $accesstoken;
 
     /**
      * The value for the refreshtoken field.
+     *
      * @var        string
      */
     protected $refreshtoken;
 
     /**
      * The value for the expiration field.
+     *
      * @var        \DateTime
      */
     protected $expiration;
 
     /**
      * The value for the avatar field.
+     *
      * @var        string
      */
     protected $avatar;
 
     /**
      * The value for the playlist field.
+     *
      * @var        string
      */
     protected $playlist;

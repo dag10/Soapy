@@ -62,7 +62,7 @@ public class LogViewActivity extends SoapyActivity {
     }
 
     protected String formatLogEvent(LogService.LogEvent event) {
-        return event.getTypeCharacter() + " " + event.getTimeGroup() +
+        return event.getLevelCode() + " " + event.getTimeGroup() +
                " [" + event.getTag() + "] " + event.getMessage();
     }
 

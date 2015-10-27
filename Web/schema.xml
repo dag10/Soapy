@@ -19,5 +19,13 @@
     <column name="avatar" type="longvarchar" required="false" />
     <column name="playlist" type="longvarchar" required="false" />
   </table>
+  <table name="log">
+    <column name="id" type="integer" required="true" primaryKey="true" autoIncrement="true" />
+    <column name="bathroom" type="varchar" size="64" required="true" />
+    <column name="level" type="enum" valueSet="ERROR,WARN,INFO,DEBUG,VERBOSE" />
+    <column name="time" type="timestamp" required="true" />
+    <column name="tag" type="varchar" size="64" />
+    <column name="message" type="longvarchar" required="true" />
+  </table>
 </database>
 

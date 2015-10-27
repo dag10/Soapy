@@ -41,5 +41,22 @@ CREATE TABLE `spotifyaccount`
         REFERENCES `user` (`id`)
 ) ENGINE=InnoDB;
 
+-- ---------------------------------------------------------------------
+-- log
+-- ---------------------------------------------------------------------
+
+DROP TABLE IF EXISTS `log`;
+
+CREATE TABLE `log`
+(
+    `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `bathroom` VARCHAR(64) NOT NULL,
+    `level` TINYINT,
+    `time` DATETIME NOT NULL,
+    `tag` VARCHAR(64),
+    `message` TEXT NOT NULL,
+    PRIMARY KEY (`id`)
+) ENGINE=InnoDB;
+
 # This restores the fkey checks, after having unset them earlier
 SET FOREIGN_KEY_CHECKS = 1;

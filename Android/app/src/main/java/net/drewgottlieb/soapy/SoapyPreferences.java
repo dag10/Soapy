@@ -77,7 +77,7 @@ public class SoapyPreferences implements SharedPreferences.OnSharedPreferenceCha
     }
 
     protected void refreshBathroomName() {
-        bathroomName = preferences.getString(SOAPY_BATHROOM_NAME, "s_mens");
+        bathroomName = preferences.getString(SOAPY_BATHROOM_NAME, "dev");
     }
 
     public String getSpotifyClientId() {

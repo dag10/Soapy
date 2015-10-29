@@ -50,6 +50,9 @@ function user_for_rfid($rfid) {
 
   try {
     $user_data = json_decode($json, true);
+    if (isset($user_data['error'])) {
+      return null;
+    }
     $uid = $user_data['uid'];
     return \UserQuery::create()->findOneByLDAP($uid);
   } catch (Exception $e) {

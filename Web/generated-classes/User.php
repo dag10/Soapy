@@ -14,5 +14,34 @@ use Base\User as BaseUser;
  */
 class User extends BaseUser
 {
+  public function setPlaylistUri($uri) {
+    if (!$uri) {
+      $this->setPlaylistId(null);
+      $this->save();
+      return;
+    }
 
+    $playlist = PlaylistQuery::create()->filterByUri($uri)->filterByOwnerId(
+      $this->getId())->findOne();
+
+    if (!$playlist) {
+      $playlist = new Playlist();
+      $playlist->setOwnerId($this->getId());
+      $playlist->setUri($uri);
+      $playlist->save();
+    }
+
+    $this->setPlaylistId($playlist->getId());
+    $this->save();
+  }
+
+  public function getPlaylistUri() {
+    $playlist = $this->getPlaylist();
+
+    if (!$playlist) {
+      return null;
+    }
+
+    return $playlist->getUri();
+  }
 }

@@ -2,39 +2,39 @@
 
 namespace Base;
 
-use \SpotifyAccountQuery as ChildSpotifyAccountQuery;
+use \Playlist as ChildPlaylist;
+use \PlaylistQuery as ChildPlaylistQuery;
 use \User as ChildUser;
 use \UserQuery as ChildUserQuery;
-use \DateTime;
 use \Exception;
 use \PDO;
-use Map\SpotifyAccountTableMap;
+use Map\PlaylistTableMap;
 use Propel\Runtime\Propel;
 use Propel\Runtime\ActiveQuery\Criteria;
 use Propel\Runtime\ActiveQuery\ModelCriteria;
 use Propel\Runtime\ActiveRecord\ActiveRecordInterface;
 use Propel\Runtime\Collection\Collection;
+use Propel\Runtime\Collection\ObjectCollection;
 use Propel\Runtime\Connection\ConnectionInterface;
 use Propel\Runtime\Exception\BadMethodCallException;
 use Propel\Runtime\Exception\LogicException;
 use Propel\Runtime\Exception\PropelException;
 use Propel\Runtime\Map\TableMap;
 use Propel\Runtime\Parser\AbstractParser;
-use Propel\Runtime\Util\PropelDateTime;
 
 /**
- * Base class that represents a row from the 'spotifyaccount' table.
+ * Base class that represents a row from the 'playlist' table.
  *
  *
  *
 * @package    propel.generator..Base
 */
-abstract class SpotifyAccount implements ActiveRecordInterface
+abstract class Playlist implements ActiveRecordInterface
 {
     /**
      * TableMap class name
      */
-    const TABLE_MAP = '\\Map\\SpotifyAccountTableMap';
+    const TABLE_MAP = '\\Map\\PlaylistTableMap';
 
 
     /**
@@ -71,51 +71,36 @@ abstract class SpotifyAccount implements ActiveRecordInterface
     protected $id;
 
     /**
-     * The value for the user_id field.
+     * The value for the uri field.
+     *
+     * @var        string
+     */
+    protected $uri;
+
+    /**
+     * The value for the nextsong field.
+     *
+     * @var        string
+     */
+    protected $nextsong;
+
+    /**
+     * The value for the owner_id field.
      *
      * @var        int
      */
-    protected $user_id;
-
-    /**
-     * The value for the username field.
-     *
-     * @var        string
-     */
-    protected $username;
-
-    /**
-     * The value for the accesstoken field.
-     *
-     * @var        string
-     */
-    protected $accesstoken;
-
-    /**
-     * The value for the refreshtoken field.
-     *
-     * @var        string
-     */
-    protected $refreshtoken;
-
-    /**
-     * The value for the expiration field.
-     *
-     * @var        \DateTime
-     */
-    protected $expiration;
-
-    /**
-     * The value for the avatar field.
-     *
-     * @var        string
-     */
-    protected $avatar;
+    protected $owner_id;
 
     /**
      * @var        ChildUser
      */
-    protected $aUser;
+    protected $aOwner;
+
+    /**
+     * @var        ObjectCollection|ChildUser[] Collection to store aggregation of ChildUser objects.
+     */
+    protected $collUsersRelatedByPlaylistId;
+    protected $collUsersRelatedByPlaylistIdPartial;
 
     /**
      * Flag to prevent endless save loop, if this object is referenced
@@ -126,7 +111,13 @@ abstract class SpotifyAccount implements ActiveRecordInterface
     protected $alreadyInSave = false;
 
     /**
-     * Initializes internal state of Base\SpotifyAccount object.
+     * An array of objects scheduled for deletion.
+     * @var ObjectCollection|ChildUser[]
+     */
+    protected $usersRelatedByPlaylistIdScheduledForDeletion = null;
+
+    /**
+     * Initializes internal state of Base\Playlist object.
      */
     public function __construct()
     {
@@ -221,9 +212,9 @@ abstract class SpotifyAccount implements ActiveRecordInterface
     }
 
     /**
-     * Compares this with another <code>SpotifyAccount</code> instance.  If
-     * <code>obj</code> is an instance of <code>SpotifyAccount</code>, delegates to
-     * <code>equals(SpotifyAccount)</code>.  Otherwise, returns <code>false</code>.
+     * Compares this with another <code>Playlist</code> instance.  If
+     * <code>obj</code> is an instance of <code>Playlist</code>, delegates to
+     * <code>equals(Playlist)</code>.  Otherwise, returns <code>false</code>.
      *
      * @param  mixed   $obj The object to compare to.
      * @return boolean Whether equal to the object specified.
@@ -289,7 +280,7 @@ abstract class SpotifyAccount implements ActiveRecordInterface
      * @param string $name  The virtual column name
      * @param mixed  $value The value to give to the virtual column
      *
-     * @return $this|SpotifyAccount The current object, for fluid interface
+     * @return $this|Playlist The current object, for fluid interface
      */
     public function setVirtualColumn($name, $value)
     {
@@ -353,80 +344,40 @@ abstract class SpotifyAccount implements ActiveRecordInterface
     }
 
     /**
-     * Get the [user_id] column value.
+     * Get the [uri] column value.
+     *
+     * @return string
+     */
+    public function getUri()
+    {
+        return $this->uri;
+    }
+
+    /**
+     * Get the [nextsong] column value.
+     *
+     * @return string
+     */
+    public function getNextSong()
+    {
+        return $this->nextsong;
+    }
+
+    /**
+     * Get the [owner_id] column value.
      *
      * @return int
      */
-    public function getUserId()
+    public function getOwnerId()
     {
-        return $this->user_id;
-    }
-
-    /**
-     * Get the [username] column value.
-     *
-     * @return string
-     */
-    public function getUsername()
-    {
-        return $this->username;
-    }
-
-    /**
-     * Get the [accesstoken] column value.
-     *
-     * @return string
-     */
-    public function getAccessToken()
-    {
-        return $this->accesstoken;
-    }
-
-    /**
-     * Get the [refreshtoken] column value.
-     *
-     * @return string
-     */
-    public function getRefreshToken()
-    {
-        return $this->refreshtoken;
-    }
-
-    /**
-     * Get the [optionally formatted] temporal [expiration] column value.
-     *
-     *
-     * @param      string $format The date/time format string (either date()-style or strftime()-style).
-     *                            If format is NULL, then the raw DateTime object will be returned.
-     *
-     * @return string|DateTime Formatted date/time value as string or DateTime object (if format is NULL), NULL if column is NULL, and 0 if column value is 0000-00-00 00:00:00
-     *
-     * @throws PropelException - if unable to parse/validate the date/time value.
-     */
-    public function getExpiration($format = NULL)
-    {
-        if ($format === null) {
-            return $this->expiration;
-        } else {
-            return $this->expiration instanceof \DateTime ? $this->expiration->format($format) : null;
-        }
-    }
-
-    /**
-     * Get the [avatar] column value.
-     *
-     * @return string
-     */
-    public function getAvatar()
-    {
-        return $this->avatar;
+        return $this->owner_id;
     }
 
     /**
      * Set the value of [id] column.
      *
      * @param int $v new value
-     * @return $this|\SpotifyAccount The current object (for fluent API support)
+     * @return $this|\Playlist The current object (for fluent API support)
      */
     public function setId($v)
     {
@@ -436,135 +387,75 @@ abstract class SpotifyAccount implements ActiveRecordInterface
 
         if ($this->id !== $v) {
             $this->id = $v;
-            $this->modifiedColumns[SpotifyAccountTableMap::COL_ID] = true;
+            $this->modifiedColumns[PlaylistTableMap::COL_ID] = true;
         }
 
         return $this;
     } // setId()
 
     /**
-     * Set the value of [user_id] column.
+     * Set the value of [uri] column.
+     *
+     * @param string $v new value
+     * @return $this|\Playlist The current object (for fluent API support)
+     */
+    public function setUri($v)
+    {
+        if ($v !== null) {
+            $v = (string) $v;
+        }
+
+        if ($this->uri !== $v) {
+            $this->uri = $v;
+            $this->modifiedColumns[PlaylistTableMap::COL_URI] = true;
+        }
+
+        return $this;
+    } // setUri()
+
+    /**
+     * Set the value of [nextsong] column.
+     *
+     * @param string $v new value
+     * @return $this|\Playlist The current object (for fluent API support)
+     */
+    public function setNextSong($v)
+    {
+        if ($v !== null) {
+            $v = (string) $v;
+        }
+
+        if ($this->nextsong !== $v) {
+            $this->nextsong = $v;
+            $this->modifiedColumns[PlaylistTableMap::COL_NEXTSONG] = true;
+        }
+
+        return $this;
+    } // setNextSong()
+
+    /**
+     * Set the value of [owner_id] column.
      *
      * @param int $v new value
-     * @return $this|\SpotifyAccount The current object (for fluent API support)
+     * @return $this|\Playlist The current object (for fluent API support)
      */
-    public function setUserId($v)
+    public function setOwnerId($v)
     {
         if ($v !== null) {
             $v = (int) $v;
         }
 
-        if ($this->user_id !== $v) {
-            $this->user_id = $v;
-            $this->modifiedColumns[SpotifyAccountTableMap::COL_USER_ID] = true;
+        if ($this->owner_id !== $v) {
+            $this->owner_id = $v;
+            $this->modifiedColumns[PlaylistTableMap::COL_OWNER_ID] = true;
         }
 
-        if ($this->aUser !== null && $this->aUser->getId() !== $v) {
-            $this->aUser = null;
-        }
-
-        return $this;
-    } // setUserId()
-
-    /**
-     * Set the value of [username] column.
-     *
-     * @param string $v new value
-     * @return $this|\SpotifyAccount The current object (for fluent API support)
-     */
-    public function setUsername($v)
-    {
-        if ($v !== null) {
-            $v = (string) $v;
-        }
-
-        if ($this->username !== $v) {
-            $this->username = $v;
-            $this->modifiedColumns[SpotifyAccountTableMap::COL_USERNAME] = true;
+        if ($this->aOwner !== null && $this->aOwner->getId() !== $v) {
+            $this->aOwner = null;
         }
 
         return $this;
-    } // setUsername()
-
-    /**
-     * Set the value of [accesstoken] column.
-     *
-     * @param string $v new value
-     * @return $this|\SpotifyAccount The current object (for fluent API support)
-     */
-    public function setAccessToken($v)
-    {
-        if ($v !== null) {
-            $v = (string) $v;
-        }
-
-        if ($this->accesstoken !== $v) {
-            $this->accesstoken = $v;
-            $this->modifiedColumns[SpotifyAccountTableMap::COL_ACCESSTOKEN] = true;
-        }
-
-        return $this;
-    } // setAccessToken()
-
-    /**
-     * Set the value of [refreshtoken] column.
-     *
-     * @param string $v new value
-     * @return $this|\SpotifyAccount The current object (for fluent API support)
-     */
-    public function setRefreshToken($v)
-    {
-        if ($v !== null) {
-            $v = (string) $v;
-        }
-
-        if ($this->refreshtoken !== $v) {
-            $this->refreshtoken = $v;
-            $this->modifiedColumns[SpotifyAccountTableMap::COL_REFRESHTOKEN] = true;
-        }
-
-        return $this;
-    } // setRefreshToken()
-
-    /**
-     * Sets the value of [expiration] column to a normalized version of the date/time value specified.
-     *
-     * @param  mixed $v string, integer (timestamp), or \DateTime value.
-     *               Empty strings are treated as NULL.
-     * @return $this|\SpotifyAccount The current object (for fluent API support)
-     */
-    public function setExpiration($v)
-    {
-        $dt = PropelDateTime::newInstance($v, null, 'DateTime');
-        if ($this->expiration !== null || $dt !== null) {
-            if ($this->expiration === null || $dt === null || $dt->format("Y-m-d H:i:s") !== $this->expiration->format("Y-m-d H:i:s")) {
-                $this->expiration = $dt === null ? null : clone $dt;
-                $this->modifiedColumns[SpotifyAccountTableMap::COL_EXPIRATION] = true;
-            }
-        } // if either are not null
-
-        return $this;
-    } // setExpiration()
-
-    /**
-     * Set the value of [avatar] column.
-     *
-     * @param string $v new value
-     * @return $this|\SpotifyAccount The current object (for fluent API support)
-     */
-    public function setAvatar($v)
-    {
-        if ($v !== null) {
-            $v = (string) $v;
-        }
-
-        if ($this->avatar !== $v) {
-            $this->avatar = $v;
-            $this->modifiedColumns[SpotifyAccountTableMap::COL_AVATAR] = true;
-        }
-
-        return $this;
-    } // setAvatar()
+    } // setOwnerId()
 
     /**
      * Indicates whether the columns in this object are only set to default values.
@@ -602,29 +493,17 @@ abstract class SpotifyAccount implements ActiveRecordInterface
     {
         try {
 
-            $col = $row[TableMap::TYPE_NUM == $indexType ? 0 + $startcol : SpotifyAccountTableMap::translateFieldName('Id', TableMap::TYPE_PHPNAME, $indexType)];
+            $col = $row[TableMap::TYPE_NUM == $indexType ? 0 + $startcol : PlaylistTableMap::translateFieldName('Id', TableMap::TYPE_PHPNAME, $indexType)];
             $this->id = (null !== $col) ? (int) $col : null;
 
-            $col = $row[TableMap::TYPE_NUM == $indexType ? 1 + $startcol : SpotifyAccountTableMap::translateFieldName('UserId', TableMap::TYPE_PHPNAME, $indexType)];
-            $this->user_id = (null !== $col) ? (int) $col : null;
+            $col = $row[TableMap::TYPE_NUM == $indexType ? 1 + $startcol : PlaylistTableMap::translateFieldName('Uri', TableMap::TYPE_PHPNAME, $indexType)];
+            $this->uri = (null !== $col) ? (string) $col : null;
 
-            $col = $row[TableMap::TYPE_NUM == $indexType ? 2 + $startcol : SpotifyAccountTableMap::translateFieldName('Username', TableMap::TYPE_PHPNAME, $indexType)];
-            $this->username = (null !== $col) ? (string) $col : null;
+            $col = $row[TableMap::TYPE_NUM == $indexType ? 2 + $startcol : PlaylistTableMap::translateFieldName('NextSong', TableMap::TYPE_PHPNAME, $indexType)];
+            $this->nextsong = (null !== $col) ? (string) $col : null;
 
-            $col = $row[TableMap::TYPE_NUM == $indexType ? 3 + $startcol : SpotifyAccountTableMap::translateFieldName('AccessToken', TableMap::TYPE_PHPNAME, $indexType)];
-            $this->accesstoken = (null !== $col) ? (string) $col : null;
-
-            $col = $row[TableMap::TYPE_NUM == $indexType ? 4 + $startcol : SpotifyAccountTableMap::translateFieldName('RefreshToken', TableMap::TYPE_PHPNAME, $indexType)];
-            $this->refreshtoken = (null !== $col) ? (string) $col : null;
-
-            $col = $row[TableMap::TYPE_NUM == $indexType ? 5 + $startcol : SpotifyAccountTableMap::translateFieldName('Expiration', TableMap::TYPE_PHPNAME, $indexType)];
-            if ($col === '0000-00-00 00:00:00') {
-                $col = null;
-            }
-            $this->expiration = (null !== $col) ? PropelDateTime::newInstance($col, null, 'DateTime') : null;
-
-            $col = $row[TableMap::TYPE_NUM == $indexType ? 6 + $startcol : SpotifyAccountTableMap::translateFieldName('Avatar', TableMap::TYPE_PHPNAME, $indexType)];
-            $this->avatar = (null !== $col) ? (string) $col : null;
+            $col = $row[TableMap::TYPE_NUM == $indexType ? 3 + $startcol : PlaylistTableMap::translateFieldName('OwnerId', TableMap::TYPE_PHPNAME, $indexType)];
+            $this->owner_id = (null !== $col) ? (int) $col : null;
             $this->resetModified();
 
             $this->setNew(false);
@@ -633,10 +512,10 @@ abstract class SpotifyAccount implements ActiveRecordInterface
                 $this->ensureConsistency();
             }
 
-            return $startcol + 7; // 7 = SpotifyAccountTableMap::NUM_HYDRATE_COLUMNS.
+            return $startcol + 4; // 4 = PlaylistTableMap::NUM_HYDRATE_COLUMNS.
 
         } catch (Exception $e) {
-            throw new PropelException(sprintf('Error populating %s object', '\\SpotifyAccount'), 0, $e);
+            throw new PropelException(sprintf('Error populating %s object', '\\Playlist'), 0, $e);
         }
     }
 
@@ -655,8 +534,8 @@ abstract class SpotifyAccount implements ActiveRecordInterface
      */
     public function ensureConsistency()
     {
-        if ($this->aUser !== null && $this->user_id !== $this->aUser->getId()) {
-            $this->aUser = null;
+        if ($this->aOwner !== null && $this->owner_id !== $this->aOwner->getId()) {
+            $this->aOwner = null;
         }
     } // ensureConsistency
 
@@ -681,13 +560,13 @@ abstract class SpotifyAccount implements ActiveRecordInterface
         }
 
         if ($con === null) {
-            $con = Propel::getServiceContainer()->getReadConnection(SpotifyAccountTableMap::DATABASE_NAME);
+            $con = Propel::getServiceContainer()->getReadConnection(PlaylistTableMap::DATABASE_NAME);
         }
 
         // We don't need to alter the object instance pool; we're just modifying this instance
         // already in the pool.
 
-        $dataFetcher = ChildSpotifyAccountQuery::create(null, $this->buildPkeyCriteria())->setFormatter(ModelCriteria::FORMAT_STATEMENT)->find($con);
+        $dataFetcher = ChildPlaylistQuery::create(null, $this->buildPkeyCriteria())->setFormatter(ModelCriteria::FORMAT_STATEMENT)->find($con);
         $row = $dataFetcher->fetch();
         $dataFetcher->close();
         if (!$row) {
@@ -697,7 +576,9 @@ abstract class SpotifyAccount implements ActiveRecordInterface
 
         if ($deep) {  // also de-associate any related objects?
 
-            $this->aUser = null;
+            $this->aOwner = null;
+            $this->collUsersRelatedByPlaylistId = null;
+
         } // if (deep)
     }
 
@@ -707,8 +588,8 @@ abstract class SpotifyAccount implements ActiveRecordInterface
      * @param      ConnectionInterface $con
      * @return void
      * @throws PropelException
-     * @see SpotifyAccount::setDeleted()
-     * @see SpotifyAccount::isDeleted()
+     * @see Playlist::setDeleted()
+     * @see Playlist::isDeleted()
      */
     public function delete(ConnectionInterface $con = null)
     {
@@ -717,11 +598,11 @@ abstract class SpotifyAccount implements ActiveRecordInterface
         }
 
         if ($con === null) {
-            $con = Propel::getServiceContainer()->getWriteConnection(SpotifyAccountTableMap::DATABASE_NAME);
+            $con = Propel::getServiceContainer()->getWriteConnection(PlaylistTableMap::DATABASE_NAME);
         }
 
         $con->transaction(function () use ($con) {
-            $deleteQuery = ChildSpotifyAccountQuery::create()
+            $deleteQuery = ChildPlaylistQuery::create()
                 ->filterByPrimaryKey($this->getPrimaryKey());
             $ret = $this->preDelete($con);
             if ($ret) {
@@ -752,7 +633,7 @@ abstract class SpotifyAccount implements ActiveRecordInterface
         }
 
         if ($con === null) {
-            $con = Propel::getServiceContainer()->getWriteConnection(SpotifyAccountTableMap::DATABASE_NAME);
+            $con = Propel::getServiceContainer()->getWriteConnection(PlaylistTableMap::DATABASE_NAME);
         }
 
         return $con->transaction(function () use ($con) {
@@ -771,7 +652,7 @@ abstract class SpotifyAccount implements ActiveRecordInterface
                     $this->postUpdate($con);
                 }
                 $this->postSave($con);
-                SpotifyAccountTableMap::addInstanceToPool($this);
+                PlaylistTableMap::addInstanceToPool($this);
             } else {
                 $affectedRows = 0;
             }
@@ -802,11 +683,11 @@ abstract class SpotifyAccount implements ActiveRecordInterface
             // method.  This object relates to these object(s) by a
             // foreign key reference.
 
-            if ($this->aUser !== null) {
-                if ($this->aUser->isModified() || $this->aUser->isNew()) {
-                    $affectedRows += $this->aUser->save($con);
+            if ($this->aOwner !== null) {
+                if ($this->aOwner->isModified() || $this->aOwner->isNew()) {
+                    $affectedRows += $this->aOwner->save($con);
                 }
-                $this->setUser($this->aUser);
+                $this->setOwner($this->aOwner);
             }
 
             if ($this->isNew() || $this->isModified()) {
@@ -818,6 +699,24 @@ abstract class SpotifyAccount implements ActiveRecordInterface
                     $affectedRows += $this->doUpdate($con);
                 }
                 $this->resetModified();
+            }
+
+            if ($this->usersRelatedByPlaylistIdScheduledForDeletion !== null) {
+                if (!$this->usersRelatedByPlaylistIdScheduledForDeletion->isEmpty()) {
+                    foreach ($this->usersRelatedByPlaylistIdScheduledForDeletion as $userRelatedByPlaylistId) {
+                        // need to save related object because we set the relation to null
+                        $userRelatedByPlaylistId->save($con);
+                    }
+                    $this->usersRelatedByPlaylistIdScheduledForDeletion = null;
+                }
+            }
+
+            if ($this->collUsersRelatedByPlaylistId !== null) {
+                foreach ($this->collUsersRelatedByPlaylistId as $referrerFK) {
+                    if (!$referrerFK->isDeleted() && ($referrerFK->isNew() || $referrerFK->isModified())) {
+                        $affectedRows += $referrerFK->save($con);
+                    }
+                }
             }
 
             $this->alreadyInSave = false;
@@ -840,36 +739,27 @@ abstract class SpotifyAccount implements ActiveRecordInterface
         $modifiedColumns = array();
         $index = 0;
 
-        $this->modifiedColumns[SpotifyAccountTableMap::COL_ID] = true;
+        $this->modifiedColumns[PlaylistTableMap::COL_ID] = true;
         if (null !== $this->id) {
-            throw new PropelException('Cannot insert a value for auto-increment primary key (' . SpotifyAccountTableMap::COL_ID . ')');
+            throw new PropelException('Cannot insert a value for auto-increment primary key (' . PlaylistTableMap::COL_ID . ')');
         }
 
          // check the columns in natural order for more readable SQL queries
-        if ($this->isColumnModified(SpotifyAccountTableMap::COL_ID)) {
+        if ($this->isColumnModified(PlaylistTableMap::COL_ID)) {
             $modifiedColumns[':p' . $index++]  = 'id';
         }
-        if ($this->isColumnModified(SpotifyAccountTableMap::COL_USER_ID)) {
-            $modifiedColumns[':p' . $index++]  = 'user_id';
+        if ($this->isColumnModified(PlaylistTableMap::COL_URI)) {
+            $modifiedColumns[':p' . $index++]  = 'uri';
         }
-        if ($this->isColumnModified(SpotifyAccountTableMap::COL_USERNAME)) {
-            $modifiedColumns[':p' . $index++]  = 'username';
+        if ($this->isColumnModified(PlaylistTableMap::COL_NEXTSONG)) {
+            $modifiedColumns[':p' . $index++]  = 'nextsong';
         }
-        if ($this->isColumnModified(SpotifyAccountTableMap::COL_ACCESSTOKEN)) {
-            $modifiedColumns[':p' . $index++]  = 'accesstoken';
-        }
-        if ($this->isColumnModified(SpotifyAccountTableMap::COL_REFRESHTOKEN)) {
-            $modifiedColumns[':p' . $index++]  = 'refreshtoken';
-        }
-        if ($this->isColumnModified(SpotifyAccountTableMap::COL_EXPIRATION)) {
-            $modifiedColumns[':p' . $index++]  = 'expiration';
-        }
-        if ($this->isColumnModified(SpotifyAccountTableMap::COL_AVATAR)) {
-            $modifiedColumns[':p' . $index++]  = 'avatar';
+        if ($this->isColumnModified(PlaylistTableMap::COL_OWNER_ID)) {
+            $modifiedColumns[':p' . $index++]  = 'owner_id';
         }
 
         $sql = sprintf(
-            'INSERT INTO spotifyaccount (%s) VALUES (%s)',
+            'INSERT INTO playlist (%s) VALUES (%s)',
             implode(', ', $modifiedColumns),
             implode(', ', array_keys($modifiedColumns))
         );
@@ -881,23 +771,14 @@ abstract class SpotifyAccount implements ActiveRecordInterface
                     case 'id':
                         $stmt->bindValue($identifier, $this->id, PDO::PARAM_INT);
                         break;
-                    case 'user_id':
-                        $stmt->bindValue($identifier, $this->user_id, PDO::PARAM_INT);
+                    case 'uri':
+                        $stmt->bindValue($identifier, $this->uri, PDO::PARAM_STR);
                         break;
-                    case 'username':
-                        $stmt->bindValue($identifier, $this->username, PDO::PARAM_STR);
+                    case 'nextsong':
+                        $stmt->bindValue($identifier, $this->nextsong, PDO::PARAM_STR);
                         break;
-                    case 'accesstoken':
-                        $stmt->bindValue($identifier, $this->accesstoken, PDO::PARAM_STR);
-                        break;
-                    case 'refreshtoken':
-                        $stmt->bindValue($identifier, $this->refreshtoken, PDO::PARAM_STR);
-                        break;
-                    case 'expiration':
-                        $stmt->bindValue($identifier, $this->expiration ? $this->expiration->format("Y-m-d H:i:s") : null, PDO::PARAM_STR);
-                        break;
-                    case 'avatar':
-                        $stmt->bindValue($identifier, $this->avatar, PDO::PARAM_STR);
+                    case 'owner_id':
+                        $stmt->bindValue($identifier, $this->owner_id, PDO::PARAM_INT);
                         break;
                 }
             }
@@ -945,7 +826,7 @@ abstract class SpotifyAccount implements ActiveRecordInterface
      */
     public function getByName($name, $type = TableMap::TYPE_PHPNAME)
     {
-        $pos = SpotifyAccountTableMap::translateFieldName($name, $type, TableMap::TYPE_NUM);
+        $pos = PlaylistTableMap::translateFieldName($name, $type, TableMap::TYPE_NUM);
         $field = $this->getByPosition($pos);
 
         return $field;
@@ -965,22 +846,13 @@ abstract class SpotifyAccount implements ActiveRecordInterface
                 return $this->getId();
                 break;
             case 1:
-                return $this->getUserId();
+                return $this->getUri();
                 break;
             case 2:
-                return $this->getUsername();
+                return $this->getNextSong();
                 break;
             case 3:
-                return $this->getAccessToken();
-                break;
-            case 4:
-                return $this->getRefreshToken();
-                break;
-            case 5:
-                return $this->getExpiration();
-                break;
-            case 6:
-                return $this->getAvatar();
+                return $this->getOwnerId();
                 break;
             default:
                 return null;
@@ -1006,35 +878,24 @@ abstract class SpotifyAccount implements ActiveRecordInterface
     public function toArray($keyType = TableMap::TYPE_PHPNAME, $includeLazyLoadColumns = true, $alreadyDumpedObjects = array(), $includeForeignObjects = false)
     {
 
-        if (isset($alreadyDumpedObjects['SpotifyAccount'][$this->hashCode()])) {
+        if (isset($alreadyDumpedObjects['Playlist'][$this->hashCode()])) {
             return '*RECURSION*';
         }
-        $alreadyDumpedObjects['SpotifyAccount'][$this->hashCode()] = true;
-        $keys = SpotifyAccountTableMap::getFieldNames($keyType);
+        $alreadyDumpedObjects['Playlist'][$this->hashCode()] = true;
+        $keys = PlaylistTableMap::getFieldNames($keyType);
         $result = array(
             $keys[0] => $this->getId(),
-            $keys[1] => $this->getUserId(),
-            $keys[2] => $this->getUsername(),
-            $keys[3] => $this->getAccessToken(),
-            $keys[4] => $this->getRefreshToken(),
-            $keys[5] => $this->getExpiration(),
-            $keys[6] => $this->getAvatar(),
+            $keys[1] => $this->getUri(),
+            $keys[2] => $this->getNextSong(),
+            $keys[3] => $this->getOwnerId(),
         );
-
-        $utc = new \DateTimeZone('utc');
-        if ($result[$keys[5]] instanceof \DateTime) {
-            // When changing timezone we don't want to change existing instances
-            $dateTime = clone $result[$keys[5]];
-            $result[$keys[5]] = $dateTime->setTimezone($utc)->format('Y-m-d\TH:i:s\Z');
-        }
-
         $virtualColumns = $this->virtualColumns;
         foreach ($virtualColumns as $key => $virtualColumn) {
             $result[$key] = $virtualColumn;
         }
 
         if ($includeForeignObjects) {
-            if (null !== $this->aUser) {
+            if (null !== $this->aOwner) {
 
                 switch ($keyType) {
                     case TableMap::TYPE_CAMELNAME:
@@ -1047,7 +908,22 @@ abstract class SpotifyAccount implements ActiveRecordInterface
                         $key = 'User';
                 }
 
-                $result[$key] = $this->aUser->toArray($keyType, $includeLazyLoadColumns,  $alreadyDumpedObjects, true);
+                $result[$key] = $this->aOwner->toArray($keyType, $includeLazyLoadColumns,  $alreadyDumpedObjects, true);
+            }
+            if (null !== $this->collUsersRelatedByPlaylistId) {
+
+                switch ($keyType) {
+                    case TableMap::TYPE_CAMELNAME:
+                        $key = 'users';
+                        break;
+                    case TableMap::TYPE_FIELDNAME:
+                        $key = 'users';
+                        break;
+                    default:
+                        $key = 'Users';
+                }
+
+                $result[$key] = $this->collUsersRelatedByPlaylistId->toArray(null, false, $keyType, $includeLazyLoadColumns, $alreadyDumpedObjects);
             }
         }
 
@@ -1063,11 +939,11 @@ abstract class SpotifyAccount implements ActiveRecordInterface
      *                one of the class type constants TableMap::TYPE_PHPNAME, TableMap::TYPE_CAMELNAME
      *                TableMap::TYPE_COLNAME, TableMap::TYPE_FIELDNAME, TableMap::TYPE_NUM.
      *                Defaults to TableMap::TYPE_PHPNAME.
-     * @return $this|\SpotifyAccount
+     * @return $this|\Playlist
      */
     public function setByName($name, $value, $type = TableMap::TYPE_PHPNAME)
     {
-        $pos = SpotifyAccountTableMap::translateFieldName($name, $type, TableMap::TYPE_NUM);
+        $pos = PlaylistTableMap::translateFieldName($name, $type, TableMap::TYPE_NUM);
 
         return $this->setByPosition($pos, $value);
     }
@@ -1078,7 +954,7 @@ abstract class SpotifyAccount implements ActiveRecordInterface
      *
      * @param  int $pos position in xml schema
      * @param  mixed $value field value
-     * @return $this|\SpotifyAccount
+     * @return $this|\Playlist
      */
     public function setByPosition($pos, $value)
     {
@@ -1087,22 +963,13 @@ abstract class SpotifyAccount implements ActiveRecordInterface
                 $this->setId($value);
                 break;
             case 1:
-                $this->setUserId($value);
+                $this->setUri($value);
                 break;
             case 2:
-                $this->setUsername($value);
+                $this->setNextSong($value);
                 break;
             case 3:
-                $this->setAccessToken($value);
-                break;
-            case 4:
-                $this->setRefreshToken($value);
-                break;
-            case 5:
-                $this->setExpiration($value);
-                break;
-            case 6:
-                $this->setAvatar($value);
+                $this->setOwnerId($value);
                 break;
         } // switch()
 
@@ -1128,28 +995,19 @@ abstract class SpotifyAccount implements ActiveRecordInterface
      */
     public function fromArray($arr, $keyType = TableMap::TYPE_PHPNAME)
     {
-        $keys = SpotifyAccountTableMap::getFieldNames($keyType);
+        $keys = PlaylistTableMap::getFieldNames($keyType);
 
         if (array_key_exists($keys[0], $arr)) {
             $this->setId($arr[$keys[0]]);
         }
         if (array_key_exists($keys[1], $arr)) {
-            $this->setUserId($arr[$keys[1]]);
+            $this->setUri($arr[$keys[1]]);
         }
         if (array_key_exists($keys[2], $arr)) {
-            $this->setUsername($arr[$keys[2]]);
+            $this->setNextSong($arr[$keys[2]]);
         }
         if (array_key_exists($keys[3], $arr)) {
-            $this->setAccessToken($arr[$keys[3]]);
-        }
-        if (array_key_exists($keys[4], $arr)) {
-            $this->setRefreshToken($arr[$keys[4]]);
-        }
-        if (array_key_exists($keys[5], $arr)) {
-            $this->setExpiration($arr[$keys[5]]);
-        }
-        if (array_key_exists($keys[6], $arr)) {
-            $this->setAvatar($arr[$keys[6]]);
+            $this->setOwnerId($arr[$keys[3]]);
         }
     }
 
@@ -1170,7 +1028,7 @@ abstract class SpotifyAccount implements ActiveRecordInterface
      * @param string $data The source data to import from
      * @param string $keyType The type of keys the array uses.
      *
-     * @return $this|\SpotifyAccount The current object, for fluid interface
+     * @return $this|\Playlist The current object, for fluid interface
      */
     public function importFrom($parser, $data, $keyType = TableMap::TYPE_PHPNAME)
     {
@@ -1190,28 +1048,19 @@ abstract class SpotifyAccount implements ActiveRecordInterface
      */
     public function buildCriteria()
     {
-        $criteria = new Criteria(SpotifyAccountTableMap::DATABASE_NAME);
+        $criteria = new Criteria(PlaylistTableMap::DATABASE_NAME);
 
-        if ($this->isColumnModified(SpotifyAccountTableMap::COL_ID)) {
-            $criteria->add(SpotifyAccountTableMap::COL_ID, $this->id);
+        if ($this->isColumnModified(PlaylistTableMap::COL_ID)) {
+            $criteria->add(PlaylistTableMap::COL_ID, $this->id);
         }
-        if ($this->isColumnModified(SpotifyAccountTableMap::COL_USER_ID)) {
-            $criteria->add(SpotifyAccountTableMap::COL_USER_ID, $this->user_id);
+        if ($this->isColumnModified(PlaylistTableMap::COL_URI)) {
+            $criteria->add(PlaylistTableMap::COL_URI, $this->uri);
         }
-        if ($this->isColumnModified(SpotifyAccountTableMap::COL_USERNAME)) {
-            $criteria->add(SpotifyAccountTableMap::COL_USERNAME, $this->username);
+        if ($this->isColumnModified(PlaylistTableMap::COL_NEXTSONG)) {
+            $criteria->add(PlaylistTableMap::COL_NEXTSONG, $this->nextsong);
         }
-        if ($this->isColumnModified(SpotifyAccountTableMap::COL_ACCESSTOKEN)) {
-            $criteria->add(SpotifyAccountTableMap::COL_ACCESSTOKEN, $this->accesstoken);
-        }
-        if ($this->isColumnModified(SpotifyAccountTableMap::COL_REFRESHTOKEN)) {
-            $criteria->add(SpotifyAccountTableMap::COL_REFRESHTOKEN, $this->refreshtoken);
-        }
-        if ($this->isColumnModified(SpotifyAccountTableMap::COL_EXPIRATION)) {
-            $criteria->add(SpotifyAccountTableMap::COL_EXPIRATION, $this->expiration);
-        }
-        if ($this->isColumnModified(SpotifyAccountTableMap::COL_AVATAR)) {
-            $criteria->add(SpotifyAccountTableMap::COL_AVATAR, $this->avatar);
+        if ($this->isColumnModified(PlaylistTableMap::COL_OWNER_ID)) {
+            $criteria->add(PlaylistTableMap::COL_OWNER_ID, $this->owner_id);
         }
 
         return $criteria;
@@ -1229,8 +1078,8 @@ abstract class SpotifyAccount implements ActiveRecordInterface
      */
     public function buildPkeyCriteria()
     {
-        $criteria = ChildSpotifyAccountQuery::create();
-        $criteria->add(SpotifyAccountTableMap::COL_ID, $this->id);
+        $criteria = ChildPlaylistQuery::create();
+        $criteria->add(PlaylistTableMap::COL_ID, $this->id);
 
         return $criteria;
     }
@@ -1292,19 +1141,30 @@ abstract class SpotifyAccount implements ActiveRecordInterface
      * If desired, this method can also make copies of all associated (fkey referrers)
      * objects.
      *
-     * @param      object $copyObj An object of \SpotifyAccount (or compatible) type.
+     * @param      object $copyObj An object of \Playlist (or compatible) type.
      * @param      boolean $deepCopy Whether to also copy all rows that refer (by fkey) to the current row.
      * @param      boolean $makeNew Whether to reset autoincrement PKs and make the object new.
      * @throws PropelException
      */
     public function copyInto($copyObj, $deepCopy = false, $makeNew = true)
     {
-        $copyObj->setUserId($this->getUserId());
-        $copyObj->setUsername($this->getUsername());
-        $copyObj->setAccessToken($this->getAccessToken());
-        $copyObj->setRefreshToken($this->getRefreshToken());
-        $copyObj->setExpiration($this->getExpiration());
-        $copyObj->setAvatar($this->getAvatar());
+        $copyObj->setUri($this->getUri());
+        $copyObj->setNextSong($this->getNextSong());
+        $copyObj->setOwnerId($this->getOwnerId());
+
+        if ($deepCopy) {
+            // important: temporarily setNew(false) because this affects the behavior of
+            // the getter/setter methods for fkey referrer objects.
+            $copyObj->setNew(false);
+
+            foreach ($this->getUsersRelatedByPlaylistId() as $relObj) {
+                if ($relObj !== $this) {  // ensure that we don't try to copy a reference to ourselves
+                    $copyObj->addUserRelatedByPlaylistId($relObj->copy($deepCopy));
+                }
+            }
+
+        } // if ($deepCopy)
+
         if ($makeNew) {
             $copyObj->setNew(true);
             $copyObj->setId(NULL); // this is a auto-increment column, so set to default value
@@ -1320,7 +1180,7 @@ abstract class SpotifyAccount implements ActiveRecordInterface
      * objects.
      *
      * @param  boolean $deepCopy Whether to also copy all rows that refer (by fkey) to the current row.
-     * @return \SpotifyAccount Clone of current object.
+     * @return \Playlist Clone of current object.
      * @throws PropelException
      */
     public function copy($deepCopy = false)
@@ -1337,23 +1197,23 @@ abstract class SpotifyAccount implements ActiveRecordInterface
      * Declares an association between this object and a ChildUser object.
      *
      * @param  ChildUser $v
-     * @return $this|\SpotifyAccount The current object (for fluent API support)
+     * @return $this|\Playlist The current object (for fluent API support)
      * @throws PropelException
      */
-    public function setUser(ChildUser $v = null)
+    public function setOwner(ChildUser $v = null)
     {
         if ($v === null) {
-            $this->setUserId(NULL);
+            $this->setOwnerId(NULL);
         } else {
-            $this->setUserId($v->getId());
+            $this->setOwnerId($v->getId());
         }
 
-        $this->aUser = $v;
+        $this->aOwner = $v;
 
         // Add binding for other direction of this n:n relationship.
         // If this object has already been added to the ChildUser object, it will not be re-added.
         if ($v !== null) {
-            $v->addSpotifyAccount($this);
+            $v->addPastPlaylist($this);
         }
 
 
@@ -1368,20 +1228,254 @@ abstract class SpotifyAccount implements ActiveRecordInterface
      * @return ChildUser The associated ChildUser object.
      * @throws PropelException
      */
-    public function getUser(ConnectionInterface $con = null)
+    public function getOwner(ConnectionInterface $con = null)
     {
-        if ($this->aUser === null && ($this->user_id !== null)) {
-            $this->aUser = ChildUserQuery::create()->findPk($this->user_id, $con);
+        if ($this->aOwner === null && ($this->owner_id !== null)) {
+            $this->aOwner = ChildUserQuery::create()->findPk($this->owner_id, $con);
             /* The following can be used additionally to
                 guarantee the related object contains a reference
                 to this object.  This level of coupling may, however, be
                 undesirable since it could result in an only partially populated collection
                 in the referenced object.
-                $this->aUser->addSpotifyAccounts($this);
+                $this->aOwner->addPastPlaylists($this);
              */
         }
 
-        return $this->aUser;
+        return $this->aOwner;
+    }
+
+
+    /**
+     * Initializes a collection based on the name of a relation.
+     * Avoids crafting an 'init[$relationName]s' method name
+     * that wouldn't work when StandardEnglishPluralizer is used.
+     *
+     * @param      string $relationName The name of the relation to initialize
+     * @return void
+     */
+    public function initRelation($relationName)
+    {
+        if ('UserRelatedByPlaylistId' == $relationName) {
+            return $this->initUsersRelatedByPlaylistId();
+        }
+    }
+
+    /**
+     * Clears out the collUsersRelatedByPlaylistId collection
+     *
+     * This does not modify the database; however, it will remove any associated objects, causing
+     * them to be refetched by subsequent calls to accessor method.
+     *
+     * @return void
+     * @see        addUsersRelatedByPlaylistId()
+     */
+    public function clearUsersRelatedByPlaylistId()
+    {
+        $this->collUsersRelatedByPlaylistId = null; // important to set this to NULL since that means it is uninitialized
+    }
+
+    /**
+     * Reset is the collUsersRelatedByPlaylistId collection loaded partially.
+     */
+    public function resetPartialUsersRelatedByPlaylistId($v = true)
+    {
+        $this->collUsersRelatedByPlaylistIdPartial = $v;
+    }
+
+    /**
+     * Initializes the collUsersRelatedByPlaylistId collection.
+     *
+     * By default this just sets the collUsersRelatedByPlaylistId collection to an empty array (like clearcollUsersRelatedByPlaylistId());
+     * however, you may wish to override this method in your stub class to provide setting appropriate
+     * to your application -- for example, setting the initial array to the values stored in database.
+     *
+     * @param      boolean $overrideExisting If set to true, the method call initializes
+     *                                        the collection even if it is not empty
+     *
+     * @return void
+     */
+    public function initUsersRelatedByPlaylistId($overrideExisting = true)
+    {
+        if (null !== $this->collUsersRelatedByPlaylistId && !$overrideExisting) {
+            return;
+        }
+        $this->collUsersRelatedByPlaylistId = new ObjectCollection();
+        $this->collUsersRelatedByPlaylistId->setModel('\User');
+    }
+
+    /**
+     * Gets an array of ChildUser objects which contain a foreign key that references this object.
+     *
+     * If the $criteria is not null, it is used to always fetch the results from the database.
+     * Otherwise the results are fetched from the database the first time, then cached.
+     * Next time the same method is called without $criteria, the cached collection is returned.
+     * If this ChildPlaylist is new, it will return
+     * an empty collection or the current collection; the criteria is ignored on a new object.
+     *
+     * @param      Criteria $criteria optional Criteria object to narrow the query
+     * @param      ConnectionInterface $con optional connection object
+     * @return ObjectCollection|ChildUser[] List of ChildUser objects
+     * @throws PropelException
+     */
+    public function getUsersRelatedByPlaylistId(Criteria $criteria = null, ConnectionInterface $con = null)
+    {
+        $partial = $this->collUsersRelatedByPlaylistIdPartial && !$this->isNew();
+        if (null === $this->collUsersRelatedByPlaylistId || null !== $criteria  || $partial) {
+            if ($this->isNew() && null === $this->collUsersRelatedByPlaylistId) {
+                // return empty collection
+                $this->initUsersRelatedByPlaylistId();
+            } else {
+                $collUsersRelatedByPlaylistId = ChildUserQuery::create(null, $criteria)
+                    ->filterByPlaylist($this)
+                    ->find($con);
+
+                if (null !== $criteria) {
+                    if (false !== $this->collUsersRelatedByPlaylistIdPartial && count($collUsersRelatedByPlaylistId)) {
+                        $this->initUsersRelatedByPlaylistId(false);
+
+                        foreach ($collUsersRelatedByPlaylistId as $obj) {
+                            if (false == $this->collUsersRelatedByPlaylistId->contains($obj)) {
+                                $this->collUsersRelatedByPlaylistId->append($obj);
+                            }
+                        }
+
+                        $this->collUsersRelatedByPlaylistIdPartial = true;
+                    }
+
+                    return $collUsersRelatedByPlaylistId;
+                }
+
+                if ($partial && $this->collUsersRelatedByPlaylistId) {
+                    foreach ($this->collUsersRelatedByPlaylistId as $obj) {
+                        if ($obj->isNew()) {
+                            $collUsersRelatedByPlaylistId[] = $obj;
+                        }
+                    }
+                }
+
+                $this->collUsersRelatedByPlaylistId = $collUsersRelatedByPlaylistId;
+                $this->collUsersRelatedByPlaylistIdPartial = false;
+            }
+        }
+
+        return $this->collUsersRelatedByPlaylistId;
+    }
+
+    /**
+     * Sets a collection of ChildUser objects related by a one-to-many relationship
+     * to the current object.
+     * It will also schedule objects for deletion based on a diff between old objects (aka persisted)
+     * and new objects from the given Propel collection.
+     *
+     * @param      Collection $usersRelatedByPlaylistId A Propel collection.
+     * @param      ConnectionInterface $con Optional connection object
+     * @return $this|ChildPlaylist The current object (for fluent API support)
+     */
+    public function setUsersRelatedByPlaylistId(Collection $usersRelatedByPlaylistId, ConnectionInterface $con = null)
+    {
+        /** @var ChildUser[] $usersRelatedByPlaylistIdToDelete */
+        $usersRelatedByPlaylistIdToDelete = $this->getUsersRelatedByPlaylistId(new Criteria(), $con)->diff($usersRelatedByPlaylistId);
+
+
+        $this->usersRelatedByPlaylistIdScheduledForDeletion = $usersRelatedByPlaylistIdToDelete;
+
+        foreach ($usersRelatedByPlaylistIdToDelete as $userRelatedByPlaylistIdRemoved) {
+            $userRelatedByPlaylistIdRemoved->setPlaylist(null);
+        }
+
+        $this->collUsersRelatedByPlaylistId = null;
+        foreach ($usersRelatedByPlaylistId as $userRelatedByPlaylistId) {
+            $this->addUserRelatedByPlaylistId($userRelatedByPlaylistId);
+        }
+
+        $this->collUsersRelatedByPlaylistId = $usersRelatedByPlaylistId;
+        $this->collUsersRelatedByPlaylistIdPartial = false;
+
+        return $this;
+    }
+
+    /**
+     * Returns the number of related User objects.
+     *
+     * @param      Criteria $criteria
+     * @param      boolean $distinct
+     * @param      ConnectionInterface $con
+     * @return int             Count of related User objects.
+     * @throws PropelException
+     */
+    public function countUsersRelatedByPlaylistId(Criteria $criteria = null, $distinct = false, ConnectionInterface $con = null)
+    {
+        $partial = $this->collUsersRelatedByPlaylistIdPartial && !$this->isNew();
+        if (null === $this->collUsersRelatedByPlaylistId || null !== $criteria || $partial) {
+            if ($this->isNew() && null === $this->collUsersRelatedByPlaylistId) {
+                return 0;
+            }
+
+            if ($partial && !$criteria) {
+                return count($this->getUsersRelatedByPlaylistId());
+            }
+
+            $query = ChildUserQuery::create(null, $criteria);
+            if ($distinct) {
+                $query->distinct();
+            }
+
+            return $query
+                ->filterByPlaylist($this)
+                ->count($con);
+        }
+
+        return count($this->collUsersRelatedByPlaylistId);
+    }
+
+    /**
+     * Method called to associate a ChildUser object to this object
+     * through the ChildUser foreign key attribute.
+     *
+     * @param  ChildUser $l ChildUser
+     * @return $this|\Playlist The current object (for fluent API support)
+     */
+    public function addUserRelatedByPlaylistId(ChildUser $l)
+    {
+        if ($this->collUsersRelatedByPlaylistId === null) {
+            $this->initUsersRelatedByPlaylistId();
+            $this->collUsersRelatedByPlaylistIdPartial = true;
+        }
+
+        if (!$this->collUsersRelatedByPlaylistId->contains($l)) {
+            $this->doAddUserRelatedByPlaylistId($l);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @param ChildUser $userRelatedByPlaylistId The ChildUser object to add.
+     */
+    protected function doAddUserRelatedByPlaylistId(ChildUser $userRelatedByPlaylistId)
+    {
+        $this->collUsersRelatedByPlaylistId[]= $userRelatedByPlaylistId;
+        $userRelatedByPlaylistId->setPlaylist($this);
+    }
+
+    /**
+     * @param  ChildUser $userRelatedByPlaylistId The ChildUser object to remove.
+     * @return $this|ChildPlaylist The current object (for fluent API support)
+     */
+    public function removeUserRelatedByPlaylistId(ChildUser $userRelatedByPlaylistId)
+    {
+        if ($this->getUsersRelatedByPlaylistId()->contains($userRelatedByPlaylistId)) {
+            $pos = $this->collUsersRelatedByPlaylistId->search($userRelatedByPlaylistId);
+            $this->collUsersRelatedByPlaylistId->remove($pos);
+            if (null === $this->usersRelatedByPlaylistIdScheduledForDeletion) {
+                $this->usersRelatedByPlaylistIdScheduledForDeletion = clone $this->collUsersRelatedByPlaylistId;
+                $this->usersRelatedByPlaylistIdScheduledForDeletion->clear();
+            }
+            $this->usersRelatedByPlaylistIdScheduledForDeletion[]= $userRelatedByPlaylistId;
+            $userRelatedByPlaylistId->setPlaylist(null);
+        }
+
+        return $this;
     }
 
     /**
@@ -1391,16 +1485,13 @@ abstract class SpotifyAccount implements ActiveRecordInterface
      */
     public function clear()
     {
-        if (null !== $this->aUser) {
-            $this->aUser->removeSpotifyAccount($this);
+        if (null !== $this->aOwner) {
+            $this->aOwner->removePastPlaylist($this);
         }
         $this->id = null;
-        $this->user_id = null;
-        $this->username = null;
-        $this->accesstoken = null;
-        $this->refreshtoken = null;
-        $this->expiration = null;
-        $this->avatar = null;
+        $this->uri = null;
+        $this->nextsong = null;
+        $this->owner_id = null;
         $this->alreadyInSave = false;
         $this->clearAllReferences();
         $this->resetModified();
@@ -1419,9 +1510,15 @@ abstract class SpotifyAccount implements ActiveRecordInterface
     public function clearAllReferences($deep = false)
     {
         if ($deep) {
+            if ($this->collUsersRelatedByPlaylistId) {
+                foreach ($this->collUsersRelatedByPlaylistId as $o) {
+                    $o->clearAllReferences($deep);
+                }
+            }
         } // if ($deep)
 
-        $this->aUser = null;
+        $this->collUsersRelatedByPlaylistId = null;
+        $this->aOwner = null;
     }
 
     /**
@@ -1431,7 +1528,7 @@ abstract class SpotifyAccount implements ActiveRecordInterface
      */
     public function __toString()
     {
-        return (string) $this->exportTo(SpotifyAccountTableMap::DEFAULT_STRING_FORMAT);
+        return (string) $this->exportTo(PlaylistTableMap::DEFAULT_STRING_FORMAT);
     }
 
     /**

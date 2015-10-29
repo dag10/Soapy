@@ -5,6 +5,10 @@
     <column name="ldap" type="varchar" size="128" required="true" />
     <column name="firstname" phpName="FirstName" type="longvarchar" required="true" />
     <column name="lastname" phpName="LastName" type="longvarchar" required="true" />
+    <column name="playlist_id" type="integer" required="false" />
+    <foreign-key foreignTable="playlist" phpName="Playlist">
+      <reference local="playlist_id" foreign="id" />
+    </foreign-key>
   </table>
   <table name="spotifyaccount" phpName="SpotifyAccount">
     <column name="id" type="integer" required="true" primaryKey="true" autoIncrement="true" />
@@ -17,7 +21,6 @@
     <column name="refreshtoken" phpName="RefreshToken" type="longvarchar" required="true" />
     <column name="expiration" type="timestamp" required="true" />
     <column name="avatar" type="longvarchar" required="false" />
-    <column name="playlist" type="longvarchar" required="false" />
   </table>
   <table name="log">
     <column name="id" type="integer" required="true" primaryKey="true" autoIncrement="true" />
@@ -26,6 +29,15 @@
     <column name="time" type="timestamp" required="true" />
     <column name="tag" type="varchar" size="64" />
     <column name="message" type="longvarchar" required="true" />
+  </table>
+  <table name="playlist">
+    <column name="id" type="integer" required="true" primaryKey="true" autoIncrement="true" />
+    <column name="uri" type="longvarchar" required="true" />
+    <column name="nextsong" phpName="NextSong" type="longvarchar" required="false" />
+    <column name="owner_id" type="integer" required="true" />
+    <foreign-key foreignTable="user" phpName="Owner" refPhpName="PastPlaylist">
+      <reference local="owner_id" foreign="id" />
+    </foreign-key>
   </table>
 </database>
 

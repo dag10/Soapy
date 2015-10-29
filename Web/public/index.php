@@ -209,7 +209,7 @@ $app->get('/me/playlists/?', function() use ($app) {
   try {
     $ctx['playlists'] = \Spotify\get_playlists(
         $api, $ctx['spotifyacct']->getUsername());
-    $ctx['selected_playlist_uri'] = $ctx['spotifyacct']->getPlaylist();
+    $ctx['selected_playlist_uri'] = $ctx['user']->getPlaylistUri();
   } catch (Exception $e) {
     $app->flash('error', 'Spotify error: ' . $e->getMessage());
     $ctx['playlists'] = array();
@@ -223,8 +223,7 @@ $app->post('/me/playlist/set', function() use ($app) {
   $ctx = start_view($app, ['require_spotify' => true]);
 
   $new_playlist = $app->request->post('playlist_uri');
-  $ctx['spotifyacct']->setPlaylist($new_playlist);
-  $ctx['spotifyacct']->save();
+  $ctx['user']->setPlaylistUri($new_playlist);
 
   header("Content-Type: application/json");
   echo json_encode(
@@ -241,7 +240,7 @@ $app->get('/api/rfid/:rfid/playlists/?', function($rfid) use ($app) {
   $playlists = \Spotify\get_playlists(
     $ctx['sp_api'], $ctx['spotifyacct']->getUsername());
 
-  $playlist_uri = $ctx['spotifyacct']->getPlaylist();
+  $playlist_uri = $ctx['user']->getPlaylistUri();
   $playlist_data = [ 'uri' => $playlist_uri ];
 
   header("Content-Type: application/json");
@@ -260,7 +259,7 @@ $app->get('/api/rfid/:rfid/tracks/?', function($rfid) use ($app) {
   $ctx = start_view($app, [
     'require_spotify' => true, 'rfid' => $rfid, 'require_secret' => true]);
 
-  $playlist_uri = $ctx['spotifyacct']->getPlaylist();
+  $playlist_uri = $ctx['user']->getPlaylistUri();
 
   if (!$playlist_uri) {
     echo json_encode(
@@ -301,8 +300,7 @@ $app->post('/api/rfid/:rfid/playlist/set', function($rfid) use ($app) {
     'require_spotify' => true, 'rfid' => $rfid, 'require_secret' => true]);
 
   $new_playlist = $app->request->post('playlist_uri');
-  $ctx['spotifyacct']->setPlaylist($new_playlist);
-  $ctx['spotifyacct']->save();
+  $ctx['user']->setPlaylistUri($new_playlist);
 
   dieWithJsonSuccess();
 });

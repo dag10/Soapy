@@ -59,7 +59,7 @@ class UserTableMap extends TableMap
     /**
      * The total number of columns
      */
-    const NUM_COLUMNS = 4;
+    const NUM_COLUMNS = 5;
 
     /**
      * The number of lazy-loaded columns
@@ -69,7 +69,7 @@ class UserTableMap extends TableMap
     /**
      * The number of columns to hydrate (NUM_COLUMNS - NUM_LAZY_LOAD_COLUMNS)
      */
-    const NUM_HYDRATE_COLUMNS = 4;
+    const NUM_HYDRATE_COLUMNS = 5;
 
     /**
      * the column name for the id field
@@ -92,6 +92,11 @@ class UserTableMap extends TableMap
     const COL_LASTNAME = 'user.lastname';
 
     /**
+     * the column name for the playlist_id field
+     */
+    const COL_PLAYLIST_ID = 'user.playlist_id';
+
+    /**
      * The default string format for model objects of the related table
      */
     const DEFAULT_STRING_FORMAT = 'YAML';
@@ -103,11 +108,11 @@ class UserTableMap extends TableMap
      * e.g. self::$fieldNames[self::TYPE_PHPNAME][0] = 'Id'
      */
     protected static $fieldNames = array (
-        self::TYPE_PHPNAME       => array('Id', 'Ldap', 'FirstName', 'LastName', ),
-        self::TYPE_CAMELNAME     => array('id', 'ldap', 'firstName', 'lastName', ),
-        self::TYPE_COLNAME       => array(UserTableMap::COL_ID, UserTableMap::COL_LDAP, UserTableMap::COL_FIRSTNAME, UserTableMap::COL_LASTNAME, ),
-        self::TYPE_FIELDNAME     => array('id', 'ldap', 'firstname', 'lastname', ),
-        self::TYPE_NUM           => array(0, 1, 2, 3, )
+        self::TYPE_PHPNAME       => array('Id', 'Ldap', 'FirstName', 'LastName', 'PlaylistId', ),
+        self::TYPE_CAMELNAME     => array('id', 'ldap', 'firstName', 'lastName', 'playlistId', ),
+        self::TYPE_COLNAME       => array(UserTableMap::COL_ID, UserTableMap::COL_LDAP, UserTableMap::COL_FIRSTNAME, UserTableMap::COL_LASTNAME, UserTableMap::COL_PLAYLIST_ID, ),
+        self::TYPE_FIELDNAME     => array('id', 'ldap', 'firstname', 'lastname', 'playlist_id', ),
+        self::TYPE_NUM           => array(0, 1, 2, 3, 4, )
     );
 
     /**
@@ -117,11 +122,11 @@ class UserTableMap extends TableMap
      * e.g. self::$fieldKeys[self::TYPE_PHPNAME]['Id'] = 0
      */
     protected static $fieldKeys = array (
-        self::TYPE_PHPNAME       => array('Id' => 0, 'Ldap' => 1, 'FirstName' => 2, 'LastName' => 3, ),
-        self::TYPE_CAMELNAME     => array('id' => 0, 'ldap' => 1, 'firstName' => 2, 'lastName' => 3, ),
-        self::TYPE_COLNAME       => array(UserTableMap::COL_ID => 0, UserTableMap::COL_LDAP => 1, UserTableMap::COL_FIRSTNAME => 2, UserTableMap::COL_LASTNAME => 3, ),
-        self::TYPE_FIELDNAME     => array('id' => 0, 'ldap' => 1, 'firstname' => 2, 'lastname' => 3, ),
-        self::TYPE_NUM           => array(0, 1, 2, 3, )
+        self::TYPE_PHPNAME       => array('Id' => 0, 'Ldap' => 1, 'FirstName' => 2, 'LastName' => 3, 'PlaylistId' => 4, ),
+        self::TYPE_CAMELNAME     => array('id' => 0, 'ldap' => 1, 'firstName' => 2, 'lastName' => 3, 'playlistId' => 4, ),
+        self::TYPE_COLNAME       => array(UserTableMap::COL_ID => 0, UserTableMap::COL_LDAP => 1, UserTableMap::COL_FIRSTNAME => 2, UserTableMap::COL_LASTNAME => 3, UserTableMap::COL_PLAYLIST_ID => 4, ),
+        self::TYPE_FIELDNAME     => array('id' => 0, 'ldap' => 1, 'firstname' => 2, 'lastname' => 3, 'playlist_id' => 4, ),
+        self::TYPE_NUM           => array(0, 1, 2, 3, 4, )
     );
 
     /**
@@ -145,6 +150,7 @@ class UserTableMap extends TableMap
         $this->addColumn('ldap', 'Ldap', 'VARCHAR', true, 128, null);
         $this->addColumn('firstname', 'FirstName', 'LONGVARCHAR', true, null, null);
         $this->addColumn('lastname', 'LastName', 'LONGVARCHAR', true, null, null);
+        $this->addForeignKey('playlist_id', 'PlaylistId', 'INTEGER', 'playlist', 'id', false, null, null);
     } // initialize()
 
     /**
@@ -152,6 +158,13 @@ class UserTableMap extends TableMap
      */
     public function buildRelations()
     {
+        $this->addRelation('Playlist', '\\Playlist', RelationMap::MANY_TO_ONE, array (
+  0 =>
+  array (
+    0 => ':playlist_id',
+    1 => ':id',
+  ),
+), null, null, null, false);
         $this->addRelation('SpotifyAccount', '\\SpotifyAccount', RelationMap::ONE_TO_MANY, array (
   0 =>
   array (
@@ -159,6 +172,13 @@ class UserTableMap extends TableMap
     1 => ':id',
   ),
 ), null, null, 'SpotifyAccounts', false);
+        $this->addRelation('PastPlaylist', '\\Playlist', RelationMap::ONE_TO_MANY, array (
+  0 =>
+  array (
+    0 => ':owner_id',
+    1 => ':id',
+  ),
+), null, null, 'PastPlaylists', false);
     } // buildRelations()
 
     /**
@@ -306,11 +326,13 @@ class UserTableMap extends TableMap
             $criteria->addSelectColumn(UserTableMap::COL_LDAP);
             $criteria->addSelectColumn(UserTableMap::COL_FIRSTNAME);
             $criteria->addSelectColumn(UserTableMap::COL_LASTNAME);
+            $criteria->addSelectColumn(UserTableMap::COL_PLAYLIST_ID);
         } else {
             $criteria->addSelectColumn($alias . '.id');
             $criteria->addSelectColumn($alias . '.ldap');
             $criteria->addSelectColumn($alias . '.firstname');
             $criteria->addSelectColumn($alias . '.lastname');
+            $criteria->addSelectColumn($alias . '.playlist_id');
         }
     }
 

@@ -127,7 +127,13 @@ public class SpotifyService extends Service implements PlayerNotificationCallbac
             return;
         }
 
-        playTrack(showers[currentlyPlayingShower].getNextTrack());
+        SoapyTrack track = showers[currentlyPlayingShower].getNextTrack();
+        if (track == null) {
+            Log.w(TAG, "Couldn't get a next track. Resetting shower.");
+            resetShower(currentlyPlayingShower);
+        } else {
+            playTrack(track);
+        }
     }
 
     public void onLoggedOut() {

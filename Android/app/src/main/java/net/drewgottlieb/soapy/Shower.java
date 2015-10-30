@@ -96,11 +96,19 @@ public class Shower {
         }
 
         SoapyTrack ret = tracks.get(nextTrackIndex);
+        int originalIndex = nextTrackIndex;
 
         do {
             nextTrackIndex++;
             nextTrackIndex %= tracks.size();
-        } while (tracks.get(nextTrackIndex).isLocal());
+
+            // Don't loop forever.
+            if (nextTrackIndex == originalIndex) {
+                return null;
+            }
+
+            ret = tracks.get(nextTrackIndex);
+        } while (ret == null || ret.isLocal());
 
         return ret;
     }

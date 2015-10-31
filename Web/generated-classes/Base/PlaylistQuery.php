@@ -22,12 +22,12 @@ use Propel\Runtime\Exception\PropelException;
  *
  * @method     ChildPlaylistQuery orderById($order = Criteria::ASC) Order by the id column
  * @method     ChildPlaylistQuery orderByUri($order = Criteria::ASC) Order by the uri column
- * @method     ChildPlaylistQuery orderByNextSong($order = Criteria::ASC) Order by the nextsong column
+ * @method     ChildPlaylistQuery orderByLastPlayedSong($order = Criteria::ASC) Order by the lastplayedsong column
  * @method     ChildPlaylistQuery orderByOwnerId($order = Criteria::ASC) Order by the owner_id column
  *
  * @method     ChildPlaylistQuery groupById() Group by the id column
  * @method     ChildPlaylistQuery groupByUri() Group by the uri column
- * @method     ChildPlaylistQuery groupByNextSong() Group by the nextsong column
+ * @method     ChildPlaylistQuery groupByLastPlayedSong() Group by the lastplayedsong column
  * @method     ChildPlaylistQuery groupByOwnerId() Group by the owner_id column
  *
  * @method     ChildPlaylistQuery leftJoin($relation) Adds a LEFT JOIN clause to the query
@@ -65,7 +65,7 @@ use Propel\Runtime\Exception\PropelException;
  *
  * @method     ChildPlaylist findOneById(int $id) Return the first ChildPlaylist filtered by the id column
  * @method     ChildPlaylist findOneByUri(string $uri) Return the first ChildPlaylist filtered by the uri column
- * @method     ChildPlaylist findOneByNextSong(string $nextsong) Return the first ChildPlaylist filtered by the nextsong column
+ * @method     ChildPlaylist findOneByLastPlayedSong(string $lastplayedsong) Return the first ChildPlaylist filtered by the lastplayedsong column
  * @method     ChildPlaylist findOneByOwnerId(int $owner_id) Return the first ChildPlaylist filtered by the owner_id column *
 
  * @method     ChildPlaylist requirePk($key, ConnectionInterface $con = null) Return the ChildPlaylist by primary key and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
@@ -73,13 +73,13 @@ use Propel\Runtime\Exception\PropelException;
  *
  * @method     ChildPlaylist requireOneById(int $id) Return the first ChildPlaylist filtered by the id column and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
  * @method     ChildPlaylist requireOneByUri(string $uri) Return the first ChildPlaylist filtered by the uri column and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
- * @method     ChildPlaylist requireOneByNextSong(string $nextsong) Return the first ChildPlaylist filtered by the nextsong column and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
+ * @method     ChildPlaylist requireOneByLastPlayedSong(string $lastplayedsong) Return the first ChildPlaylist filtered by the lastplayedsong column and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
  * @method     ChildPlaylist requireOneByOwnerId(int $owner_id) Return the first ChildPlaylist filtered by the owner_id column and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
  *
  * @method     ChildPlaylist[]|ObjectCollection find(ConnectionInterface $con = null) Return ChildPlaylist objects based on current ModelCriteria
  * @method     ChildPlaylist[]|ObjectCollection findById(int $id) Return ChildPlaylist objects filtered by the id column
  * @method     ChildPlaylist[]|ObjectCollection findByUri(string $uri) Return ChildPlaylist objects filtered by the uri column
- * @method     ChildPlaylist[]|ObjectCollection findByNextSong(string $nextsong) Return ChildPlaylist objects filtered by the nextsong column
+ * @method     ChildPlaylist[]|ObjectCollection findByLastPlayedSong(string $lastplayedsong) Return ChildPlaylist objects filtered by the lastplayedsong column
  * @method     ChildPlaylist[]|ObjectCollection findByOwnerId(int $owner_id) Return ChildPlaylist objects filtered by the owner_id column
  * @method     ChildPlaylist[]|\Propel\Runtime\Util\PropelModelPager paginate($page = 1, $maxPerPage = 10, ConnectionInterface $con = null) Issue a SELECT query based on the current ModelCriteria and uses a page and a maximum number of results per page to compute an offset and a limit
  *
@@ -173,7 +173,7 @@ abstract class PlaylistQuery extends ModelCriteria
      */
     protected function findPkSimple($key, ConnectionInterface $con)
     {
-        $sql = 'SELECT id, uri, nextsong, owner_id FROM playlist WHERE id = :p0';
+        $sql = 'SELECT id, uri, lastplayedsong, owner_id FROM playlist WHERE id = :p0';
         try {
             $stmt = $con->prepare($sql);
             $stmt->bindValue(':p0', $key, PDO::PARAM_INT);
@@ -334,32 +334,32 @@ abstract class PlaylistQuery extends ModelCriteria
     }
 
     /**
-     * Filter the query on the nextsong column
+     * Filter the query on the lastplayedsong column
      *
      * Example usage:
      * <code>
-     * $query->filterByNextSong('fooValue');   // WHERE nextsong = 'fooValue'
-     * $query->filterByNextSong('%fooValue%'); // WHERE nextsong LIKE '%fooValue%'
+     * $query->filterByLastPlayedSong('fooValue');   // WHERE lastplayedsong = 'fooValue'
+     * $query->filterByLastPlayedSong('%fooValue%'); // WHERE lastplayedsong LIKE '%fooValue%'
      * </code>
      *
-     * @param     string $nextSong The value to use as filter.
+     * @param     string $lastPlayedSong The value to use as filter.
      *              Accepts wildcards (* and % trigger a LIKE)
      * @param     string $comparison Operator to use for the column comparison, defaults to Criteria::EQUAL
      *
      * @return $this|ChildPlaylistQuery The current query, for fluid interface
      */
-    public function filterByNextSong($nextSong = null, $comparison = null)
+    public function filterByLastPlayedSong($lastPlayedSong = null, $comparison = null)
     {
         if (null === $comparison) {
-            if (is_array($nextSong)) {
+            if (is_array($lastPlayedSong)) {
                 $comparison = Criteria::IN;
-            } elseif (preg_match('/[\%\*]/', $nextSong)) {
-                $nextSong = str_replace('*', '%', $nextSong);
+            } elseif (preg_match('/[\%\*]/', $lastPlayedSong)) {
+                $lastPlayedSong = str_replace('*', '%', $lastPlayedSong);
                 $comparison = Criteria::LIKE;
             }
         }
 
-        return $this->addUsingAlias(PlaylistTableMap::COL_NEXTSONG, $nextSong, $comparison);
+        return $this->addUsingAlias(PlaylistTableMap::COL_LASTPLAYEDSONG, $lastPlayedSong, $comparison);
     }
 
     /**

@@ -72,7 +72,7 @@ CREATE TABLE `playlist`
 (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
     `uri` TEXT NOT NULL,
-    `nextsong` TEXT,
+    `lastplayedsong` TEXT,
     `owner_id` INTEGER NOT NULL,
     PRIMARY KEY (`id`),
     INDEX `playlist_fi_ac5b84` (`owner_id`),

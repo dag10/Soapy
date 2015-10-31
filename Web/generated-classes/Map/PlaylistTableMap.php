@@ -82,9 +82,9 @@ class PlaylistTableMap extends TableMap
     const COL_URI = 'playlist.uri';
 
     /**
-     * the column name for the nextsong field
+     * the column name for the lastplayedsong field
      */
-    const COL_NEXTSONG = 'playlist.nextsong';
+    const COL_LASTPLAYEDSONG = 'playlist.lastplayedsong';
 
     /**
      * the column name for the owner_id field
@@ -103,10 +103,10 @@ class PlaylistTableMap extends TableMap
      * e.g. self::$fieldNames[self::TYPE_PHPNAME][0] = 'Id'
      */
     protected static $fieldNames = array (
-        self::TYPE_PHPNAME       => array('Id', 'Uri', 'NextSong', 'OwnerId', ),
-        self::TYPE_CAMELNAME     => array('id', 'uri', 'nextSong', 'ownerId', ),
-        self::TYPE_COLNAME       => array(PlaylistTableMap::COL_ID, PlaylistTableMap::COL_URI, PlaylistTableMap::COL_NEXTSONG, PlaylistTableMap::COL_OWNER_ID, ),
-        self::TYPE_FIELDNAME     => array('id', 'uri', 'nextsong', 'owner_id', ),
+        self::TYPE_PHPNAME       => array('Id', 'Uri', 'LastPlayedSong', 'OwnerId', ),
+        self::TYPE_CAMELNAME     => array('id', 'uri', 'lastPlayedSong', 'ownerId', ),
+        self::TYPE_COLNAME       => array(PlaylistTableMap::COL_ID, PlaylistTableMap::COL_URI, PlaylistTableMap::COL_LASTPLAYEDSONG, PlaylistTableMap::COL_OWNER_ID, ),
+        self::TYPE_FIELDNAME     => array('id', 'uri', 'lastplayedsong', 'owner_id', ),
         self::TYPE_NUM           => array(0, 1, 2, 3, )
     );
 
@@ -117,10 +117,10 @@ class PlaylistTableMap extends TableMap
      * e.g. self::$fieldKeys[self::TYPE_PHPNAME]['Id'] = 0
      */
     protected static $fieldKeys = array (
-        self::TYPE_PHPNAME       => array('Id' => 0, 'Uri' => 1, 'NextSong' => 2, 'OwnerId' => 3, ),
-        self::TYPE_CAMELNAME     => array('id' => 0, 'uri' => 1, 'nextSong' => 2, 'ownerId' => 3, ),
-        self::TYPE_COLNAME       => array(PlaylistTableMap::COL_ID => 0, PlaylistTableMap::COL_URI => 1, PlaylistTableMap::COL_NEXTSONG => 2, PlaylistTableMap::COL_OWNER_ID => 3, ),
-        self::TYPE_FIELDNAME     => array('id' => 0, 'uri' => 1, 'nextsong' => 2, 'owner_id' => 3, ),
+        self::TYPE_PHPNAME       => array('Id' => 0, 'Uri' => 1, 'LastPlayedSong' => 2, 'OwnerId' => 3, ),
+        self::TYPE_CAMELNAME     => array('id' => 0, 'uri' => 1, 'lastPlayedSong' => 2, 'ownerId' => 3, ),
+        self::TYPE_COLNAME       => array(PlaylistTableMap::COL_ID => 0, PlaylistTableMap::COL_URI => 1, PlaylistTableMap::COL_LASTPLAYEDSONG => 2, PlaylistTableMap::COL_OWNER_ID => 3, ),
+        self::TYPE_FIELDNAME     => array('id' => 0, 'uri' => 1, 'lastplayedsong' => 2, 'owner_id' => 3, ),
         self::TYPE_NUM           => array(0, 1, 2, 3, )
     );
 
@@ -143,7 +143,7 @@ class PlaylistTableMap extends TableMap
         // columns
         $this->addPrimaryKey('id', 'Id', 'INTEGER', true, null, null);
         $this->addColumn('uri', 'Uri', 'LONGVARCHAR', true, null, null);
-        $this->addColumn('nextsong', 'NextSong', 'LONGVARCHAR', false, null, null);
+        $this->addColumn('lastplayedsong', 'LastPlayedSong', 'LONGVARCHAR', false, null, null);
         $this->addForeignKey('owner_id', 'OwnerId', 'INTEGER', 'user', 'id', true, null, null);
     } // initialize()
 
@@ -311,12 +311,12 @@ class PlaylistTableMap extends TableMap
         if (null === $alias) {
             $criteria->addSelectColumn(PlaylistTableMap::COL_ID);
             $criteria->addSelectColumn(PlaylistTableMap::COL_URI);
-            $criteria->addSelectColumn(PlaylistTableMap::COL_NEXTSONG);
+            $criteria->addSelectColumn(PlaylistTableMap::COL_LASTPLAYEDSONG);
             $criteria->addSelectColumn(PlaylistTableMap::COL_OWNER_ID);
         } else {
             $criteria->addSelectColumn($alias . '.id');
             $criteria->addSelectColumn($alias . '.uri');
-            $criteria->addSelectColumn($alias . '.nextsong');
+            $criteria->addSelectColumn($alias . '.lastplayedsong');
             $criteria->addSelectColumn($alias . '.owner_id');
         }
     }

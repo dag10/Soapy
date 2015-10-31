@@ -306,6 +306,28 @@ $app->post('/api/rfid/:rfid/playlist/set', function($rfid) use ($app) {
   dieWithJsonSuccess();
 });
 
+// API for updating the current song being played.
+$app->post('/api/rfid/:rfid/song/playing', function($rfid) use ($app) {
+  $ctx = start_view($app, [
+    'require_spotify' => true, 'rfid' => $rfid, 'require_secret' => true]);
+
+  $song_uri = $app->request->post('song_uri');
+  if (!$song_uri) {
+    dieWithJsonError("No song URI was given.");
+  }
+
+  $playlist = $ctx['user']->getPlaylist();
+
+  if (!$playlist) {
+    dieWithJsonError("User does not have a selected playlist.");
+  }
+
+  $playlist->setLastPlayedSong($song_uri);
+  $playlist->save();
+
+  dieWithJsonSuccess();
+});
+
 // API for submitting log messages.
 $app->post('/api/log/add', function() use ($app) {
   $ctx = start_view($app, ['require_secret' => true]);

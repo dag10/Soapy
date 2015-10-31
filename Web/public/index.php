@@ -115,6 +115,7 @@ function start_view($app, $opts=[]) {
 }
 
 function dieWithJsonError($message) {
+  http_response_code(400);
   header("Content-Type: application/json");
   echo json_encode(
     ['error' => $message],

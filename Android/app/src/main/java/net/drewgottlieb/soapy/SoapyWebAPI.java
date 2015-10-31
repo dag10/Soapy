@@ -209,6 +209,38 @@ public class SoapyWebAPI {
         return deferred.promise();
     }
 
+    public Promise<Void, SoapyWebError, Void> setLastSongPlayed(final String rfid, final String songUri) {
+        final Deferred<Void, SoapyWebError, Void> deferred = new DeferredObject<>();
+
+        HashMap<String, String> vars = new HashMap<>();
+        vars.put("song_uri", songUri);
+
+        dm.when(post("api/rfid/" + rfid + "/song/playing", vars)).done(new DoneCallback<JSONObject>() {
+            @Override
+            public void onDone(JSONObject result) {
+                try {
+                    if (result.has("error")) {
+                        String errorMsg = result.getString("error");
+                        deferred.reject(new SoapyWebError("Remote error: " + errorMsg));
+                        return;
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                    deferred.reject(new SoapyWebError("Failed to parse response JSON: " + e.getMessage()));
+                }
+
+                deferred.resolve(null);
+            }
+        }).fail(new FailCallback<SoapyWebError>() {
+            @Override
+            public void onFail(SoapyWebError result) {
+                deferred.reject(result);
+            }
+        });
+
+        return deferred.promise();
+    }
+
     public Promise<Void, Throwable, Void> uploadLogs(final List<LogService.LogEvent> events) {
         final Deferred<Void, Throwable, Void> deferred = new DeferredObject<>();
 

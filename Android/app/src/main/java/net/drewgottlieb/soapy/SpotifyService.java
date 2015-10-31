@@ -218,10 +218,35 @@ public class SpotifyService extends Service implements PlayerNotificationCallbac
         return deferred.promise();
     }
 
-    protected void playTrack(SoapyTrack track) {
-        Log.i(TAG, "Playing track: " + track);
+    public Shower getCurrentShower() {
+        if (currentlyPlayingShower >= 0 && currentlyPlayingShower < showers.length) {
+            return showers[currentlyPlayingShower];
+        }
+
+        return null;
+    }
+
+    protected void playTrack(final SoapyTrack track) {
         trackStartSkips = 1;
         mPlayer.play(track.getURI());
+
+        Shower shower = getCurrentShower();
+        if (shower != null) {
+            SoapyWebAPI.getInstance().setLastSongPlayed(shower.getRfid(), track.getURI());
+            dm.when(shower.getUser()).done(new DoneCallback<SoapyUser>() {
+                @Override
+                public void onDone(SoapyUser result) {
+                    Log.i(TAG, result.getFullName() + " started playing track: " + track);
+                }
+            }).fail(new FailCallback<Throwable>() {
+                @Override
+                public void onFail(Throwable result) {
+                    Log.i(TAG, "Playing track: " + track);
+                }
+            });
+        } else {
+            Log.i(TAG, "Playing track: " + track);
+        }
     }
 
     protected boolean isShowerOccupied(int index) {

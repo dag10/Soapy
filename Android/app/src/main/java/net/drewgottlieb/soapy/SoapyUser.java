@@ -83,6 +83,10 @@ public class SoapyUser {
         return this.lastName;
     }
 
+    public String getFullName() {
+        return getFirstName() + " " + getLastName();
+    }
+
     public String getImageUrl() {
         return this.imageUrl;
     }

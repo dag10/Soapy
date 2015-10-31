@@ -216,23 +216,6 @@ public class ArduinoService extends Service {
     }
 
     public void onRead(byte[] data) {
-        String debugMessage = "Read hex:  ";
-        for (byte b : data) {
-            debugMessage += String.format(" %02X", b);
-        }
-        Log.d(TAG, debugMessage);
-        debugMessage = "Read ascii:";
-        for (byte b : data) {
-            if (b == '\n') {
-                debugMessage += "\\n ";
-            } else if (b == '\r') {
-                debugMessage += "\\r ";
-            } else {
-                debugMessage += String.format(" %c ", b >= 32 && b <= 126 ? (char) b : '.');
-            }
-        }
-        Log.d(TAG, debugMessage);
-
         for (int i = 0; i < data.length; i++) {
             byte b = data[i];
 

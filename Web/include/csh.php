@@ -31,13 +31,13 @@ function get_webauth($app) {
 function user_for_rfid($rfid) {
   global $cfg;
 
-  // Only for development.
-  if ($rfid == '12345') {
-    return \UserQuery::create()->findOneByLDAP('dag10');
-  } else if ($rfid == "0800B3E4E6B9") {
-    return \UserQuery::create()->findOneByLDAP("smirabito");
-  } else if ($rfid == "28006DD3E177") {
-    return \UserQuery::create()->findOneByLDAP("jmf");
+  $tempMappings = [
+    "12345" => "dag10",
+
+    ];
+
+  if (isset($tempMappings[$rfid])) {
+    return \UserQuery::create()->findOneByLDAP($tempMappings[$rfid]);
   }
 
   // Use JD's server for fetching user info for iButton/RFID id.

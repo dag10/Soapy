@@ -208,7 +208,7 @@ public class SpotifyService extends Service implements PlayerNotificationCallbac
                 Log.i(TAG, "Logging out old player...");
                 nextAccessToken = accessToken;
                 if (!mPlayer.logout()) {
-                    Log.i(TAG, "Old player was already logging out. Logging in...");
+                    Log.i(TAG, "Old player was already logged out. Logging in...");
                     nextAccessToken = null;
                     mPlayer.login(accessToken);
                 }

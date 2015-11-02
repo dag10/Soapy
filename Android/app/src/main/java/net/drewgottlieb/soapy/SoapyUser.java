@@ -51,11 +51,24 @@ public class SoapyUser {
             JSONObject jPlaylist = data.getJSONObject("playlist");
             String uri = jPlaylist.getString("uri");
 
+            String lastPlayedSong = null;
+            if (jPlaylist.has("lastPlayedSong")) {
+                lastPlayedSong = jPlaylist.getString("lastPlayedSong");
+            }
+
+            boolean hasPlaylist = false;
             for (SoapyPlaylist playlist : playlists) {
                 if (playlist.getURI().equals(uri)) {
                     this.playlist = playlist;
+                    this.playlist.setLastPlayedSong(lastPlayedSong);
+                    hasPlaylist = true;
                     break;
                 }
+            }
+
+            if (!hasPlaylist) {
+                this.playlist = new SoapyPlaylist(jPlaylist);
+                playlists.add(this.playlist);
             }
         }
 

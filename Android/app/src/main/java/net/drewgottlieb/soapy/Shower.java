@@ -42,17 +42,25 @@ public class Shower {
     public Promise<SoapyUser, Throwable, Void> getUser() {
         final Deferred<SoapyUser, Throwable, Void> deferred = new DeferredObject<>();
 
+        nextTrackIndex = 0;
+
         if (user == null) {
             dm.when(SoapyWebAPI.getInstance().fetchUserAndTracks(rfid)).done(new DoneCallback<SoapyUser>() {
                 public void onDone(SoapyUser user) {
                     Shower.this.user = user;
+                    SoapyPlaylist playlist = user.getPlaylist();
+                    String lastPlayedSong = playlist.getLastPlayedSong();
                     tracks = user.getTracks();
                     for (int i = 0; i < tracks.size(); i++) {
                         Log.i("Shower", "User has track: " + tracks.get(i));
-                        if (tracks.get(i).isLocal()) {
+                        SoapyTrack track = tracks.get(i);
+                        if (track.isLocal()) {
                             Log.i("Shower", "Ignoring local track: " + tracks.get(i));
                             tracks.remove(i);
                             i--;
+                        }
+                        if (track.getURI().equals(lastPlayedSong) && i < tracks.size() - 1) {
+                            nextTrackIndex = i + 1;
                         }
                     }
                     for (SoapyTrack track : tracks) {
@@ -95,7 +103,9 @@ public class Shower {
             return null;
         }
 
-        SoapyTrack ret = tracks.get(nextTrackIndex);
+        SoapyTrack ret;
+
+
         int originalIndex = nextTrackIndex;
 
         do {

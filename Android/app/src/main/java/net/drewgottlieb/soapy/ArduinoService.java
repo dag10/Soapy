@@ -379,6 +379,6 @@ public class ArduinoService extends Service {
                 intent.setAction(CONNECTED_INTENT);
                 sendBroadcast(intent);
             }
-        }, 2000);
+        }, 3000);
     }
 }

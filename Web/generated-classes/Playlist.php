@@ -14,5 +14,10 @@ use Base\Playlist as BasePlaylist;
  */
 class Playlist extends BasePlaylist
 {
-
+  public function getDataForJson() {
+    return [
+      'uri' => $this->getUri(),
+      'lastPlayedSong' => $this->getLastPlayedSong(),
+      ];
+  }
 }

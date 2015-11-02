@@ -105,6 +105,7 @@ public class Shower {
 
         SoapyTrack ret;
 
+        nextTrackIndex--; // Because we increment in the do loop below.
 
         int originalIndex = nextTrackIndex;
 

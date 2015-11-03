@@ -130,6 +130,8 @@ public class SoapyWebAPI {
         }
         final URL fURL = url;
 
+        Log.i(TAG, "Making " + type.toString() + " request to " + url.toExternalForm());
+
         executorService.submit(new Runnable() {
             public void run() {
                 String result = null;

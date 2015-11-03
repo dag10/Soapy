@@ -94,7 +94,7 @@ public class SpotifyService extends Service implements PlayerNotificationCallbac
     }
 
     public void onPlaybackEvent(EventType eventType, PlayerState playerState) {
-        Log.i(TAG, "Spotify playback event! Value: " + eventType.toString());
+        Log.i(TAG, "Spotify playback event: " + eventType.toString());
 
         switch (eventType) {
             case LOST_PERMISSION:
@@ -107,7 +107,6 @@ public class SpotifyService extends Service implements PlayerNotificationCallbac
                     break;
                 }
 
-                Log.i(TAG, "Song ended. Playing next song...");
                 playNextSong();
                 break;
         }
@@ -118,7 +117,6 @@ public class SpotifyService extends Service implements PlayerNotificationCallbac
     }
 
     public void onLoggedIn() {
-        Log.i(TAG, "Spotify logged in!");
         playCurrentNextTrack();
     }
 
@@ -137,7 +135,6 @@ public class SpotifyService extends Service implements PlayerNotificationCallbac
     }
 
     public void onLoggedOut() {
-        Log.i(TAG, "Spotify logged out!");
         if (nextAccessToken != null) {
             if (mPlayer.login(nextAccessToken)) {
                 currentAccessToken = nextAccessToken;
@@ -232,7 +229,13 @@ public class SpotifyService extends Service implements PlayerNotificationCallbac
 
         Shower shower = getCurrentShower();
         if (shower != null) {
-            SoapyWebAPI.getInstance().setLastSongPlayed(shower.getRfid(), track.getURI());
+            dm.when(SoapyWebAPI.getInstance().setLastSongPlayed(shower.getRfid(), track.getURI())).fail(new FailCallback<SoapyWebAPI.SoapyWebError>() {
+                @Override
+                public void onFail(SoapyWebAPI.SoapyWebError result) {
+                    Log.e(TAG, "Failed to update lastPlayedSong on server.");
+                }
+            });
+
             dm.when(shower.getUser()).done(new DoneCallback<SoapyUser>() {
                 @Override
                 public void onDone(SoapyUser result) {
@@ -336,7 +339,6 @@ public class SpotifyService extends Service implements PlayerNotificationCallbac
     }
 
     protected void doorOpened(int index) {
-        Log.i(TAG, "Door opened: " + index);
         destroyShower(index);
     }
 
@@ -399,8 +401,6 @@ public class SpotifyService extends Service implements PlayerNotificationCallbac
             // still try the first shower.
             final int showerIndex = (currentlyPlayingShower + i + 1) % NUM_SHOWERS;
 
-            Log.i(TAG, "Checking shower " + showerIndex + "; Playable? " + isShowerPlayable(showerIndex));
-
             if (isShowerPlayable(showerIndex)) {
                 nextShowerIndex = showerIndex;
                 break;
@@ -431,8 +431,6 @@ public class SpotifyService extends Service implements PlayerNotificationCallbac
     }
 
     protected void doorClosed(int index) {
-        Log.i(TAG, "Door closed: " + index);
-
         if (showers[index] != null) {
             destroyShower(index);
         }

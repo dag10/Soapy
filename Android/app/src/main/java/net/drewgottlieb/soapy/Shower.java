@@ -42,8 +42,6 @@ public class Shower {
     public Promise<SoapyUser, Throwable, Void> getUser() {
         final Deferred<SoapyUser, Throwable, Void> deferred = new DeferredObject<>();
 
-        nextTrackIndex = 0;
-
         if (user == null) {
             dm.when(SoapyWebAPI.getInstance().fetchUserAndTracks(rfid)).done(new DoneCallback<SoapyUser>() {
                 public void onDone(SoapyUser user) {
@@ -103,13 +101,12 @@ public class Shower {
             return null;
         }
 
-        SoapyTrack ret;
-
-        nextTrackIndex--; // Because we increment in the do loop below.
-
         int originalIndex = nextTrackIndex;
 
-        do {
+        nextTrackIndex %= tracks.size();
+        SoapyTrack ret = tracks.get(nextTrackIndex);
+
+        while (ret == null || ret.isLocal()) {
             nextTrackIndex++;
             nextTrackIndex %= tracks.size();
 
@@ -119,7 +116,9 @@ public class Shower {
             }
 
             ret = tracks.get(nextTrackIndex);
-        } while (ret == null || ret.isLocal());
+        }
+
+        nextTrackIndex++;
 
         return ret;
     }

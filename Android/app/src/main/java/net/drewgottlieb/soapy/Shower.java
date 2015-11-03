@@ -61,6 +61,7 @@ public class Shower {
                             nextTrackIndex = i + 1;
                         }
                     }
+                    nextTrackIndex %= tracks.size();
                     for (SoapyTrack track : tracks) {
                         Log.i("Shower", "User has track: " + track);
                     }
@@ -101,24 +102,20 @@ public class Shower {
             return null;
         }
 
-        int originalIndex = nextTrackIndex;
+        int i = 0;
+        SoapyTrack ret = null;
 
-        nextTrackIndex %= tracks.size();
-        SoapyTrack ret = tracks.get(nextTrackIndex);
-
-        while (ret == null || ret.isLocal()) {
-            nextTrackIndex++;
-            nextTrackIndex %= tracks.size();
-
-            // Don't loop forever.
-            if (nextTrackIndex == originalIndex) {
+        do {
+            // If we're back where we started, no tracks are playable.
+            if (i++ >= tracks.size()) {
                 return null;
             }
 
             ret = tracks.get(nextTrackIndex);
-        }
 
-        nextTrackIndex++;
+            nextTrackIndex++;
+            nextTrackIndex %= tracks.size();
+        } while (ret == null || ret.isLocal());
 
         return ret;
     }

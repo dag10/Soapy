@@ -37,6 +37,7 @@
                 android:listSelector="@drawable/playlistbackground"
                 android:background="@color/PLAYLIST_LIST_BG"
                 android:scrollbars="none"
+                android:soundEffectsEnabled="false"
                 />
 
             <RelativeLayout

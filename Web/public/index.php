@@ -241,20 +241,18 @@ $app->get('/api/rfid/:rfid/playlists/?', function($rfid) use ($app) {
   $playlists = \Spotify\get_playlists(
     $ctx['sp_api'], $ctx['spotifyacct']->getUsername());
 
+  $json_data = [
+    'user' => $ctx['user_json'],
+    'playlists' => $playlists,
+    ];
+
   $playlist = $ctx['user']->getPlaylist();
-  $playlist_data = [];
   if ($playlist) {
-    $playlist_data = $playlist->getDataForJson();
+    $json_data['playlist'] = $playlist->getDataForJson();
   }
 
   header("Content-Type: application/json");
-  echo json_encode(
-    [
-    'user' => $ctx['user_json'],
-    'playlists' => $playlists,
-    'playlist' => $playlist_data,
-    ],
-    JSON_UNESCAPED_SLASHES);
+  echo json_encode($json_data, JSON_UNESCAPED_SLASHES);
   exit;
 });
 

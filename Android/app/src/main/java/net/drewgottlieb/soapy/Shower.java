@@ -50,20 +50,20 @@ public class Shower {
                     String lastPlayedSong = playlist.getLastPlayedSong();
                     tracks = user.getTracks();
                     for (int i = 0; i < tracks.size(); i++) {
-                        Log.i("Shower", "User has track: " + tracks.get(i));
                         SoapyTrack track = tracks.get(i);
                         if (track.isLocal()) {
-                            Log.i("Shower", "Ignoring local track: " + tracks.get(i));
+                            Log.i("Shower", "Ignoring local track: " + track);
                             tracks.remove(i);
                             i--;
+                            continue;
                         }
-                        if (track.getURI().equals(lastPlayedSong) && i < tracks.size() - 1) {
+                        if (track.getURI().equals(lastPlayedSong)) {
                             nextTrackIndex = i + 1;
                         }
-                    }
-                    nextTrackIndex %= tracks.size();
-                    for (SoapyTrack track : tracks) {
                         Log.i("Shower", "User has track: " + track);
+                    }
+                    if (tracks.size() > 0) {
+                        nextTrackIndex %= tracks.size();
                     }
                     deferred.resolve(user);
                 }
@@ -102,20 +102,10 @@ public class Shower {
             return null;
         }
 
-        int i = 0;
-        SoapyTrack ret = null;
+        SoapyTrack ret = tracks.get(nextTrackIndex);
 
-        do {
-            // If we're back where we started, no tracks are playable.
-            if (i++ >= tracks.size()) {
-                return null;
-            }
-
-            ret = tracks.get(nextTrackIndex);
-
-            nextTrackIndex++;
-            nextTrackIndex %= tracks.size();
-        } while (ret == null || ret.isLocal());
+        nextTrackIndex++;
+        nextTrackIndex %= tracks.size();
 
         return ret;
     }

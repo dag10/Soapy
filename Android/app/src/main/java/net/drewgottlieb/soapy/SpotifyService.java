@@ -5,6 +5,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.media.MediaPlayer;
 import android.os.Binder;
 import android.os.IBinder;
 import android.util.Log;
@@ -280,7 +281,7 @@ public class SpotifyService extends Service implements PlayerNotificationCallbac
         return (currentlyPlayingShower != -1);
     }
 
-    protected void showerRfidTapped(int index, String rfid) {
+    protected void showerRfidTapped(final int index, String rfid) {
         Log.i(TAG, "RFID tapped at index " + index);
 
         // Is the shower even occupied?
@@ -296,12 +297,26 @@ public class SpotifyService extends Service implements PlayerNotificationCallbac
             return;
         }
 
+        MediaPlayer.create(getApplicationContext(), R.raw.tap_29122_junggle_btn312).start();
+
         Shower shower = showers[index];
         shower.setRfid(rfid);
 
-        if (!isMusicPlaying()) {
-            playNextSong();
-        }
+        dm.when(shower.getUser()).done(new DoneCallback<SoapyUser>() {
+            @Override
+            public void onDone(SoapyUser result) {
+                MediaPlayer.create(getApplicationContext(), R.raw.success_29124_junggle_btn314).start();
+                if (!isMusicPlaying()) {
+                    playNextSong();
+                }
+            }
+        }).fail(new FailCallback<Throwable>() {
+            @Override
+            public void onFail(Throwable result) {
+                MediaPlayer.create(getApplicationContext(), R.raw.error_28987_junggle_btn177).start();
+                resetShower(index);
+            }
+        });
     }
 
     protected void resetShower(int index) {

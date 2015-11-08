@@ -86,6 +86,10 @@ function start_view($app, $opts=[]) {
   }
 
   if ($spotifyacct) {
+    if (time() > $spotifyacct->getExpiration()->getTimestamp()) {
+      \Spotify\refresh_account($spotifyacct);
+    }
+
     $user_json = [
       'ldap' => $user->getLdap(),
       'username' => $spotifyacct->getUsername(),
@@ -94,10 +98,6 @@ function start_view($app, $opts=[]) {
       'access_token' => $spotifyacct->getAccessToken(),
       'avatar' => $spotifyacct->getAvatar(),
     ];
-
-    if (time() > $spotifyacct->getExpiration()->getTimestamp()) {
-      \Spotify\refresh_account($spotifyacct);
-    }
 
     $api = \Spotify\get_api($spotifyacct->getAccessToken());
     $api->setReturnAssoc(true);

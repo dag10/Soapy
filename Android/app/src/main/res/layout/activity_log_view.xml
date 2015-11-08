@@ -16,6 +16,7 @@
             android:name="net.drewgottlieb.soapy.StatusStrip"
             android:id="@+id/status_strip"
             android:layout_weight="0"
+            app:showCancelButton="true"
             />
 
         <TextView

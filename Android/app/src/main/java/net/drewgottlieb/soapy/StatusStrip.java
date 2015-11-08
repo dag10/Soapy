@@ -56,6 +56,7 @@ public class StatusStrip extends Fragment {
         TypedArray a = activity.obtainStyledAttributes(attrs, R.styleable.StatusStrip);
 
         boolean defaultValue = (cancelEnabled == null ? false : cancelEnabled);
+
         cancelEnabled = new Boolean(a.getBoolean(
                 R.styleable.StatusStrip_showCancelButton, defaultValue));
 
@@ -90,12 +91,17 @@ public class StatusStrip extends Fragment {
         View view = inflater.inflate(R.layout.fragment_status_strip, container, false);
 
         Button cancelButton = (Button) view.findViewById(R.id.cancel_button);
-        cancelButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mListener.onCancelPressed();
-            }
-        });
+
+        if (cancelEnabled) {
+            cancelButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    mListener.onCancelPressed();
+                }
+            });
+        } else {
+            cancelButton.setVisibility(View.INVISIBLE);
+        }
 
         statusText = (TextView) view.findViewById(R.id.status_strip_time_text);
         updateTimeText();

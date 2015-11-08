@@ -33,6 +33,7 @@ public class SpotifyService extends Service implements PlayerNotificationCallbac
     private static String TAG = "SpotifyService";
 
     private SoapyPreferences preferences = null;
+    private SoapySoundPlayer soundPlayer = null;
     private final SpotifyBinder mBinder = new SpotifyBinder();
     private Player mPlayer = null;
     private ExecutorService executorService = Executors.newCachedThreadPool();
@@ -87,19 +88,20 @@ public class SpotifyService extends Service implements PlayerNotificationCallbac
 
     public SpotifyService() {
         preferences = SoapyPreferences.getInstance();
+        soundPlayer = SoapySoundPlayer.getInstance();
     }
 
     public void onPlaybackError(ErrorType errorType, String errorDetails) {
         Log.w(TAG, "Spotify playback error (" + errorType + "): " + errorDetails);
+        soundPlayer.playErrorSound();
         resetShower(currentlyPlayingShower);
     }
 
     public void onPlaybackEvent(EventType eventType, PlayerState playerState) {
-        Log.i(TAG, "Spotify playback event: " + eventType.toString());
-
         switch (eventType) {
             case LOST_PERMISSION:
                 Log.i(TAG, "Lost Spotify permission. Resetting shower " + currentlyPlayingShower);
+                soundPlayer.playErrorSound();
                 resetShower(currentlyPlayingShower);
                 break;
             case TRACK_CHANGED:
@@ -129,6 +131,7 @@ public class SpotifyService extends Service implements PlayerNotificationCallbac
         SoapyTrack track = showers[currentlyPlayingShower].getNextTrack();
         if (track == null) {
             Log.w(TAG, "Couldn't get a next track. Resetting shower.");
+            soundPlayer.playErrorSound();
             resetShower(currentlyPlayingShower);
         } else {
             playTrack(track);
@@ -150,11 +153,13 @@ public class SpotifyService extends Service implements PlayerNotificationCallbac
 
     public void onLoginFailed(Throwable error) {
         Log.e(TAG, "Spotify login failed: " + error.getMessage());
+        soundPlayer.playErrorSound();
         resetShower(currentlyPlayingShower);
     }
 
     public void onTemporaryError() {
         Log.w(TAG, "Spotify had a temporary error!");
+        soundPlayer.playErrorSound();
         resetShower(currentlyPlayingShower);
     }
 
@@ -297,7 +302,7 @@ public class SpotifyService extends Service implements PlayerNotificationCallbac
             return;
         }
 
-        MediaPlayer.create(getApplicationContext(), R.raw.tap_29122_junggle_btn312).start();
+        soundPlayer.playTapSound();
 
         Shower shower = showers[index];
         shower.setRfid(rfid);
@@ -305,7 +310,7 @@ public class SpotifyService extends Service implements PlayerNotificationCallbac
         dm.when(shower.getUser()).done(new DoneCallback<SoapyUser>() {
             @Override
             public void onDone(SoapyUser result) {
-                MediaPlayer.create(getApplicationContext(), R.raw.success_29124_junggle_btn314).start();
+                soundPlayer.playSuccessSound();
                 if (!isMusicPlaying()) {
                     playNextSong();
                 }
@@ -313,7 +318,7 @@ public class SpotifyService extends Service implements PlayerNotificationCallbac
         }).fail(new FailCallback<Throwable>() {
             @Override
             public void onFail(Throwable result) {
-                MediaPlayer.create(getApplicationContext(), R.raw.error_28987_junggle_btn177).start();
+                soundPlayer.playErrorSound();
                 resetShower(index);
             }
         });
@@ -438,6 +443,7 @@ public class SpotifyService extends Service implements PlayerNotificationCallbac
             public void onFail(Object result) {
                 Log.e(TAG, "Failed to start player for shower " +
                         finalShowerIndex + ". Removing shower.");
+                soundPlayer.playErrorSound();
                 resetShower(finalShowerIndex);
                 playNextSong();
             }

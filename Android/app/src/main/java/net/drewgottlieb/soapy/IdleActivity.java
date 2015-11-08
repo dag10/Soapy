@@ -37,9 +37,15 @@ public class IdleActivity extends SoapyActivity implements View.OnLongClickListe
         startActivity(intent);
     }
 
+    protected void createApplicationSingletons() {
+        preferences = SoapyPreferences.createInstance(getApplicationContext());
+        SoapySoundPlayer.createInstance(getApplicationContext());
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        preferences = SoapyPreferences.createInstance(getApplicationContext());
+        createApplicationSingletons();
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_idle);
 

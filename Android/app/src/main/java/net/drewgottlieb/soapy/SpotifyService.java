@@ -105,6 +105,8 @@ public class SpotifyService extends Service implements PlayerNotificationCallbac
                 resetShower(currentlyPlayingShower);
                 break;
             case TRACK_CHANGED:
+                // This event is fired when a song starts, in addition to when it stops. We want to
+                // ignore its initial firing.
                 if (trackStartSkips > 0) {
                     trackStartSkips--;
                     break;

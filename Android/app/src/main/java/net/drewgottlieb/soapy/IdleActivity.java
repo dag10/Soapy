@@ -49,8 +49,8 @@ public class IdleActivity extends SoapyActivity implements View.OnLongClickListe
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_idle);
 
-        View view = getWindow().getDecorView().findViewById(android.R.id.content);
-        view.setOnLongClickListener(this);
+        View statusStrip = findViewById(R.id.status_strip);
+        statusStrip.setOnLongClickListener(this);
 
         // Set system media volume to max
         AudioManager audio = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
@@ -70,8 +70,10 @@ public class IdleActivity extends SoapyActivity implements View.OnLongClickListe
     }
 
     public boolean onLongClick(View view) {
-        Intent intent = new Intent(this, LogViewActivity.class);
-        startActivity(intent);
+        if (view == findViewById(R.id.status_strip)) {
+            Intent intent = new Intent(this, LogViewActivity.class);
+            startActivity(intent);
+        }
 
         return true;
     }

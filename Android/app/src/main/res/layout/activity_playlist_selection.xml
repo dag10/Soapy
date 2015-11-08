@@ -16,7 +16,7 @@
             android:name="net.drewgottlieb.soapy.StatusStrip"
             android:id="@+id/status_strip"
             android:layout_weight="0"
-            />
+            tools:layout="@layout/fragment_status_strip" />
 
         <LinearLayout
             android:layout_width="match_parent"

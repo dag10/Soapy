@@ -7,9 +7,20 @@
     android:background="@color/STATUS_STRIP_BG"
     >
 
-    <LinearLayout
+    <TextView
         android:layout_width="match_parent"
         android:layout_height="60dp"
+        android:text="Monday    7:39 am"
+        android:id="@+id/status_strip_time_text"
+        android:textSize="32sp"
+        android:textColor="#ff707070"
+        android:layout_gravity="center"
+        android:gravity="center"
+        />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
         android:orientation="horizontal"
         >
         <Button
@@ -25,5 +36,4 @@
             android:soundEffectsEnabled="false"
             />
         </LinearLayout>
-
 </FrameLayout>

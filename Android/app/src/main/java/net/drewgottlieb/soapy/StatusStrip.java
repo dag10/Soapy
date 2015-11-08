@@ -1,6 +1,10 @@
 package net.drewgottlieb.soapy;
 
 import android.app.Activity;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.res.TypedArray;
 import android.os.Bundle;
 import android.app.Fragment;
@@ -9,13 +13,29 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.TextView;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 public class StatusStrip extends Fragment {
     private static final String ARG_CANCEL_ENABLED = "cancelEnabled";
 
+    private TextView statusText;
     private Boolean cancelEnabled = null;
+    private static SimpleDateFormat dateFormat = new SimpleDateFormat("cccc    h:mm");
+    private static SimpleDateFormat dateMarkerFormat = new SimpleDateFormat("a");
 
     private OnFragmentInteractionListener mListener;
+
+    private BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (intent.getAction() == Intent.ACTION_TIME_TICK) {
+                updateTimeText();
+            }
+        }
+    };
 
     public static StatusStrip newInstance(boolean cancelEnabled) {
         StatusStrip fragment = new StatusStrip();
@@ -42,12 +62,26 @@ public class StatusStrip extends Fragment {
         a.recycle();
     }
 
+    protected void updateTimeText() {
+        Date date = new Date();
+        statusText.setText(
+                dateFormat.format(date) + " " + dateMarkerFormat.format(date).toLowerCase());
+    }
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
             cancelEnabled = getArguments().getBoolean(ARG_CANCEL_ENABLED);
         }
+        getActivity().registerReceiver(
+                broadcastReceiver, new IntentFilter(Intent.ACTION_TIME_TICK));
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        getActivity().unregisterReceiver(broadcastReceiver);
     }
 
     @Override
@@ -62,6 +96,9 @@ public class StatusStrip extends Fragment {
                 mListener.onCancelPressed();
             }
         });
+
+        statusText = (TextView) view.findViewById(R.id.status_strip_time_text);
+        updateTimeText();
 
         return view;
     }

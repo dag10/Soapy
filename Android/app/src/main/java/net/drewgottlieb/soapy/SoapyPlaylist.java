@@ -24,8 +24,17 @@ public class SoapyPlaylist {
         if (jPlaylist.has("images")) {
             JSONArray jImages = jPlaylist.getJSONArray("images");
             if (jImages.length() > 0) {
-                JSONObject jImage = jImages.getJSONObject(0);
-                imageUrl = jImage.getString("url");
+                JSONObject jSmallestImage = jImages.getJSONObject(0);
+                int smallestHeight = jSmallestImage.getInt("height");
+                for (int i = 1; i < jImages.length(); i++) {
+                    JSONObject jImage = jImages.getJSONObject(i);
+                    int height = jImage.getInt("height");
+                    if (height < smallestHeight) {
+                        jSmallestImage = jImage;
+                        smallestHeight = height;
+                    }
+                }
+                imageUrl = jSmallestImage.getString("url");
             }
         }
 

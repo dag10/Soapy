@@ -70,10 +70,23 @@ function get_playlists($api, $username) {
   return $api->getUserPlaylists($username, $options)['items'];
 }
 
-function get_playlist_tracks($api, $username, $playlist_uri) {
-  $options = [
-    'limit' => 50,
-  ];
-  return $api->getUserPlaylistTracks($username, $playlist_uri)['items'];
+function get_tracks_for_playlist($api, $playlist) {
+  $username = $playlist->getOwnerUsername();
+  $spotifyId = $playlist->getSpotifyId();
+  $songs = $api->getUserPlaylistTracks($username, $spotifyId);
+  return $songs['items'];
+}
+
+function get_formatted_tracks_for_playlist($api, $playlist) {
+  $songs = get_tracks_for_playlist($api, $playlist);
+
+  for ($i = 0; $i < sizeof($songs); $i++) {
+    $song = $songs[$i];
+    
+    $song['track']['is_local'] = $song['is_local'];
+    $songs[$i] = $song['track'];
+  }
+
+  return $songs;
 }
 

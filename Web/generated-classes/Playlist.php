@@ -20,4 +20,14 @@ class Playlist extends BasePlaylist
       'lastPlayedSong' => $this->getLastPlayedSong(),
       ];
   }
+
+  public function getOwnerUsername() {
+    $playlist_uri_expl = explode(':', $this->getUri());
+    return $playlist_uri_expl[2];
+  }
+  
+  public function getSpotifyId() {
+    $playlist_uri_expl = explode(':', $this->getUri());
+    return $playlist_uri_expl[4];
+  }
 }

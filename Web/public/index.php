@@ -271,25 +271,13 @@ $app->get('/api/rfid/:rfid/tracks/?', function($rfid) use ($app) {
     exit;
   }
 
-  $playlist_data = $playlist->getDataForJson();
-
-  $playlist_uri_expl = explode(':', $playlist->getUri());
-  $playlist_username = $playlist_uri_expl[2];
-  $playlist_id = $playlist_uri_expl[4];
-
-  $songs = \Spotify\get_playlist_tracks(
-    $ctx['sp_api'], $playlist_username, $playlist_id);
-
-  for ($i = 0; $i < sizeof($songs); $i++) {
-    $song = $songs[$i];
-    $song['track']['is_local'] = $song['is_local'];
-    $songs[$i] = $song['track'];
-  }
+  $songs = \Spotify\get_formatted_tracks_for_playlist(
+    $ctx['sp_api'], $playlist);
 
   header("Content-Type: application/json");
   echo json_encode(
     ['user' => $ctx['user_json'],
-     'playlist' => $playlist_data,
+     'playlist' => $playlist->getDataForJson(),
      'tracks' => $songs],
     JSON_UNESCAPED_SLASHES);
   exit;

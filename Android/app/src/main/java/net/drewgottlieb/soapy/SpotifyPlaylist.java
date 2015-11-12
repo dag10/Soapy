@@ -7,14 +7,14 @@ import org.json.JSONObject;
 /**
  * Created by drew on 7/5/15.
  */
-public class SoapyPlaylist {
+public class SpotifyPlaylist {
     private String name = null;
     private String uri = null;
     private String imageUrl = null;
     private String lastPlayedSong = null;
     private int totalTracks = 0;
 
-    public SoapyPlaylist(JSONObject jPlaylist) throws JSONException {
+    public SpotifyPlaylist(JSONObject jPlaylist) throws JSONException {
         uri = jPlaylist.getString("uri");
 
         if (jPlaylist.has("name")) {

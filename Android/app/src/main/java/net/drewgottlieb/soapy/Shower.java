@@ -46,7 +46,7 @@ public class Shower {
             dm.when(SoapyWebAPI.getInstance().fetchUserAndTracks(rfid)).done(new DoneCallback<SoapyUser>() {
                 public void onDone(SoapyUser user) {
                     Shower.this.user = user;
-                    SoapyPlaylist playlist = user.getPlaylist();
+                    SpotifyPlaylist playlist = user.getPlaylist();
                     String lastPlayedSong = playlist.getLastPlayedSong();
                     tracks = user.getTracks();
                     for (int i = 0; i < tracks.size(); i++) {

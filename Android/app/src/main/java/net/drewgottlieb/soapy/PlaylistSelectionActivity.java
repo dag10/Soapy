@@ -37,11 +37,11 @@ public class PlaylistSelectionActivity extends SoapyActivity {
 
     private SoapyUser user = null;
     private String rfid = null;
-    private SoapyPlaylist selectedPlaylist = null;
+    private SpotifyPlaylist selectedPlaylist = null;
     private ListView playlistListview = null;
     private PlaylistArrayAdapter playlistAdapter = null;
 
-    private void setSelectedPlaylist(SoapyPlaylist playlist) {
+    private void setSelectedPlaylist(SpotifyPlaylist playlist) {
         selectedPlaylist = playlist;
         playlistAdapter.setSelectedPlaylist(playlist);
 
@@ -92,7 +92,7 @@ public class PlaylistSelectionActivity extends SoapyActivity {
         rfid_out.setText("Loading user with RFID " + rfid);
 
         playlistListview = (ListView) findViewById(R.id.playlist_listview);
-        final List<SoapyPlaylist> playlists = new ArrayList<>();
+        final List<SpotifyPlaylist> playlists = new ArrayList<>();
         playlistAdapter = new PlaylistArrayAdapter(this, android.R.layout.simple_list_item_1, playlists);
         playlistListview.setAdapter(playlistAdapter);
         playlistListview.setDivider(null);
@@ -100,7 +100,7 @@ public class PlaylistSelectionActivity extends SoapyActivity {
         playlistListview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, final View view, final int position, long id) {
-                setSelectedPlaylist((SoapyPlaylist) playlistListview.getItemAtPosition(position));
+                setSelectedPlaylist((SpotifyPlaylist) playlistListview.getItemAtPosition(position));
             }
         });
 
@@ -111,8 +111,8 @@ public class PlaylistSelectionActivity extends SoapyActivity {
             public void onDone(SoapyUser user) {
                 PlaylistSelectionActivity.this.user = user;
 
-                List<SoapyPlaylist> fetchedPlaylists = user.getPlaylists();
-                for (SoapyPlaylist playlist : fetchedPlaylists) {
+                List<SpotifyPlaylist> fetchedPlaylists = user.getPlaylists();
+                for (SpotifyPlaylist playlist : fetchedPlaylists) {
                     playlists.add(playlist);
                 }
 
@@ -193,21 +193,21 @@ class DownloadImageTask extends AsyncTask<String, Void, Bitmap> {
     }
 }
 
-class PlaylistArrayAdapter extends ArrayAdapter<SoapyPlaylist> {
-    private SoapyPlaylist selectedPlaylist = null;
+class PlaylistArrayAdapter extends ArrayAdapter<SpotifyPlaylist> {
+    private SpotifyPlaylist selectedPlaylist = null;
 
-    public PlaylistArrayAdapter(Context context, int textViewResourceId, List<SoapyPlaylist> objects) {
+    public PlaylistArrayAdapter(Context context, int textViewResourceId, List<SpotifyPlaylist> objects) {
         super(context, textViewResourceId, objects);
     }
 
-    public void setSelectedPlaylist(SoapyPlaylist playlist) {
+    public void setSelectedPlaylist(SpotifyPlaylist playlist) {
         selectedPlaylist = playlist;
         notifyDataSetChanged();
     }
 
     @Override
     public long getItemId(int position) {
-        SoapyPlaylist item = getItem(position);
+        SpotifyPlaylist item = getItem(position);
         return item.getURI().hashCode();
     }
 
@@ -216,7 +216,7 @@ class PlaylistArrayAdapter extends ArrayAdapter<SoapyPlaylist> {
         return true;
     }
 
-    public int getPositionForPlaylist(SoapyPlaylist playlist) {
+    public int getPositionForPlaylist(SpotifyPlaylist playlist) {
         String uri = playlist.getURI();
         for (int i = 0; i < getCount(); i++) {
             if (uri.equals(getItem(i).getURI())) {
@@ -233,7 +233,7 @@ class PlaylistArrayAdapter extends ArrayAdapter<SoapyPlaylist> {
             convertView = LayoutInflater.from(getContext()).inflate(R.layout.entry_playlist, parent, false);
         }
 
-        SoapyPlaylist playlist = getItem(position);
+        SpotifyPlaylist playlist = getItem(position);
 
         TextView fragTextView = (TextView) convertView.findViewById(R.id.playlist_fragment_text);
         fragTextView.setText(playlist.getName());

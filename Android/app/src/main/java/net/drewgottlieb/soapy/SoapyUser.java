@@ -19,9 +19,9 @@ public class SoapyUser {
     private String imageUrl = null;
     private String spotifyUsername = null;
     private String spotifyAccessToken = null;
-    private ArrayList<SoapyPlaylist> playlists = null;
+    private ArrayList<SpotifyPlaylist> playlists = null;
     private ArrayList<SoapyTrack> tracks = null;
-    private SoapyPlaylist playlist = null;
+    private SpotifyPlaylist playlist = null;
 
     public SoapyUser(String rfid) {
         this.rfid = rfid;
@@ -43,7 +43,7 @@ public class SoapyUser {
         if (data.has("playlists")) {
             JSONArray jPlaylists = data.getJSONArray("playlists");
             for (int i = 0; i < jPlaylists.length(); i++) {
-                playlists.add(new SoapyPlaylist(jPlaylists.getJSONObject(i)));
+                playlists.add(new SpotifyPlaylist(jPlaylists.getJSONObject(i)));
             }
         }
 
@@ -57,7 +57,7 @@ public class SoapyUser {
             }
 
             boolean hasPlaylist = false;
-            for (SoapyPlaylist playlist : playlists) {
+            for (SpotifyPlaylist playlist : playlists) {
                 if (playlist.getURI().equals(uri)) {
                     this.playlist = playlist;
                     this.playlist.setLastPlayedSong(lastPlayedSong);
@@ -67,7 +67,7 @@ public class SoapyUser {
             }
 
             if (!hasPlaylist) {
-                this.playlist = new SoapyPlaylist(jPlaylist);
+                this.playlist = new SpotifyPlaylist(jPlaylist);
                 playlists.add(this.playlist);
             }
         }
@@ -112,11 +112,11 @@ public class SoapyUser {
         return this.spotifyAccessToken;
     }
 
-    public List<SoapyPlaylist> getPlaylists() {
+    public List<SpotifyPlaylist> getPlaylists() {
         return playlists;
     }
 
-    public SoapyPlaylist getPlaylist() {
+    public SpotifyPlaylist getPlaylist() {
         return playlist;
     }
 

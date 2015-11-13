@@ -16,6 +16,7 @@ class Playlist extends BasePlaylist
 {
   public function getDataForJson() {
     return [
+      'soapyPlaylistId' => $this->getId(),
       'uri' => $this->getUri(),
       'lastPlayedSong' => $this->getLastPlayedSong(),
       ];

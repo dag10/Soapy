@@ -208,8 +208,7 @@ $app->get('/me/playlists/?', function() use ($app) {
   $api = $ctx['sp_api'];
 
   try {
-    $ctx['playlists'] = \Spotify\get_playlists(
-        $api, $ctx['spotifyacct']->getUsername());
+    $ctx['playlists'] = \Spotify\get_playlists($api, $ctx['user']);
     $ctx['selected_playlist_uri'] = $ctx['user']->getPlaylistUri();
   } catch (Exception $e) {
     $app->flash('error', 'Spotify error: ' . $e->getMessage());
@@ -238,8 +237,7 @@ $app->get('/api/rfid/:rfid/playlists/?', function($rfid) use ($app) {
   $ctx = start_view($app, [
     'require_spotify' => true, 'rfid' => $rfid, 'require_secret' => true]);
 
-  $playlists = \Spotify\get_playlists(
-    $ctx['sp_api'], $ctx['spotifyacct']->getUsername());
+  $playlists = \Spotify\get_playlists($ctx['sp_api'], $ctx['user']);
 
   $json_data = [
     'user' => $ctx['user_json'],

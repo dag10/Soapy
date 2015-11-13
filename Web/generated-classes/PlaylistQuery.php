@@ -14,5 +14,19 @@ use Base\PlaylistQuery as BasePlaylistQuery;
  */
 class PlaylistQuery extends BasePlaylistQuery
 {
+  public static function GetOrCreatePlaylist($user, $playlistUri) {
+    $ownerId = $user->getId();
 
+    $playlist = self::create()->filterByOwnerId($ownerId)->
+      filterByUri($playlistUri)->findOne();
+
+    if (!$playlist) {
+      $playlist = new Playlist();
+      $playlist->setOwnerId($ownerId);
+      $playlist->setUri($playlistUri);
+      $playlist->save();
+    }
+
+    return $playlist;
+  }
 }

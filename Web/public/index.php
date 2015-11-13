@@ -72,7 +72,7 @@ function start_view($app, $opts=[]) {
   $user_json = [];
 
   if ($user) {
-    $spotifyacct = SpotifyAccountQuery::findByUser($user);
+    $spotifyacct = $user->getSpotifyAccount();
     if ($require_spotify and !$spotifyacct) {
       if ($rfid) {
         echo json_encode(['error' => 'No Spotify account has been linked.']);

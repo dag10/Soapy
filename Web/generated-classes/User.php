@@ -44,4 +44,10 @@ class User extends BaseUser
 
     return $playlist->getUri();
   }
+
+  public function getSpotifyAccount() {
+    $accounts = $this->getSpotifyAccounts();
+    if (!$accounts) return null;
+    return $accounts[0];
+  }
 }

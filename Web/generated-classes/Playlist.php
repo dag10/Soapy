@@ -18,7 +18,7 @@ class Playlist extends BasePlaylist
     return [
       'soapyPlaylistId' => $this->getId(),
       'uri' => $this->getUri(),
-      'lastPlayedSong' => $this->getLastPlayedSong(),
+      'lastPlayedSongUri' => $this->getLastPlayedSong(),
       ];
   }
 

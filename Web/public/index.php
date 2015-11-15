@@ -69,11 +69,16 @@ function start_view($app, $opts=[]) {
   $spotifyacct = null;
   $me = null;
   $api = null;
-  $user_json = [];
 
   if ($user) {
     $spotifyacct = $user->getSpotifyAccount();
-    if ($require_spotify and !$spotifyacct) {
+    if ($spotifyacct) {
+      $api = \Spotify\get_api($spotifyacct->getAccessToken());
+      $api->setReturnAssoc(true);
+      if (time() > $spotifyacct->getExpiration()->getTimestamp()) {
+        \Spotify\refresh_account($spotifyacct);
+      }
+    } else if ($require_spotify) {
       if ($rfid) {
         echo json_encode(['error' => 'No Spotify account has been linked.']);
         exit;
@@ -85,32 +90,12 @@ function start_view($app, $opts=[]) {
     }
   }
 
-  if ($spotifyacct) {
-    if (time() > $spotifyacct->getExpiration()->getTimestamp()) {
-      \Spotify\refresh_account($spotifyacct);
-    }
-
-    $user_json = [
-      'ldap' => $user->getLdap(),
-      'username' => $spotifyacct->getUsername(),
-      'first_name' => $user->getFirstName(),
-      'last_name' => $user->getLastName(),
-      'access_token' => $spotifyacct->getAccessToken(),
-      'avatar' => $spotifyacct->getAvatar(),
-    ];
-
-    $api = \Spotify\get_api($spotifyacct->getAccessToken());
-    $api->setReturnAssoc(true);
-  }
-
   return array(
     'base_url' => $cfg['url'],
     'auth_url' => $sp_auth_url,
-    'spotifyacct' => $spotifyacct,
     'authorized' => !!$spotifyacct,
     'sp_api' => $api,
     'user' => $user,
-    'user_json' => $user_json,
   );
 }
 
@@ -138,7 +123,7 @@ $app->get('/', function() use ($app) {
 
   $ctx = start_view($app);
 
-  if ($ctx['spotifyacct']) {
+  if ($ctx['user']->getSpotifyAccount() != null) {
     $app->redirect($base_url . 'me/playlists');
     return;
   }
@@ -153,7 +138,7 @@ $app->get(
 
   $ctx = start_view($app);
 
-  if (isset($ctx['spotifyacct'])) {
+  if (isset($ctx['user']) && $ctx['user']->getSpotifyAccount() != null) {
     $app->flash('error', "You are already authenticated with Spotify.");
     $app->redirect($base_url);
     return;
@@ -195,7 +180,7 @@ $app->post('/unpair/spotify/?', function() use ($app) {
   $ctx = start_view($app, ['require_spotify' => true]);
   if (!$ctx) return;
 
-  $ctx['spotifyacct']->delete();
+  $ctx['user']->getSpotifyAccount()->delete();
 
   $app->redirect($base_url);
 });
@@ -237,16 +222,18 @@ $app->get('/api/rfid/:rfid/playlists/?', function($rfid) use ($app) {
   $ctx = start_view($app, [
     'require_spotify' => true, 'rfid' => $rfid, 'require_secret' => true]);
 
-  $playlists = \Spotify\get_playlists($ctx['sp_api'], $ctx['user']);
-
   $json_data = [
-    'user' => $ctx['user_json'],
-    'playlists' => $playlists,
+    'user' => $ctx['user']->getDataForJson(),
     ];
+
+  $playlists = \Spotify\get_playlists($ctx['sp_api'], $ctx['user']);
+  if ($playlists) {
+    $json_data['user']['playlists'] = $playlists;
+  }
 
   $playlist = $ctx['user']->getPlaylist();
   if ($playlist) {
-    $json_data['playlist'] = $playlist->getDataForJson();
+    $json_data['user']['selectedPlaylist'] = $playlist->getDataForJson();
   }
 
   header("Content-Type: application/json");
@@ -261,23 +248,21 @@ $app->get('/api/rfid/:rfid/tracks/?', function($rfid) use ($app) {
 
   $playlist = $ctx['user']->getPlaylist();
   if (!$playlist) {
-    echo json_encode(
-      ['user' => $ctx['user_json'],
-       'error' => 'User has not selected a playlist.',
-      ],
-      JSON_UNESCAPED_SLASHES);
-    exit;
+    dieWithJsonError('User has not selected a playlist.');
   }
 
-  $songs = \Spotify\get_formatted_tracks_for_playlist(
+  $json_data = [
+    'user' => $ctx['user']->getDataForJson(),
+    ];
+
+  $json_data['user']['selectedPlaylist'] = $ctx['user']->getPlaylist()->
+    getDataForJson();
+
+  $json_data['user']['selectedPlaylist']['tracklist'] = \spotify\get_formatted_tracks_for_playlist(
     $ctx['sp_api'], $playlist);
 
   header("Content-Type: application/json");
-  echo json_encode(
-    ['user' => $ctx['user_json'],
-     'playlist' => $playlist->getDataForJson(),
-     'tracks' => $songs],
-    JSON_UNESCAPED_SLASHES);
+  echo json_encode($json_data, JSON_UNESCAPED_SLASHES);
   exit;
 });
 

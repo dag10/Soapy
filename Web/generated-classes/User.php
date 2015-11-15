@@ -14,6 +14,21 @@ use Base\User as BaseUser;
  */
 class User extends BaseUser
 {
+  public function getDataForJson() {
+    $data = [
+      'ldap' => $this->getLdap(),
+      'firstName' => $this->getFirstName(),
+      'lastName' => $this->getLastName(),
+      ];
+
+    $spotifyAccount = $this->getSpotifyAccount();
+    if ($spotifyAccount) {
+      $data['spotifyAccount'] = $spotifyAccount->getDataForJson();
+    }
+
+    return $data;
+  }
+
   public function setPlaylistUri($uri) {
     if (!$uri) {
       $this->setPlaylistId(null);

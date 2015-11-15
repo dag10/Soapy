@@ -68,7 +68,6 @@ function wrap_spotify_playlist_data($user, $spotifyPlaylist) {
     $user, $spotifyPlaylist['uri']);
   $data = $playlist->getDataForJson();
   $data['spotifyPlaylist'] = $spotifyPlaylist;
-  unset($data['uri']);
   return $data;
 }
 

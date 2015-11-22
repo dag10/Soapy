@@ -62,7 +62,7 @@ class User extends BaseUser
 
   public function getSpotifyAccount() {
     $accounts = $this->getSpotifyAccounts();
-    if (!$accounts) return null;
-    return $accounts[0];
+    if ($accounts->isEmpty()) return null;
+    return $accounts->getFirst();
   }
 }

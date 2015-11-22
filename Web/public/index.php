@@ -48,18 +48,14 @@ function start_view($app, $opts=[]) {
   if ($require_secret) {
     $request_secret = $app->request->headers->get('X-Soapy-Secret', '');
     if ($request_secret != $cfg['soapy_secret']) {
-      header('Content-Type: application/json');
-      echo json_encode(['error' => 'Invalid Soapy secret.']);
-      exit;
+      dieWithJsonError("Invalid Soapy secret.");
     }
   }
 
   if ($rfid) {
-    header('Content-Type: application/json');
     $user = \CSH\user_for_rfid($rfid);
     if (!$user) {
-      echo json_encode(['error' => 'User not found.']);
-      exit;
+      dieWithJsonError("User not found!");
     }
   } else {
     $webauth = \CSH\get_webauth($app);
@@ -76,16 +72,27 @@ function start_view($app, $opts=[]) {
       $api = \Spotify\get_api($spotifyacct->getAccessToken());
       $api->setReturnAssoc(true);
       if (time() > $spotifyacct->getExpiration()->getTimestamp()) {
-        \Spotify\refresh_account($spotifyacct);
+        try {
+          \Spotify\refresh_account($spotifyacct); // Also saves the object.
+        } catch(\SpotifyWebAPI\SpotifyWebAPIException $e) {
+          if ($rfid) {
+            dieWithJsonError(
+              "Failed to refresh spotify access token: " . $e->getMessage());
+          } else {
+            $app->flash(
+              'error',
+              "Failed to create SpotifyAccount row. Spotify Error: " .
+              $e->getMessage());
+            $app->redirect($base_url);
+          }
+        }
       }
     } else if ($require_spotify) {
       if ($rfid) {
-        echo json_encode(['error' => 'No Spotify account has been linked.']);
-        exit;
+        dieWithJsonError("No spotify account has been linked.");
       } else {
         $app->flash('error', "You must connect a Spotify account.");
         $app->redirect($base_url);
-        return;
       }
     }
   }
@@ -99,21 +106,19 @@ function start_view($app, $opts=[]) {
   );
 }
 
-function dieWithJsonError($message) {
-  http_response_code(400);
+function dieWithJson($data) {
   header("Content-Type: application/json");
-  echo json_encode(
-    ['error' => $message],
-    JSON_UNESCAPED_SLASHES);
+  echo json_encode($data, JSON_UNESCAPED_SLASHES);
   exit;
 }
 
+function dieWithJsonError($message) {
+  http_response_code(400);
+  dieWithJson(['error' => $message]);
+}
+
 function dieWithJsonSuccess() {
-  header("Content-Type: application/json");
-  echo json_encode(
-    ['success' => true],
-    JSON_UNESCAPED_SLASHES);
-  exit;
+  dieWithJson(['success' => true]);
 }
 
 /* Routes */
@@ -125,7 +130,6 @@ $app->get('/', function() use ($app) {
 
   if ($ctx['user']->getSpotifyAccount() != null) {
     $app->redirect($base_url . 'me/playlists');
-    return;
   }
 
   $app->render('index.html', $ctx);
@@ -146,16 +150,15 @@ $app->get(
 
   $error = $app->request->get('error');
   if (isset($error)) {
-    $app->flash('error', "You can't use Soapy until you accept Spotify permissions.");
+    $app->flash(
+      'error', "You can't use Soapy until you accept Spotify permissions.");
     $app->redirect($base_url);
-    return;
   }
 
   $code = $app->request->get('code');
   if (!isset($code)) {
     $app->flash('error', "Expected Spotify authorization token.");
     $app->redirect($base_url);
-    return;
   }
 
   try {
@@ -163,13 +166,20 @@ $app->get(
   } catch(\SpotifyWebAPI\SpotifyWebAPIException $e) {
     $app->flash('error', "Spotify Error: " . $e->getMessage());
     $app->redirect($base_url);
-    return;
   }
 
   $spotifyacct = new SpotifyAccount();
   $spotifyacct->setUserId($ctx['user']->getId());
   $spotifyacct->setRefreshToken($refresh_token);
-  \Spotify\refresh_account($spotifyacct); // Also saves the object.
+
+  try {
+    \Spotify\refresh_account($spotifyacct); // Also saves the object.
+  } catch(\SpotifyWebAPI\SpotifyWebAPIException $e) {
+    $app->flash(
+      'error',
+      "Failed to create SpotifyAccount row. Spotify Error: " . $e->getMessage());
+    $app->redirect($base_url);
+  }
 
   $app->redirect($base_url);
 });
@@ -191,13 +201,13 @@ $app->get('/me/playlists/?', function() use ($app) {
   if (!$ctx) return;
 
   $api = $ctx['sp_api'];
+  $ctx['selected_playlist_uri'] = $ctx['user']->getPlaylistUri();
+  $ctx['playlists'] = array();
 
   try {
     $ctx['playlists'] = \Spotify\get_playlists($api, $ctx['user']);
-    $ctx['selected_playlist_uri'] = $ctx['user']->getPlaylistUri();
-  } catch (Exception $e) {
+  } catch (\SpotifyWebAPI\SpotifyWebAPIException $e) {
     $app->flash('error', 'Spotify error: ' . $e->getMessage());
-    $ctx['playlists'] = array();
   }
 
   $app->render('data_playlists.html', $ctx);
@@ -210,11 +220,7 @@ $app->post('/me/playlist/set', function() use ($app) {
   $new_playlist = $app->request->post('playlist_uri');
   $ctx['user']->setPlaylistUri($new_playlist);
 
-  header("Content-Type: application/json");
-  echo json_encode(
-    ['success' => true],
-    JSON_UNESCAPED_SLASHES);
-  exit;
+  dieWithJsonSuccess();
 });
 
 // API for fetching playlists for a user.
@@ -226,7 +232,12 @@ $app->get('/api/rfid/:rfid/playlists/?', function($rfid) use ($app) {
     'user' => $ctx['user']->getDataForJson(),
     ];
 
-  $playlists = \Spotify\get_playlists($ctx['sp_api'], $ctx['user']);
+  try {
+    $playlists = \Spotify\get_playlists($ctx['sp_api'], $ctx['user']);
+  } catch (\SpotifyWebAPI\SpotifyWebAPIException $e) {
+    dieWithJsonError("Error getting playlists: " . $e->getMessage());
+  }
+
   if ($playlists) {
     $json_data['user']['playlists'] = $playlists;
   }
@@ -236,9 +247,7 @@ $app->get('/api/rfid/:rfid/playlists/?', function($rfid) use ($app) {
     $json_data['user']['selectedPlaylist'] = $playlist->getDataForJson();
   }
 
-  header("Content-Type: application/json");
-  echo json_encode($json_data, JSON_UNESCAPED_SLASHES);
-  exit;
+  dieWithJson($json_data);
 });
 
 // API for fetching songs for a user from their selected playlist.
@@ -258,12 +267,14 @@ $app->get('/api/rfid/:rfid/tracks/?', function($rfid) use ($app) {
   $json_data['user']['selectedPlaylist'] = $ctx['user']->getPlaylist()->
     getDataForJson();
 
-  $json_data['user']['selectedPlaylist']['tracklist'] = \spotify\get_formatted_tracks_for_playlist(
-    $ctx['sp_api'], $playlist);
+  try {
+    $json_data['user']['selectedPlaylist']['tracklist'] =
+      \Spotify\get_formatted_tracks_for_playlist($ctx['sp_api'], $playlist);
+  } catch (\SpotifyWebAPI\SpotifyWebAPIException $e) {
+    dieWithJsonError("Error getting tracks: " . $e->getMessage());
+  }
 
-  header("Content-Type: application/json");
-  echo json_encode($json_data, JSON_UNESCAPED_SLASHES);
-  exit;
+  dieWithJson($json_data);
 });
 
 // API for setting the selected playlist for a user.

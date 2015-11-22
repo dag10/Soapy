@@ -37,11 +37,11 @@ public class PlaylistSelectionActivity extends SoapyActivity {
 
     private SoapyUser user = null;
     private String rfid = null;
-    private SpotifyPlaylist selectedPlaylist = null;
+    private SoapyPlaylist selectedPlaylist = null;
     private ListView playlistListview = null;
     private PlaylistArrayAdapter playlistAdapter = null;
 
-    private void setSelectedPlaylist(SpotifyPlaylist playlist) {
+    private void setSelectedPlaylist(SoapyPlaylist playlist) {
         selectedPlaylist = playlist;
         playlistAdapter.setSelectedPlaylist(playlist);
 
@@ -71,7 +71,7 @@ public class PlaylistSelectionActivity extends SoapyActivity {
             rfid_out.setText("\n\nChoose a playlist");
             fab.hide();
         } else {
-            rfid_out.setText(playlist.getName());
+            rfid_out.setText(playlist.getSpotifyPlaylist().getName());
             fab.show();
         }
     }
@@ -92,7 +92,7 @@ public class PlaylistSelectionActivity extends SoapyActivity {
         rfid_out.setText("Loading user with RFID " + rfid);
 
         playlistListview = (ListView) findViewById(R.id.playlist_listview);
-        final List<SpotifyPlaylist> playlists = new ArrayList<>();
+        final List<SoapyPlaylist> playlists = new ArrayList<>();
         playlistAdapter = new PlaylistArrayAdapter(this, android.R.layout.simple_list_item_1, playlists);
         playlistListview.setAdapter(playlistAdapter);
         playlistListview.setDivider(null);
@@ -100,7 +100,7 @@ public class PlaylistSelectionActivity extends SoapyActivity {
         playlistListview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, final View view, final int position, long id) {
-                setSelectedPlaylist((SpotifyPlaylist) playlistListview.getItemAtPosition(position));
+                setSelectedPlaylist((SoapyPlaylist) playlistListview.getItemAtPosition(position));
             }
         });
 
@@ -111,8 +111,8 @@ public class PlaylistSelectionActivity extends SoapyActivity {
             public void onDone(SoapyUser user) {
                 PlaylistSelectionActivity.this.user = user;
 
-                List<SpotifyPlaylist> fetchedPlaylists = user.getPlaylists();
-                for (SpotifyPlaylist playlist : fetchedPlaylists) {
+                List<SoapyPlaylist> fetchedPlaylists = user.getPlaylists();
+                for (SoapyPlaylist playlist : fetchedPlaylists) {
                     playlists.add(playlist);
                 }
 
@@ -129,7 +129,7 @@ public class PlaylistSelectionActivity extends SoapyActivity {
                         playlistListview.setEnabled(false);
 
                         adm.when(SoapyWebAPI.getInstance().setSelectedPlaylist(
-                                rfid, selectedPlaylist.getURI())).done(new DoneCallback<Void>() {
+                                rfid, selectedPlaylist.getSpotifyPlaylistUri())).done(new DoneCallback<Void>() {
                             @Override
                             public void onDone(Void result) {
                                 PlaylistSelectionActivity.this.finish();
@@ -193,22 +193,22 @@ class DownloadImageTask extends AsyncTask<String, Void, Bitmap> {
     }
 }
 
-class PlaylistArrayAdapter extends ArrayAdapter<SpotifyPlaylist> {
-    private SpotifyPlaylist selectedPlaylist = null;
+class PlaylistArrayAdapter extends ArrayAdapter<SoapyPlaylist> {
+    private SoapyPlaylist selectedPlaylist = null;
 
-    public PlaylistArrayAdapter(Context context, int textViewResourceId, List<SpotifyPlaylist> objects) {
+    public PlaylistArrayAdapter(Context context, int textViewResourceId, List<SoapyPlaylist> objects) {
         super(context, textViewResourceId, objects);
     }
 
-    public void setSelectedPlaylist(SpotifyPlaylist playlist) {
+    public void setSelectedPlaylist(SoapyPlaylist playlist) {
         selectedPlaylist = playlist;
         notifyDataSetChanged();
     }
 
     @Override
     public long getItemId(int position) {
-        SpotifyPlaylist item = getItem(position);
-        return item.getURI().hashCode();
+        SoapyPlaylist item = getItem(position);
+        return item.getSpotifyPlaylistUri().hashCode();
     }
 
     @Override
@@ -216,10 +216,10 @@ class PlaylistArrayAdapter extends ArrayAdapter<SpotifyPlaylist> {
         return true;
     }
 
-    public int getPositionForPlaylist(SpotifyPlaylist playlist) {
-        String uri = playlist.getURI();
+    public int getPositionForPlaylist(SoapyPlaylist playlist) {
+        String uri = playlist.getSpotifyPlaylistUri();
         for (int i = 0; i < getCount(); i++) {
-            if (uri.equals(getItem(i).getURI())) {
+            if (uri.equals(getItem(i).getSpotifyPlaylistUri())) {
                 return i;
             }
         }
@@ -233,25 +233,25 @@ class PlaylistArrayAdapter extends ArrayAdapter<SpotifyPlaylist> {
             convertView = LayoutInflater.from(getContext()).inflate(R.layout.entry_playlist, parent, false);
         }
 
-        SpotifyPlaylist playlist = getItem(position);
+        SoapyPlaylist playlist = getItem(position);
 
         TextView fragTextView = (TextView) convertView.findViewById(R.id.playlist_fragment_text);
-        fragTextView.setText(playlist.getName());
+        fragTextView.setText(playlist.getSpotifyPlaylist().getName());
 
         TextView fragSongCountView = (TextView) convertView.findViewById(R.id.playlist_fragment_songcount_text);
-        int totalTracks = playlist.getTotalTracks();
+        int totalTracks = playlist.getSpotifyPlaylist().getTotalTracks();
         fragSongCountView.setText(totalTracks + " song" + (totalTracks == 1 ? "" : "s"));
 
         // TODO: Load actual album art.
         ImageView albumArt = (ImageView) convertView.findViewById(R.id.playlist_fragment_image);
-        Random random = new Random(playlist.getURI().hashCode());
+        Random random = new Random(playlist.getSpotifyPlaylistUri().hashCode());
         int mix = Color.HSVToColor(new float[]{random.nextFloat(), 1.f, 0.5f});
         int red = (random.nextInt(256) + Color.red(mix)) / 2;
         int green = (random.nextInt(256) + Color.green(mix)) / 2;
         int blue = (random.nextInt(256) + Color.blue(mix)) / 2;
         albumArt.setBackgroundColor(Color.rgb(red, green, blue));
 
-        if (selectedPlaylist != null && playlist.getURI().equals(selectedPlaylist.getURI())) {
+        if (selectedPlaylist != null && playlist.getSpotifyPlaylistUri().equals(selectedPlaylist.getSpotifyPlaylistUri())) {
             convertView.setBackgroundColor(
                     convertView.getResources().getColor(R.color.PLAYLIST_SELECTED_BG));
         } else {
@@ -259,7 +259,7 @@ class PlaylistArrayAdapter extends ArrayAdapter<SpotifyPlaylist> {
                     convertView.getResources().getColor(R.color.TRANSPARENT));
         }
 
-        new DownloadImageTask(albumArt).execute(playlist.getImageURL());
+        new DownloadImageTask(albumArt).execute(playlist.getSpotifyPlaylist().getImageURL());
 
         return convertView;
     }

@@ -14,14 +14,14 @@ Playlists
 {% block panel_body %}
 {% for playlist in playlists %}
 <strong>
-  {% if selected_playlist_uri == playlist.uri %}
-  <button class="btn btn-xs btn-select-playlist playlist-selected btn-success" data-uri="{{ playlist.uri }}" disabled="disabled">Selected</button>
+  {% if selected_playlist_uri == playlist.spotifyPlaylist.uri %}
+  <button class="btn btn-xs btn-select-playlist playlist-selected btn-success" data-uri="{{ playlist.spotifyPlaylist.uri }}" disabled="disabled">Selected</button>
   {% else %}
-  <button class="btn btn-xs btn-select-playlist" data-uri="{{ playlist.uri }}">Select</button>
+  <button class="btn btn-xs btn-select-playlist" data-uri="{{ playlist.spotifyPlaylist.uri }}">Select</button>
   {% endif %}
-  <a href="{{ playlist.external_urls.spotify }}">{{ playlist.name }}</a>
+  <a href="{{ playlist.spotifyPlaylist.external_urls.spotify }}">{{ playlist.spotifyPlaylist.name }}</a>
 </strong><br />
-(id: {{ playlist.uri }})<br />
+(id: {{ playlist.spotifyPlaylist.uri }})<br />
 <br />
 {% endfor %}
 {% endblock %}

@@ -63,11 +63,24 @@ function get_api($access_token) {
   return $api;
 }
 
-function get_playlists($api, $username) {
-  $options = [
-    'limit' => 50,
-  ];
-  return $api->getUserPlaylists($username, $options)['items'];
+function wrap_spotify_playlist_data($user, $spotifyPlaylist) {
+  $playlist = \PlaylistQuery::GetOrCreatePlaylist(
+    $user, $spotifyPlaylist['uri']);
+  $data = $playlist->getDataForJson();
+  $data['spotifyPlaylist'] = $spotifyPlaylist;
+  return $data;
+}
+
+function get_playlists($api, $user) {
+  $wrapWithModel = function($spotifyPlaylist) use (&$user) {
+    return wrap_spotify_playlist_data($user, $spotifyPlaylist);
+  };
+
+  $spotifyaccount = $user->getSpotifyAccount();
+  if (!$spotifyaccount) return null;
+  $username = $spotifyaccount->getUsername();
+  $playlists = $api->getUserPlaylists($username, array())['items'];
+  return array_map($wrapWithModel, $playlists);
 }
 
 function get_tracks_for_playlist($api, $playlist) {

@@ -34,7 +34,7 @@ $app->view->parserExtensions = array(new \Slim\Views\TwigExtension());
 
 /* View Utilities */
 
-function start_view($app, $opts=[]) {
+function start_view_context($app, $opts=[]) {
   global $cfg, $base_url, $sp_auth_url;
 
   $rfid = isset($opts['rfid']) ? $opts['rfid'] : null;
@@ -126,7 +126,7 @@ function dieWithJsonSuccess() {
 $app->get('/', function() use ($app) {
   global $base_url;
 
-  $ctx = start_view($app);
+  $ctx = start_view_context($app);
 
   if ($ctx['user']->getSpotifyAccount() != null) {
     $app->redirect($base_url . 'me/playlists');
@@ -140,7 +140,7 @@ $app->get(
     '/' . $cfg['spotify']['callback_route'] . '/?', function() use ($app) {
   global $base_url;
 
-  $ctx = start_view($app);
+  $ctx = start_view_context($app);
 
   if (isset($ctx['user']) && $ctx['user']->getSpotifyAccount() != null) {
     $app->flash('error', "You are already authenticated with Spotify.");
@@ -187,7 +187,7 @@ $app->get(
 $app->post('/unpair/spotify/?', function() use ($app) {
   global $base_url;
 
-  $ctx = start_view($app, ['require_spotify' => true]);
+  $ctx = start_view_context($app, ['require_spotify' => true]);
   if (!$ctx) return;
 
   $ctx['user']->getSpotifyAccount()->delete();
@@ -197,7 +197,7 @@ $app->post('/unpair/spotify/?', function() use ($app) {
 
 // View spotify playlists.
 $app->get('/me/playlists/?', function() use ($app) {
-  $ctx = start_view($app, ['require_spotify' => true]);
+  $ctx = start_view_context($app, ['require_spotify' => true]);
   if (!$ctx) return;
 
   $api = $ctx['sp_api'];
@@ -215,7 +215,7 @@ $app->get('/me/playlists/?', function() use ($app) {
 
 // AJAX endpoint for setting the selected playlist for a user.
 $app->post('/me/playlist/set', function() use ($app) {
-  $ctx = start_view($app, ['require_spotify' => true]);
+  $ctx = start_view_context($app, ['require_spotify' => true]);
 
   $new_playlist = $app->request->post('playlist_uri');
   $ctx['user']->setPlaylistUri($new_playlist);
@@ -225,7 +225,7 @@ $app->post('/me/playlist/set', function() use ($app) {
 
 // API for fetching playlists for a user.
 $app->get('/api/rfid/:rfid/playlists/?', function($rfid) use ($app) {
-  $ctx = start_view($app, [
+  $ctx = start_view_context($app, [
     'require_spotify' => true, 'rfid' => $rfid, 'require_secret' => true]);
 
   $json_data = [
@@ -252,7 +252,7 @@ $app->get('/api/rfid/:rfid/playlists/?', function($rfid) use ($app) {
 
 // API for fetching songs for a user from their selected playlist.
 $app->get('/api/rfid/:rfid/tracks/?', function($rfid) use ($app) {
-  $ctx = start_view($app, [
+  $ctx = start_view_context($app, [
     'require_spotify' => true, 'rfid' => $rfid, 'require_secret' => true]);
 
   $playlist = $ctx['user']->getPlaylist();
@@ -279,7 +279,7 @@ $app->get('/api/rfid/:rfid/tracks/?', function($rfid) use ($app) {
 
 // API for setting the selected playlist for a user.
 $app->post('/api/rfid/:rfid/playlist/set', function($rfid) use ($app) {
-  $ctx = start_view($app, [
+  $ctx = start_view_context($app, [
     'require_spotify' => true, 'rfid' => $rfid, 'require_secret' => true]);
 
   $new_playlist = $app->request->post('playlist_uri');
@@ -290,7 +290,7 @@ $app->post('/api/rfid/:rfid/playlist/set', function($rfid) use ($app) {
 
 // API for updating the current song being played.
 $app->post('/api/rfid/:rfid/song/playing', function($rfid) use ($app) {
-  $ctx = start_view($app, [
+  $ctx = start_view_context($app, [
     'require_spotify' => true, 'rfid' => $rfid, 'require_secret' => true]);
 
   $song_uri = $app->request->post('song_uri');
@@ -312,7 +312,7 @@ $app->post('/api/rfid/:rfid/song/playing', function($rfid) use ($app) {
 
 // API for submitting log messages.
 $app->post('/api/log/add', function() use ($app) {
-  $ctx = start_view($app, ['require_secret' => true]);
+  $ctx = start_view_context($app, ['require_secret' => true]);
 
   $json = $app->request->getBody();
   if (!$json) dieWithJsonError("No JSON body found.");

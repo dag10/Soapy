@@ -32,11 +32,11 @@ function user_for_rfid($rfid) {
   global $cfg;
 
   $tempMappings = [
-    "12345" => "dag10",
-
     ];
 
-  if (isset($tempMappings[$rfid])) {
+  if ($rfid == "12345") {
+    return \UserQuery::create()->findPk(1);
+  } else if (isset($tempMappings[$rfid])) {
     return \UserQuery::create()->findOneByLDAP($tempMappings[$rfid]);
   }
 

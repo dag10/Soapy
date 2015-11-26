@@ -251,13 +251,26 @@ $app->get('/api/rfid/:rfid/playlists/?', function($rfid) use ($app) {
 });
 
 // API for fetching songs for a user from their selected playlist.
-$app->get('/api/rfid/:rfid/tracks/?', function($rfid) use ($app) {
+$app->get(
+    '/api/rfid/:rfid/playlist/:playlistId',
+    function($rfid, $playlistId) use ($app) {
+
   $ctx = start_view_context($app, [
     'require_spotify' => true, 'rfid' => $rfid, 'require_secret' => true]);
 
-  $playlist = $ctx['user']->getPlaylist();
-  if (!$playlist) {
-    dieWithJsonError('User has not selected a playlist.');
+  if ($playlistId == "selected") {
+    $playlist = $ctx['user']->getPlaylist();
+    if (!$playlist) {
+      dieWithJsonError("User has not selected a playlist.");
+    }
+  } else {
+    $playlist = PlaylistQuery::create()->findPk($playlistId);
+    if ($playlist->getOwnerId() != $ctx['user']->getId()) {
+      dieWithJsonError("This is not your playlist.");
+    }
+    if (!$playlist) {
+      dieWithJsonError("Playlist not found.");
+    }
   }
 
   $json_data = [

@@ -69,9 +69,8 @@ function start_view_context($app, $opts=[]) {
   if ($user) {
     $spotifyacct = $user->getSpotifyAccount();
     if ($spotifyacct) {
-      $api = \Spotify\get_api($spotifyacct->getAccessToken());
-      $api->setReturnAssoc(true);
-      if (time() > $spotifyacct->getExpiration()->getTimestamp()) {
+      $expiration = $spotifyacct->getExpiration();
+      if (!$expiration || time() > $expiration->getTimestamp()) {
         try {
           \Spotify\refresh_account($spotifyacct); // Also saves the object.
         } catch(\SpotifyWebAPI\SpotifyWebAPIException $e) {
@@ -79,14 +78,20 @@ function start_view_context($app, $opts=[]) {
             dieWithJsonError(
               "Failed to refresh spotify access token: " . $e->getMessage());
           } else {
+            $spotifyacct->delete();
             $app->flash(
               'error',
-              "Failed to create SpotifyAccount row. Spotify Error: " .
+              "Failed to refresh spotify acess token. Unpaired. Error: " .
               $e->getMessage());
             $app->redirect($base_url);
           }
         }
+        // Re-fetch associated SpotifyAccount on the next access.
+        $user->clearSpotifyAccounts();
+        $spotifyacct = $user->getSpotifyAccount();
       }
+      $api = \Spotify\get_api($spotifyacct->getAccessToken());
+      $api->setReturnAssoc(true);
     } else if ($require_spotify) {
       if ($rfid) {
         dieWithJsonError("No spotify account has been linked.");
@@ -171,15 +176,10 @@ $app->get(
   $spotifyacct = new SpotifyAccount();
   $spotifyacct->setUserId($ctx['user']->getId());
   $spotifyacct->setRefreshToken($refresh_token);
+  $spotifyacct->setAccessToken("initial");
+  $spotifyacct->setExpiration(0);
 
-  try {
-    \Spotify\refresh_account($spotifyacct); // Also saves the object.
-  } catch(\SpotifyWebAPI\SpotifyWebAPIException $e) {
-    $app->flash(
-      'error',
-      "Failed to create SpotifyAccount row. Spotify Error: " . $e->getMessage());
-    $app->redirect($base_url);
-  }
+  $spotifyacct->save();
 
   $app->redirect($base_url);
 });

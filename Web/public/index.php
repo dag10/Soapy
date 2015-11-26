@@ -281,10 +281,18 @@ $app->get(
     getDataForJson();
 
   try {
-    $json_data['user']['selectedPlaylist']['tracklist'] =
+    //$json_data['user']['selectedPlaylist']['tracklist'] =
+    $tracklist =
       \Spotify\get_formatted_tracks_for_playlist($ctx['sp_api'], $playlist);
   } catch (\SpotifyWebAPI\SpotifyWebAPIException $e) {
     dieWithJsonError("Error getting tracks: " . $e->getMessage());
+  }
+
+  if ($playlistId == "selected") {
+    $json_data['user']['selectedPlaylist']['tracklist'] = $tracklist;
+  } else {
+    $json_data['playlist'] = $playlist->getDataForJson();
+    $json_data['playlist']['tracklist'] = $tracklist;
   }
 
   dieWithJson($json_data);

@@ -9,6 +9,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
 import android.util.Log;
 import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
@@ -16,7 +17,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -25,14 +25,11 @@ import org.jdeferred.DeferredManager;
 import org.jdeferred.DoneCallback;
 import org.jdeferred.FailCallback;
 import org.jdeferred.android.AndroidDeferredManager;
-import org.jdeferred.impl.DefaultDeferredManager;
 
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 
 public class PlaylistSelectionActivity extends SoapyActivity {
@@ -47,7 +44,6 @@ public class PlaylistSelectionActivity extends SoapyActivity {
     private void setSelectedPlaylist(SoapyPlaylist playlist) {
         selectedPlaylist = playlist;
         playlistAdapter.setSelectedPlaylist(playlist);
-
 
         if (playlistListview != null && playlistAdapter != null) {
             final int idx = playlist == null ? -1 : playlistAdapter.getPositionForPlaylist(playlist);
@@ -69,22 +65,24 @@ public class PlaylistSelectionActivity extends SoapyActivity {
         }
 
         TextView rfid_out = (TextView) findViewById(R.id.rfid_output);
-        Button go_button = (Button) findViewById(R.id.go_button);
+        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
 
         if (playlist == null) {
             rfid_out.setText("\n\nChoose a playlist");
-            go_button.setVisibility(View.INVISIBLE);
+            fab.hide();
         } else {
-            rfid_out.setText(playlist.getName());
-            go_button.setVisibility(View.VISIBLE);
+            rfid_out.setText(playlist.getSpotifyPlaylist().getName());
+            fab.show();
         }
     }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_playlist_selection);
+
+        final FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        fab.setImageDrawable(new SoapyFab.FabTextDrawable("GO", 1.f, 16.f));
 
         Intent intent = getIntent();
         rfid = intent.getStringExtra(EXTRA_RFID);
@@ -106,8 +104,7 @@ public class PlaylistSelectionActivity extends SoapyActivity {
             }
         });
 
-        final Button go_button = (Button) findViewById(R.id.go_button);
-        go_button.setVisibility(View.INVISIBLE);
+        fab.hide();
 
         final DeferredManager adm = new AndroidDeferredManager();
         adm.when(SoapyWebAPI.getInstance().fetchUserAndPlaylists(rfid)).done(new DoneCallback<SoapyUser>() {
@@ -119,7 +116,7 @@ public class PlaylistSelectionActivity extends SoapyActivity {
                     playlists.add(playlist);
                 }
 
-                go_button.setOnClickListener(new View.OnClickListener() {
+                fab.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         if (selectedPlaylist == null) {
@@ -127,12 +124,12 @@ public class PlaylistSelectionActivity extends SoapyActivity {
                             return;
                         }
 
-                        go_button.setEnabled(false);
-                        go_button.setAlpha(0.8f);
+                        fab.setEnabled(false);
+                        fab.setAlpha(0.8f);
                         playlistListview.setEnabled(false);
 
                         adm.when(SoapyWebAPI.getInstance().setSelectedPlaylist(
-                                rfid, selectedPlaylist.getURI())).done(new DoneCallback<Void>() {
+                                rfid, selectedPlaylist.getSpotifyPlaylistUri())).done(new DoneCallback<Void>() {
                             @Override
                             public void onDone(Void result) {
                                 PlaylistSelectionActivity.this.finish();
@@ -149,8 +146,8 @@ public class PlaylistSelectionActivity extends SoapyActivity {
                                         .setPositiveButton("Dismiss", new DialogInterface.OnClickListener() {
                                             @Override
                                             public void onClick(DialogInterface dialog, int which) {
-                                                go_button.setEnabled(true);
-                                                go_button.setAlpha(1.f);
+                                                fab.setEnabled(true);
+                                                fab.setAlpha(1.f);
                                                 playlistListview.setEnabled(true);
                                             }
                                         })
@@ -186,7 +183,6 @@ class DownloadImageTask extends AsyncTask<String, Void, Bitmap> {
             InputStream in = new java.net.URL(urldisplay).openStream();
             mIcon11 = BitmapFactory.decodeStream(in);
         } catch (Exception e) {
-            //Log.e(TAG, "Failed to load image. " + e.getMessage());
             e.printStackTrace();
         }
         return mIcon11;
@@ -212,7 +208,7 @@ class PlaylistArrayAdapter extends ArrayAdapter<SoapyPlaylist> {
     @Override
     public long getItemId(int position) {
         SoapyPlaylist item = getItem(position);
-        return item.getURI().hashCode();
+        return item.getSpotifyPlaylistUri().hashCode();
     }
 
     @Override
@@ -221,9 +217,9 @@ class PlaylistArrayAdapter extends ArrayAdapter<SoapyPlaylist> {
     }
 
     public int getPositionForPlaylist(SoapyPlaylist playlist) {
-        String uri = playlist.getURI();
+        String uri = playlist.getSpotifyPlaylistUri();
         for (int i = 0; i < getCount(); i++) {
-            if (uri.equals(getItem(i).getURI())) {
+            if (uri.equals(getItem(i).getSpotifyPlaylistUri())) {
                 return i;
             }
         }
@@ -240,22 +236,22 @@ class PlaylistArrayAdapter extends ArrayAdapter<SoapyPlaylist> {
         SoapyPlaylist playlist = getItem(position);
 
         TextView fragTextView = (TextView) convertView.findViewById(R.id.playlist_fragment_text);
-        fragTextView.setText(playlist.getName());
+        fragTextView.setText(playlist.getSpotifyPlaylist().getName());
 
         TextView fragSongCountView = (TextView) convertView.findViewById(R.id.playlist_fragment_songcount_text);
-        int totalTracks = playlist.getTotalTracks();
+        int totalTracks = playlist.getSpotifyPlaylist().getTotalTracks();
         fragSongCountView.setText(totalTracks + " song" + (totalTracks == 1 ? "" : "s"));
 
         // TODO: Load actual album art.
         ImageView albumArt = (ImageView) convertView.findViewById(R.id.playlist_fragment_image);
-        Random random = new Random(playlist.getURI().hashCode());
+        Random random = new Random(playlist.getSpotifyPlaylistUri().hashCode());
         int mix = Color.HSVToColor(new float[]{random.nextFloat(), 1.f, 0.5f});
         int red = (random.nextInt(256) + Color.red(mix)) / 2;
         int green = (random.nextInt(256) + Color.green(mix)) / 2;
         int blue = (random.nextInt(256) + Color.blue(mix)) / 2;
         albumArt.setBackgroundColor(Color.rgb(red, green, blue));
 
-        if (selectedPlaylist != null && playlist.getURI().equals(selectedPlaylist.getURI())) {
+        if (selectedPlaylist != null && playlist.getSpotifyPlaylistUri().equals(selectedPlaylist.getSpotifyPlaylistUri())) {
             convertView.setBackgroundColor(
                     convertView.getResources().getColor(R.color.PLAYLIST_SELECTED_BG));
         } else {
@@ -263,7 +259,7 @@ class PlaylistArrayAdapter extends ArrayAdapter<SoapyPlaylist> {
                     convertView.getResources().getColor(R.color.TRANSPARENT));
         }
 
-        new DownloadImageTask(albumArt).execute(playlist.getImageURL());
+        new DownloadImageTask(albumArt).execute(playlist.getSpotifyPlaylist().getImageURL());
 
         return convertView;
     }

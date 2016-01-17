@@ -16,3 +16,14 @@ Development
 
 *TODO*
 
+Attribution
+--
+
+The following sound files located in app/source/main/res/raw are provided by
+[junggle](http://www.freesound.org/people/junggle) from
+[freesound.org](http://www.freesound.org/people/junggle/packs/1778) under
+[Creative Commons Attribution](http://creativecommons.org/licenses/by/3.0):
+
+- success_29124_junggle_btn314.wav
+- tap_29122_junggle_btn312.wav
+- error_28987_junggle_btn177.wav

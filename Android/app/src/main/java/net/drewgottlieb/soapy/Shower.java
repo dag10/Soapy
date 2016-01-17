@@ -46,17 +46,24 @@ public class Shower {
             dm.when(SoapyWebAPI.getInstance().fetchUserAndTracks(rfid)).done(new DoneCallback<SoapyUser>() {
                 public void onDone(SoapyUser user) {
                     Shower.this.user = user;
+                    SoapyPlaylist playlist = user.getPlaylist();
+                    String lastPlayedSong = playlist.getLastPlayedSongUri();
                     tracks = user.getTracks();
                     for (int i = 0; i < tracks.size(); i++) {
-                        Log.i("Shower", "User has track: " + tracks.get(i));
-                        if (tracks.get(i).isLocal()) {
-                            Log.i("Shower", "Ignoring local track: " + tracks.get(i));
+                        SoapyTrack track = tracks.get(i);
+                        if (track.isLocal()) {
+                            Log.i("Shower", "Ignoring local track: " + track);
                             tracks.remove(i);
                             i--;
+                            continue;
                         }
-                    }
-                    for (SoapyTrack track : tracks) {
+                        if (track.getURI().equals(lastPlayedSong)) {
+                            nextTrackIndex = i + 1;
+                        }
                         Log.i("Shower", "User has track: " + track);
+                    }
+                    if (tracks.size() > 0) {
+                        nextTrackIndex %= tracks.size();
                     }
                     deferred.resolve(user);
                 }
@@ -97,10 +104,8 @@ public class Shower {
 
         SoapyTrack ret = tracks.get(nextTrackIndex);
 
-        do {
-            nextTrackIndex++;
-            nextTrackIndex %= tracks.size();
-        } while (tracks.get(nextTrackIndex).isLocal());
+        nextTrackIndex++;
+        nextTrackIndex %= tracks.size();
 
         return ret;
     }

@@ -8,6 +8,12 @@ function get_webauth($app) {
 
   // This is just to fake webauth when developing on systems without it.
   if ($cfg['webauth']) {
+    foreach (['WEBAUTH_USER', 'WEBAUTH_LDAP_GIVENNAME', 'WEBAUTH_LDAP_SN'] as $key) {
+      if (!isset($_SERVER[$key])) {
+        return null;
+      }
+    }
+
     return [
       'ldap' => $_SERVER['WEBAUTH_USER'],
       'firstname' => $_SERVER['WEBAUTH_LDAP_GIVENNAME'],
@@ -25,13 +31,13 @@ function get_webauth($app) {
 function user_for_rfid($rfid) {
   global $cfg;
 
-  // Only for development.
-  if ($rfid == '12345') {
-    return \UserQuery::create()->findOneByLDAP('dag10');
-  } else if ($rfid == "0800B3E4E6B9") {
-    return \UserQuery::create()->findOneByLDAP("smirabito");
-  } else if ($rfid == "28006DD3E177") {
-    return \UserQuery::create()->findOneByLDAP("jmf");
+  $tempMappings = [
+    ];
+
+  if ($rfid == "12345") {
+    return \UserQuery::create()->findPk(1);
+  } else if (isset($tempMappings[$rfid])) {
+    return \UserQuery::create()->findOneByLDAP($tempMappings[$rfid]);
   }
 
   // Use JD's server for fetching user info for iButton/RFID id.
@@ -44,6 +50,9 @@ function user_for_rfid($rfid) {
 
   try {
     $user_data = json_decode($json, true);
+    if (isset($user_data['error'])) {
+      return null;
+    }
     $uid = $user_data['uid'];
     return \UserQuery::create()->findOneByLDAP($uid);
   } catch (Exception $e) {

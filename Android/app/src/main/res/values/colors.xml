@@ -8,5 +8,11 @@
     <color name="PLAYLIST_PRESSED_BG">#88310062</color>
     <color name="PLAYLIST_SELECTED_BG">#ff310062</color>
 
+    <color name="FAB_GREEN">#ff177d22</color>
+
+    <color name="STATUS_STRIP_BG">#000000</color>
+    <color name="CANCEL_BG">#ff450226</color>
+    <color name="CANCEL_FG">#ffffffff</color>
+
     <color name="TRANSPARENT">#00000000</color>
 </resources>

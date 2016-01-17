@@ -14,5 +14,11 @@ use Base\SpotifyAccount as BaseSpotifyAccount;
  */
 class SpotifyAccount extends BaseSpotifyAccount
 {
-
+  public function getDataForJson() {
+    return [
+      'username' => $this->getUsername(),
+      'accessToken' => $this->getAccessToken(),
+      'avatar' => $this->getAvatar(),
+      ];
+  }
 }

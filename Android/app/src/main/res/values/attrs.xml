@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="SoapyFab">
+        <!-- Doesn't work yet, lol. -->
+        <!--
+        <attr name="app:borderWidth" format="dimension" />
+        <attr name="app:backgroundTint" format="reference" />
+        -->
+        <attr name="android:text" />
+    </declare-styleable>
+
+    <declare-styleable name="StatusStrip">
+        <attr name="showCancelButton" format="boolean" />
+    </declare-styleable>
+</resources>

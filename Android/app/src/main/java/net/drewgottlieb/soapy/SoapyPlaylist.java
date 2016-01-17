@@ -4,51 +4,72 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-/**
- * Created by drew on 7/5/15.
- */
+import java.util.ArrayList;
+import java.util.List;
+
+
 public class SoapyPlaylist {
-    private String name = null;
-    private String uri = null;
-    private String imageUrl = null;
-    private int totalTracks = 0;
+    private int soapyPlaylistId;
+    private String lastPlayedSongUri;
+    private String spotifyPlaylistUri;
+    private SoapyUser listener;
+    private SpotifyPlaylist playlist;
+    private List<SoapyTrack> tracks = new ArrayList<>();
 
-    public SoapyPlaylist(JSONObject jPlaylist) throws JSONException {
-        name = jPlaylist.getString("name");
-        uri = jPlaylist.getString("uri");
+    public SoapyPlaylist(SoapyUser listener, JSONObject jObject) throws JSONException {
+        this.listener = listener;
+        soapyPlaylistId = jObject.getInt("soapyPlaylistId");
 
-        if (jPlaylist.has("images")) {
-            JSONArray jImages = jPlaylist.getJSONArray("images");
-            if (jImages.length() > 0) {
-                JSONObject jImage = jImages.getJSONObject(0);
-                imageUrl = jImage.getString("url");
+        if (jObject.has("spotifyPlaylistUri")) {
+            spotifyPlaylistUri = jObject.getString("spotifyPlaylistUri");
+        }
+
+        if (jObject.has("lastPlayedSongUri")) {
+            lastPlayedSongUri = jObject.getString("lastPlayedSongUri");
+        }
+
+        if (jObject.has("spotifyPlaylist")) {
+            this.playlist = new SpotifyPlaylist(jObject.getJSONObject("spotifyPlaylist"));
+
+            if (spotifyPlaylistUri == null) {
+                spotifyPlaylistUri = playlist.getURI();
             }
         }
 
-        if (jPlaylist.has("tracks")) {
-            JSONObject jTracks = jPlaylist.getJSONObject("tracks");
-            totalTracks = jTracks.getInt("total");
+        if (jObject.has("tracklist")) {
+            JSONArray jTrackList = jObject.getJSONArray("tracklist");
+            for (int i = 0; i < jTrackList.length(); i++) {
+                tracks.add(new SoapyTrack(jTrackList.getJSONObject(i)));
+            }
         }
     }
 
-    public String getName() {
-        return this.name;
+    public SoapyPlaylist(SoapyUser listener, SpotifyPlaylist playlist) {
+        this.listener = listener;
+        this.playlist = playlist;
     }
 
-    @Override
-    public String toString() {
-        return this.getName() + " (" + this.getURI() + ")";
+    public String getSpotifyPlaylistUri() {
+        return spotifyPlaylistUri;
     }
 
-    public String getURI() {
-        return this.uri;
+    public String getLastPlayedSongUri() {
+        return lastPlayedSongUri;
     }
 
-    public String getImageURL() {
-        return this.imageUrl;
+    public int getSoapyPlaylistId() {
+        return soapyPlaylistId;
     }
 
-    public int getTotalTracks() {
-        return this.totalTracks;
+    public SoapyUser getListener() {
+        return listener;
+    }
+
+    public SpotifyPlaylist getSpotifyPlaylist() {
+        return playlist;
+    }
+
+    public List<SoapyTrack> getTracks() {
+        return tracks;
     }
 }

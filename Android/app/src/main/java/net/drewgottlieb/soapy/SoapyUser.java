@@ -20,13 +20,11 @@ public class SoapyUser {
     private String spotifyUsername = null;
     private String spotifyAccessToken = null;
     private ArrayList<SoapyPlaylist> playlists = null;
-    private ArrayList<SoapyTrack> tracks = null;
     private SoapyPlaylist playlist = null;
 
     public SoapyUser(String rfid) {
         this.rfid = rfid;
         playlists = new ArrayList<>();
-        tracks = new ArrayList<>();
     }
 
     public SoapyUser(String rfid, JSONObject data) throws JSONException {
@@ -34,35 +32,39 @@ public class SoapyUser {
 
         JSONObject jUser = data.getJSONObject("user");
         ldap = jUser.getString("ldap");
-        firstName = jUser.getString("first_name");
-        lastName = jUser.getString("last_name");
-        imageUrl = jUser.getString("avatar");
-        spotifyUsername = jUser.getString("username");
-        spotifyAccessToken = jUser.getString("access_token");
+        firstName = jUser.getString("firstName");
+        lastName = jUser.getString("lastName");
 
-        if (data.has("playlists")) {
-            JSONArray jPlaylists = data.getJSONArray("playlists");
+        if (jUser.has("spotifyAccount")) {
+            JSONObject jSpotifyAccount = jUser.getJSONObject("spotifyAccount");
+            imageUrl = jSpotifyAccount.getString("avatar");
+            spotifyUsername = jSpotifyAccount.getString("username");
+            spotifyAccessToken = jSpotifyAccount.getString("accessToken");
+        }
+
+        if (jUser.has("playlists")) {
+            JSONArray jPlaylists = jUser.getJSONArray("playlists");
             for (int i = 0; i < jPlaylists.length(); i++) {
-                playlists.add(new SoapyPlaylist(jPlaylists.getJSONObject(i)));
+                playlists.add(new SoapyPlaylist(this, jPlaylists.getJSONObject(i)));
             }
         }
 
-        if (data.has("playlist")) {
-            JSONObject jPlaylist = data.getJSONObject("playlist");
-            String uri = jPlaylist.getString("uri");
+        if (jUser.has("selectedPlaylist")) {
+            JSONObject jPlaylist = jUser.getJSONObject("selectedPlaylist");
+            String uri = jPlaylist.getString("spotifyPlaylistUri");
 
+            boolean hasPlaylist = false;
             for (SoapyPlaylist playlist : playlists) {
-                if (playlist.getURI().equals(uri)) {
+                if (playlist.getSpotifyPlaylist().getURI().equals(uri)) {
                     this.playlist = playlist;
+                    hasPlaylist = true;
                     break;
                 }
             }
-        }
 
-        if (data.has("tracks")) {
-            JSONArray jTracks = data.getJSONArray("tracks");
-            for (int i = 0; i < jTracks.length(); i++) {
-                tracks.add(new SoapyTrack(jTracks.getJSONObject(i)));
+            if (!hasPlaylist) {
+                this.playlist = new SoapyPlaylist(this, jPlaylist);
+                playlists.add(this.playlist);
             }
         }
     }
@@ -81,6 +83,10 @@ public class SoapyUser {
 
     public String getLastName() {
         return this.lastName;
+    }
+
+    public String getFullName() {
+        return getFirstName() + " " + getLastName();
     }
 
     public String getImageUrl() {
@@ -104,6 +110,10 @@ public class SoapyUser {
     }
 
     public List<SoapyTrack> getTracks() {
-        return tracks;
+        if (playlist == null) {
+            return new ArrayList<>();
+        }
+
+        return playlist.getTracks();
     }
 }

@@ -1,10 +1,11 @@
 <resources>
     <string name="app_name">Soapy</string>
-    <string name="tap_rfid">Tap your RFID card.</string>
+    <string name="tap_rfid">Tap your RFID tag to manage settings.</string>
     <string name="title_playlist_list">Playlists</string>
     <string name="title_playlist_detail">Playlist Detail</string>
     <string name="title_activity_playlist_selection">PlaylistSelectionActivity</string>
 
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
+    <string name="title_activity_log_view">LogViewActivity</string>
 </resources>

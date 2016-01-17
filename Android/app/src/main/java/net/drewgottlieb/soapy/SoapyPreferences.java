@@ -13,10 +13,14 @@ public class SoapyPreferences implements SharedPreferences.OnSharedPreferenceCha
     private String spotifyClientId = null;
     private String soapySecret = null;
     private String soapyUrl = null;
+    private Boolean enableVolumeShortcut = null;
+    private String bathroomName = null;
 
     protected static final String SPOTIFY_CLIENT_ID = "spotifyClientId";
     protected static final String SOAPY_SECRET = "soapySecret";
     protected static final String SOAPY_URL = "soapyUrl";
+    protected static final String SOAPY_ENABLE_VOLUME_SHORTCUT = "enableVolumeShortcut";
+    protected static final String SOAPY_BATHROOM_NAME = "bathroomName";
 
     public static SoapyPreferences createInstance(Context context) {
         if (instance == null) {
@@ -46,6 +50,12 @@ public class SoapyPreferences implements SharedPreferences.OnSharedPreferenceCha
             case SOAPY_URL:
                 refreshSoapyUrl();
                 break;
+            case SOAPY_ENABLE_VOLUME_SHORTCUT:
+                refreshEnableVolumeShortcut();
+                break;
+            case SOAPY_BATHROOM_NAME:
+                refreshBathroomName();
+                break;
         }
     }
 
@@ -60,6 +70,14 @@ public class SoapyPreferences implements SharedPreferences.OnSharedPreferenceCha
 
     protected void refreshSoapyUrl() {
         soapyUrl = preferences.getString(SOAPY_URL, "https://soapy-api.csh.rit.edu/");
+    }
+
+    protected void refreshEnableVolumeShortcut() {
+        enableVolumeShortcut = new Boolean(preferences.getBoolean(SOAPY_ENABLE_VOLUME_SHORTCUT, false));
+    }
+
+    protected void refreshBathroomName() {
+        bathroomName = preferences.getString(SOAPY_BATHROOM_NAME, "dev");
     }
 
     public String getSpotifyClientId() {
@@ -84,5 +102,21 @@ public class SoapyPreferences implements SharedPreferences.OnSharedPreferenceCha
         }
 
         return soapyUrl;
+    }
+
+    public boolean getEnableVolumeShortcut() {
+        if (enableVolumeShortcut == null) {
+            refreshEnableVolumeShortcut();
+        }
+
+        return enableVolumeShortcut;
+    }
+
+    public String getBathroomName() {
+        if (bathroomName == null) {
+            refreshBathroomName();
+        }
+
+        return bathroomName;
     }
 }

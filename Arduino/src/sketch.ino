@@ -59,10 +59,9 @@ void pollDoor(int door) {
 void pollDoor(int door, bool forcePrint) {
   bool status = !digitalRead(PIN_DOOR[door]);
   if (status != doorStatus[door] || forcePrint) {
-    Serial.print("door[");
-    Serial.print(door, DEC);
-    Serial.print("]: ");
-    Serial.println(status ? "open" : "closed");
+    char buf[100];
+    sprintf(buf, "door[%d]: %s", door, status ? "open" : "closed");
+    sendMessage(buf);
     doorStatus[door] = status;
   }
 }
@@ -72,14 +71,13 @@ bool startsWith(const char *prefix, const char *str) {
 }
 
 void sendConfig() {
-  Serial.print("num_doors: ");
-  Serial.println(NUM_DOORS, DEC);
-
-  Serial.print("num_rfid: ");
-  Serial.println(NUM_RFIDS, DEC);
-
-  Serial.print("num_lamps: ");
-  Serial.println(NUM_LAMPS, DEC);
+  char buf[100];
+  sprintf(buf, "num_doors: %d", NUM_DOORS);
+  sendMessage(buf);
+  sprintf(buf, "num_rfid: %d", NUM_RFIDS);
+  sendMessage(buf);
+  sprintf(buf, "num_lamps: %d", NUM_LAMPS);
+  sendMessage(buf);
 }
 
 void parseCommand(const char *cmd) {
@@ -120,11 +118,31 @@ void scanSerial() {
   }
 }
 
+// Message format:
+//   0x02  - start of text
+//   message
+//   checksum (byte of all message bytes xor'd)
+//   0x03 - end of text
+void sendMessage(const char *msg) {
+  char checksum = 0;
+  for (int i = 0; msg[i] != '\0'; i++) {
+    checksum ^= msg[i];
+  }
+
+  Serial.write(0x02); // STX
+  Serial.print(msg);
+  Serial.write(checksum);
+  Serial.write(0x03); // ETX
+
+  // Newline is for readability when debugging. It won't be parsed because
+  // it is outside of text segments.
+  Serial.print("\r\n");
+}
+
 void handleRfid(int rfidId, const char *buffer) {
-  Serial.print("rfid[");
-  Serial.print(rfidId, DEC);
-  Serial.print("]: ");
-  Serial.println(buffer);
+  char buf[100];
+  sprintf(buf, "rfid[%d]: %s", rfidId, buffer);
+  sendMessage(buf);
 }
 
 int serialRead(int index) {

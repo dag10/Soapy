@@ -63,17 +63,43 @@ function get_api($access_token) {
   return $api;
 }
 
-function get_playlists($api, $username) {
-  $options = [
-    'limit' => 50,
-  ];
-  return $api->getUserPlaylists($username, $options)['items'];
+function wrap_spotify_playlist_data($user, $spotifyPlaylist) {
+  $playlist = \PlaylistQuery::GetOrCreatePlaylist(
+    $user, $spotifyPlaylist['uri']);
+  $data = $playlist->getDataForJson();
+  $data['spotifyPlaylist'] = $spotifyPlaylist;
+  return $data;
 }
 
-function get_playlist_tracks($api, $username, $playlist_uri) {
-  $options = [
-    'limit' => 50,
-  ];
-  return $api->getUserPlaylistTracks($username, $playlist_uri)['items'];
+function get_playlists($api, $user) {
+  $wrapWithModel = function($spotifyPlaylist) use (&$user) {
+    return wrap_spotify_playlist_data($user, $spotifyPlaylist);
+  };
+
+  $spotifyaccount = $user->getSpotifyAccount();
+  if (!$spotifyaccount) return null;
+  $username = $spotifyaccount->getUsername();
+  $playlists = $api->getUserPlaylists($username, array())['items'];
+  return array_map($wrapWithModel, $playlists);
+}
+
+function get_tracks_for_playlist($api, $playlist) {
+  $username = $playlist->getOwnerUsername();
+  $spotifyId = $playlist->getSpotifyId();
+  $songs = $api->getUserPlaylistTracks($username, $spotifyId);
+  return $songs['items'];
+}
+
+function get_formatted_tracks_for_playlist($api, $playlist) {
+  $songs = get_tracks_for_playlist($api, $playlist);
+
+  for ($i = 0; $i < sizeof($songs); $i++) {
+    $song = $songs[$i];
+    
+    $song['track']['is_local'] = $song['is_local'];
+    $songs[$i] = $song['track'];
+  }
+
+  return $songs;
 }
 

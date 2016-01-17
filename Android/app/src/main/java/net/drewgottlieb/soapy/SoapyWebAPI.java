@@ -4,6 +4,7 @@ import android.util.Log;
 
 import com.squareup.okhttp.ConnectionSpec;
 import com.squareup.okhttp.FormEncodingBuilder;
+import com.squareup.okhttp.MediaType;
 import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.Request;
 import com.squareup.okhttp.RequestBody;
@@ -17,6 +18,7 @@ import org.jdeferred.FailCallback;
 import org.jdeferred.Promise;
 import org.jdeferred.impl.DefaultDeferredManager;
 import org.jdeferred.impl.DeferredObject;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -25,6 +27,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -38,6 +41,8 @@ public class SoapyWebAPI {
     private static String TAG = "SoapyWebAPI";
     private static final ExecutorService executorService = Executors.newCachedThreadPool();
     private static final DeferredManager dm = new DefaultDeferredManager(executorService);
+    private static final MediaType MEDIA_TYPE_JSON = MediaType.parse(
+            "application/json; charset=utf-8");
 
     public static class SoapyWebError extends Exception {
         public SoapyWebError(String message) {
@@ -73,14 +78,46 @@ public class SoapyWebAPI {
     }
 
     public Promise<JSONObject, SoapyWebError, Void> get(String route) {
-        return request(RequestType.GET, route, null);
+        return request(RequestType.GET, route, (RequestBody) null);
     }
 
     public Promise<JSONObject, SoapyWebError, Void> post(String route, Map<String, String> vars) {
         return request(RequestType.POST, route, vars);
     }
 
+    public Promise<JSONObject, SoapyWebError, Void> post(String route, String body) {
+        return request(RequestType.POST, route, body);
+    }
+
     protected Promise<JSONObject, SoapyWebError, Void> request(final RequestType type, String route, final Map<String, String> vars) {
+        RequestBody rBody = null;
+
+        if (type == RequestType.POST) {
+            FormEncodingBuilder bodyBuilder = new FormEncodingBuilder();
+
+            if (vars != null) {
+                for (String key : vars.keySet()) {
+                    bodyBuilder.add(key, vars.get(key));
+                }
+            }
+
+            rBody = bodyBuilder.build();
+        }
+
+        return request(type, route, rBody);
+    }
+
+    protected Promise<JSONObject, SoapyWebError, Void> request(final RequestType type, String route, final String body) {
+        RequestBody rBody = null;
+
+        if (type == RequestType.POST) {
+            rBody = RequestBody.create(MEDIA_TYPE_JSON, body);
+        }
+
+        return request(type, route, rBody);
+    }
+
+    protected Promise<JSONObject, SoapyWebError, Void> request(final RequestType type, String route, final RequestBody body) {
         final Deferred<JSONObject, SoapyWebError, Void> deferred = new DeferredObject<>();
 
         URL url = null;
@@ -93,6 +130,10 @@ public class SoapyWebAPI {
         }
         final URL fURL = url;
 
+        if (!url.toExternalForm().contains("/api/log/add")) {
+            Log.i(TAG, "Making " + type.toString() + " request to " + url.toExternalForm());
+        }
+
         executorService.submit(new Runnable() {
             public void run() {
                 String result = null;
@@ -102,15 +143,7 @@ public class SoapyWebAPI {
                             .header("X-Soapy-Secret", preferences.getSoapySecret());
 
                     if (type == RequestType.POST) {
-                        FormEncodingBuilder bodyBuilder = new FormEncodingBuilder();
-
-                        if (vars != null) {
-                            for (String key : vars.keySet()) {
-                                bodyBuilder.add(key, vars.get(key));
-                            }
-                        }
-
-                        builder.method("POST", bodyBuilder.build());
+                        builder.method("POST", body);
                     }
 
                     Response response = client.newCall(builder.build()).execute();
@@ -155,6 +188,90 @@ public class SoapyWebAPI {
         vars.put("playlist_uri", playlistUri);
 
         dm.when(post("api/rfid/" + rfid + "/playlist/set", vars)).done(new DoneCallback<JSONObject>() {
+            @Override
+            public void onDone(JSONObject result) {
+                try {
+                    if (result.has("error")) {
+                        String errorMsg = result.getString("error");
+                        deferred.reject(new SoapyWebError("Remote error: " + errorMsg));
+                        return;
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                    deferred.reject(new SoapyWebError("Failed to parse response JSON: " + e.getMessage()));
+                }
+
+                deferred.resolve(null);
+            }
+        }).fail(new FailCallback<SoapyWebError>() {
+            @Override
+            public void onFail(SoapyWebError result) {
+                deferred.reject(result);
+            }
+        });
+
+        return deferred.promise();
+    }
+
+    public Promise<Void, SoapyWebError, Void> setLastSongPlayed(final String rfid, final String songUri) {
+        final Deferred<Void, SoapyWebError, Void> deferred = new DeferredObject<>();
+
+        HashMap<String, String> vars = new HashMap<>();
+        vars.put("song_uri", songUri);
+
+        dm.when(post("api/rfid/" + rfid + "/song/playing", vars)).done(new DoneCallback<JSONObject>() {
+            @Override
+            public void onDone(JSONObject result) {
+                try {
+                    if (result.has("error")) {
+                        String errorMsg = result.getString("error");
+                        deferred.reject(new SoapyWebError("Remote error: " + errorMsg));
+                        return;
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                    deferred.reject(new SoapyWebError("Failed to parse response JSON: " + e.getMessage()));
+                }
+
+                deferred.resolve(null);
+            }
+        }).fail(new FailCallback<SoapyWebError>() {
+            @Override
+            public void onFail(SoapyWebError result) {
+                deferred.reject(result);
+            }
+        });
+
+        return deferred.promise();
+    }
+
+    public Promise<Void, Throwable, Void> uploadLogs(final List<LogService.LogEvent> events) {
+        final Deferred<Void, Throwable, Void> deferred = new DeferredObject<>();
+
+        String json = null;
+
+        try {
+            JSONObject jObj = new JSONObject();
+            jObj.put("bathroom", preferences.getBathroomName());
+
+            JSONArray jEvents = new JSONArray();
+            for (LogService.LogEvent event : events) {
+                JSONObject jEvent = new JSONObject();
+                jEvent.put("level",  event.getLevel().toString());
+                jEvent.put("time", event.getDate().toString());
+                jEvent.put("tag", event.getTag());
+                jEvent.put("message", event.getMessage());
+                jEvents.put(jEvent);
+            }
+
+            jObj.put("events", jEvents);
+            json = jObj.toString();
+        } catch (JSONException e) {
+            deferred.reject(e);
+            return deferred.promise();
+        }
+
+        dm.when(post("api/log/add", json)).done(new DoneCallback<JSONObject>() {
             @Override
             public void onDone(JSONObject result) {
                 try {

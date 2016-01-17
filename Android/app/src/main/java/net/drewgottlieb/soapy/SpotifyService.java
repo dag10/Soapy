@@ -5,6 +5,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.media.MediaPlayer;
 import android.os.Binder;
 import android.os.IBinder;
 import android.util.Log;
@@ -32,6 +33,7 @@ public class SpotifyService extends Service implements PlayerNotificationCallbac
     private static String TAG = "SpotifyService";
 
     private SoapyPreferences preferences = null;
+    private SoapySoundPlayer soundPlayer = null;
     private final SpotifyBinder mBinder = new SpotifyBinder();
     private Player mPlayer = null;
     private ExecutorService executorService = Executors.newCachedThreadPool();
@@ -76,34 +78,40 @@ public class SpotifyService extends Service implements PlayerNotificationCallbac
                     SpotifyService.this.showerRfidTapped(index - 1, rfid);
 
                     break;
+
+                case ArduinoService.DISCONNECTED_INTENT:
+                    SpotifyService.this.arduinoDisconnected();
+                    break;
             }
         }
     };
 
     public SpotifyService() {
         preferences = SoapyPreferences.getInstance();
+        soundPlayer = SoapySoundPlayer.getInstance();
     }
 
     public void onPlaybackError(ErrorType errorType, String errorDetails) {
         Log.w(TAG, "Spotify playback error (" + errorType + "): " + errorDetails);
+        soundPlayer.playErrorSound();
         resetShower(currentlyPlayingShower);
     }
 
     public void onPlaybackEvent(EventType eventType, PlayerState playerState) {
-        Log.i(TAG, "Spotify playback event! Value: " + eventType.toString());
-
         switch (eventType) {
             case LOST_PERMISSION:
                 Log.i(TAG, "Lost Spotify permission. Resetting shower " + currentlyPlayingShower);
+                soundPlayer.playErrorSound();
                 resetShower(currentlyPlayingShower);
                 break;
             case TRACK_CHANGED:
+                // This event is fired when a song starts, in addition to when it stops. We want to
+                // ignore its initial firing.
                 if (trackStartSkips > 0) {
                     trackStartSkips--;
                     break;
                 }
 
-                Log.i(TAG, "Song ended. Playing next song...");
                 playNextSong();
                 break;
         }
@@ -114,7 +122,6 @@ public class SpotifyService extends Service implements PlayerNotificationCallbac
     }
 
     public void onLoggedIn() {
-        Log.i(TAG, "Spotify logged in!");
         playCurrentNextTrack();
     }
 
@@ -123,11 +130,17 @@ public class SpotifyService extends Service implements PlayerNotificationCallbac
             return;
         }
 
-        playTrack(showers[currentlyPlayingShower].getNextTrack());
+        SoapyTrack track = showers[currentlyPlayingShower].getNextTrack();
+        if (track == null) {
+            Log.w(TAG, "Couldn't get a next track. Resetting shower.");
+            soundPlayer.playErrorSound();
+            resetShower(currentlyPlayingShower);
+        } else {
+            playTrack(track);
+        }
     }
 
     public void onLoggedOut() {
-        Log.i(TAG, "Spotify logged out!");
         if (nextAccessToken != null) {
             if (mPlayer.login(nextAccessToken)) {
                 currentAccessToken = nextAccessToken;
@@ -142,11 +155,13 @@ public class SpotifyService extends Service implements PlayerNotificationCallbac
 
     public void onLoginFailed(Throwable error) {
         Log.e(TAG, "Spotify login failed: " + error.getMessage());
+        soundPlayer.playErrorSound();
         resetShower(currentlyPlayingShower);
     }
 
     public void onTemporaryError() {
         Log.w(TAG, "Spotify had a temporary error!");
+        soundPlayer.playErrorSound();
         resetShower(currentlyPlayingShower);
     }
 
@@ -198,7 +213,7 @@ public class SpotifyService extends Service implements PlayerNotificationCallbac
                 Log.i(TAG, "Logging out old player...");
                 nextAccessToken = accessToken;
                 if (!mPlayer.logout()) {
-                    Log.i(TAG, "Old player was already logging out. Logging in...");
+                    Log.i(TAG, "Old player was already logged out. Logging in...");
                     nextAccessToken = null;
                     mPlayer.login(accessToken);
                 }
@@ -208,10 +223,41 @@ public class SpotifyService extends Service implements PlayerNotificationCallbac
         return deferred.promise();
     }
 
-    protected void playTrack(SoapyTrack track) {
-        Log.i(TAG, "Playing track: " + track);
+    public Shower getCurrentShower() {
+        if (currentlyPlayingShower >= 0 && currentlyPlayingShower < showers.length) {
+            return showers[currentlyPlayingShower];
+        }
+
+        return null;
+    }
+
+    protected void playTrack(final SoapyTrack track) {
         trackStartSkips = 1;
         mPlayer.play(track.getURI());
+
+        Shower shower = getCurrentShower();
+        if (shower != null) {
+            dm.when(SoapyWebAPI.getInstance().setLastSongPlayed(shower.getRfid(), track.getURI())).fail(new FailCallback<SoapyWebAPI.SoapyWebError>() {
+                @Override
+                public void onFail(SoapyWebAPI.SoapyWebError result) {
+                    Log.e(TAG, "Failed to update lastPlayedSong on server.");
+                }
+            });
+
+            dm.when(shower.getUser()).done(new DoneCallback<SoapyUser>() {
+                @Override
+                public void onDone(SoapyUser result) {
+                    Log.i(TAG, result.getFullName() + " started playing track: " + track);
+                }
+            }).fail(new FailCallback<Throwable>() {
+                @Override
+                public void onFail(Throwable result) {
+                    Log.i(TAG, "Playing track: " + track);
+                }
+            });
+        } else {
+            Log.i(TAG, "Playing track: " + track);
+        }
     }
 
     protected boolean isShowerOccupied(int index) {
@@ -242,7 +288,7 @@ public class SpotifyService extends Service implements PlayerNotificationCallbac
         return (currentlyPlayingShower != -1);
     }
 
-    protected void showerRfidTapped(int index, String rfid) {
+    protected void showerRfidTapped(final int index, String rfid) {
         Log.i(TAG, "RFID tapped at index " + index);
 
         // Is the shower even occupied?
@@ -258,12 +304,26 @@ public class SpotifyService extends Service implements PlayerNotificationCallbac
             return;
         }
 
+        soundPlayer.playTapSound();
+
         Shower shower = showers[index];
         shower.setRfid(rfid);
 
-        if (!isMusicPlaying()) {
-            playNextSong();
-        }
+        dm.when(shower.getUser()).done(new DoneCallback<SoapyUser>() {
+            @Override
+            public void onDone(SoapyUser result) {
+                soundPlayer.playSuccessSound();
+                if (!isMusicPlaying()) {
+                    playNextSong();
+                }
+            }
+        }).fail(new FailCallback<Throwable>() {
+            @Override
+            public void onFail(Throwable result) {
+                soundPlayer.playErrorSound();
+                resetShower(index);
+            }
+        });
     }
 
     protected void resetShower(int index) {
@@ -294,8 +354,13 @@ public class SpotifyService extends Service implements PlayerNotificationCallbac
         }
     }
 
+    protected void arduinoDisconnected() {
+        for (int i = 0; i < NUM_SHOWERS; i++) {
+            doorOpened(i);
+        }
+    }
+
     protected void doorOpened(int index) {
-        Log.i(TAG, "Door opened: " + index);
         destroyShower(index);
     }
 
@@ -358,8 +423,6 @@ public class SpotifyService extends Service implements PlayerNotificationCallbac
             // still try the first shower.
             final int showerIndex = (currentlyPlayingShower + i + 1) % NUM_SHOWERS;
 
-            Log.i(TAG, "Checking shower " + showerIndex + "; Playable? " + isShowerPlayable(showerIndex));
-
             if (isShowerPlayable(showerIndex)) {
                 nextShowerIndex = showerIndex;
                 break;
@@ -382,6 +445,7 @@ public class SpotifyService extends Service implements PlayerNotificationCallbac
             public void onFail(Object result) {
                 Log.e(TAG, "Failed to start player for shower " +
                         finalShowerIndex + ". Removing shower.");
+                soundPlayer.playErrorSound();
                 resetShower(finalShowerIndex);
                 playNextSong();
             }
@@ -390,8 +454,6 @@ public class SpotifyService extends Service implements PlayerNotificationCallbac
     }
 
     protected void doorClosed(int index) {
-        Log.i(TAG, "Door closed: " + index);
-
         if (showers[index] != null) {
             destroyShower(index);
         }
@@ -415,6 +477,7 @@ public class SpotifyService extends Service implements PlayerNotificationCallbac
         IntentFilter filter = new IntentFilter();
         filter.addAction(ArduinoService.DOOR_INTENT);
         filter.addAction(ArduinoService.RFID_INTENT);
+        filter.addAction(ArduinoService.DISCONNECTED_INTENT);
         registerReceiver(receiver, filter);
     }
 

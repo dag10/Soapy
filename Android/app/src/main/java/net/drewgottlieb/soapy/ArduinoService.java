@@ -1,15 +1,27 @@
 package net.drewgottlieb.soapy;
 
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
+import android.hardware.usb.UsbDeviceConnection;
+import android.hardware.usb.UsbManager;
 import android.os.Binder;
 import android.os.IBinder;
 import android.util.Log;
 
-import com.physicaloid.lib.Physicaloid;
-import com.physicaloid.lib.usb.driver.uart.ReadLisener;
+import com.hoho.android.usbserial.driver.UsbSerialDriver;
+import com.hoho.android.usbserial.driver.UsbSerialPort;
+import com.hoho.android.usbserial.driver.UsbSerialProber;
+import com.hoho.android.usbserial.util.SerialInputOutputManager;
 
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 class MessageIndexFormatException extends Exception {
     public MessageIndexFormatException(String msg) {
@@ -23,9 +35,11 @@ class MessageValueFormatException extends Exception {
     }
 }
 
-public class ArduinoService extends Service implements ReadLisener {
+public class ArduinoService extends Service {
     public static final String RFID_INTENT = "new.drewgottlieb.RFID_INTENT";
     public static final String DOOR_INTENT = "new.drewgottlieb.DOOR_INTENT";
+    public static final String CONNECTED_INTENT = "new.drewgottlieb.CONNECTED_INTENT";
+    public static final String DISCONNECTED_INTENT = "new.drewgottlieb.DISCONNECTED_INTENT";
 
     private static String TAG = "ArduinoService";
 
@@ -35,10 +49,28 @@ public class ArduinoService extends Service implements ReadLisener {
         }
     }
 
+    private boolean connected = false;
     private final ArduinoBinder mBinder = new ArduinoBinder();
-    private final Physicaloid arduino = new Physicaloid(this);
-    private String buffer = "";
+    private List<Byte> buffer = new ArrayList<>();
+    private boolean readingMessage = false;
     private boolean[] lampStatus = new boolean[2];
+
+    private UsbSerialPort port;
+    private final ExecutorService executorService = Executors.newSingleThreadExecutor();
+    private SerialInputOutputManager serialIoManager;
+    private final SerialInputOutputManager.Listener listener =
+        new SerialInputOutputManager.Listener() {
+        @Override
+        public void onNewData(byte[] bytes) {
+            onRead(bytes);
+        }
+
+        @Override
+        public void onRunError(Exception e) {
+            Log.w(TAG, "Arduino disconnected. Serial listener stopped due to error: " + e.getMessage());
+            disconnect();
+        }
+    };
 
     public ArduinoService() {
     }
@@ -149,47 +181,56 @@ public class ArduinoService extends Service implements ReadLisener {
         }
     }
 
-    @Override
-    public void onRead(int size) {
-        byte[] buf = new byte[size];
-        String readString;
+    protected void handleCompletedBuffer() {
+        if (buffer == null || buffer.isEmpty()) {
+            Log.e(TAG, "Can't handle empty message buffer.");
+            return;
+        }
 
-        arduino.read(buf, size);
+        int size = buffer.size() - 1;
+        byte[] bufArr = new byte[size];
+        byte check = 0;
+        for (int i = 0; i < size; i++) {
+            bufArr[i] = buffer.get(i);
+            check = (byte) (check ^ bufArr[i]);
+        }
+
+        // Verify checksum of data
+        if (check != buffer.get(size)) {
+            String failedString;
+            try {
+                failedString = new String(bufArr, "UTF-8");
+            } catch (UnsupportedEncodingException e) {
+                failedString = "<failed to decode UTF-8>";
+            }
+            Log.e(TAG, "Checksum mismatch! Sending poll request. (String: \"" + failedString + "\", Expected: " + buffer.get(size) + ", Computed: " + check);
+            sendMessage("poll");
+            return;
+        }
+
         try {
-            readString = new String(buf, "UTF-8");
+            handleReceivedString(new String(bufArr, "UTF-8"));
         } catch (UnsupportedEncodingException e) {
             Log.e(TAG, "Failed to read arduino string.");
-            return;
         }
+    }
 
-        if (buffer == null) {
-            Log.w(TAG, "Arduino sent null string.");
-            return;
-        }
+    public void onRead(byte[] data) {
+        for (int i = 0; i < data.length; i++) {
+            byte b = data[i];
 
-        buffer += readString;
-
-        int nlIdx = buffer.indexOf('\n');
-        while (nlIdx >= 0) {
-            if (nlIdx == 0) {
-                Log.w(TAG, "Received 0-length message from arduino.");
-                if (buffer.length() > 0) {
-                    buffer = buffer.substring(1);
+            if (b == 0x02) {
+                buffer.clear();
+                readingMessage = true;
+            } else if (b == 0x03) {
+                if (!readingMessage) {
                     continue;
-                } else {
-                    buffer = "";
-                    break;
                 }
-            }
 
-            handleReceivedString(buffer.substring(0, nlIdx - 1));
-
-            if (buffer.length() > nlIdx) {
-                buffer = buffer.substring(nlIdx + 1);
-                nlIdx = buffer.indexOf('\n');
+                handleCompletedBuffer();
+                readingMessage = false;
             } else {
-                buffer = "";
-                nlIdx = -1;
+                buffer.add(b);
             }
         }
     }
@@ -211,26 +252,30 @@ public class ArduinoService extends Service implements ReadLisener {
 
     @Override
     public void onDestroy() {
-        Log.i(TAG, "Shutting down Arduino service.");
-        arduino.clearReadListener();
-        arduino.close();
+        Log.i(TAG, "The arduino service was destroyed.");
+        disconnect();
     }
 
     private void sendMessage(String str) {
-        Log.i(TAG, "Sending: \"" + str + "\"");
-
-        str += "\n";
-
-        if (!arduino.isOpened()) {
-            Log.e(TAG, "Tried to send message but arduino connection is closed.");
+        if (!connected) {
+            Log.w(TAG,
+                  "Tried to send message to Arduino but no connection found. (\"" + str + "\")");
             return;
         }
 
+        Log.i(TAG, "Sending: \"" + str + "\"");
+        str += "\n";
+
         byte[] buf = str.getBytes();
-        arduino.write(buf, buf.length);
+
+        try {
+            port.write(buf, buf.length);
+        } catch (IOException e) {
+            Log.e(TAG, "Failed to write message to Arduino: " + e.getMessage());
+        }
     }
 
-    private void initializeConnection() {
+    private void sendInitialPackets() {
         for (int i = 0; i < lampStatus.length; i++) {
             sendLamp(i);
         }
@@ -249,24 +294,91 @@ public class ArduinoService extends Service implements ReadLisener {
         sendMessage("lamp[" + lampId + "]: " + (lampStatus[lampId] ? "on" : "off"));
     }
 
-    private void connect() {
-        new Thread(new Runnable() {
-            public void run() {
-                while (!arduino.isOpened()) {
-                    if (arduino.open()) {
-                        arduino.addReadListener(ArduinoService.this);
-                        Log.i(TAG, "Connected to arduino.");
-                        initializeConnection();
-                        break;
-                    }
+    private void disconnect() {
+        if (serialIoManager != null) {
+            serialIoManager.stop();
+            serialIoManager = null;
+        }
 
-                    try {
-                        Thread.sleep(1000);
-                    } catch (Exception e) {
-                        // don't care
-                    }
-                }
+        if (port != null) {
+            try {
+                port.close();
+            } catch (IOException e) {
+                // nothing
             }
-        }).start();
+            port = null;
+        }
+
+        connected = false;
+
+        Intent intent = new Intent();
+        intent.setAction(DISCONNECTED_INTENT);
+        sendBroadcast(intent);
+    }
+
+    public void connect() {
+        if (connected) {
+            return;
+        }
+
+        UsbManager manager = (UsbManager) getSystemService(Context.USB_SERVICE);
+        List<UsbSerialDriver> availableDrivers = UsbSerialProber.getDefaultProber().findAllDrivers(
+                manager);
+
+        if (availableDrivers.isEmpty()) {
+            Log.w(TAG, "No available USB drivers found.");
+            return;
+        }
+
+        UsbSerialDriver driver = availableDrivers.get(0);
+        UsbDeviceConnection conn = manager.openDevice(driver.getDevice());
+        if (conn == null) {
+            Log.e(TAG, "Failed to open USB connection. Possible permissions issue.");
+            return;
+        }
+
+        List<UsbSerialPort> ports = driver.getPorts();
+        if (ports.isEmpty()) {
+            Log.e(TAG, "USB driver has no ports.");
+            conn.close();
+            return;
+        }
+
+        port = ports.get(0);
+
+        try {
+            port.open(conn);
+            port.setParameters(
+                    9600,
+                    UsbSerialPort.DATABITS_8,
+                    UsbSerialPort.STOPBITS_1,
+                    UsbSerialPort.PARITY_NONE);
+        } catch (IOException e) {
+            Log.e(TAG, "IOException when opening port with connection: " + e.getMessage());
+            try {
+                port.close();
+            } catch (IOException e2) {
+                // nothing
+            }
+            port = null;
+            return;
+        }
+
+        Log.i(TAG, "Opened connection with serial device: " + port.getClass().getSimpleName());
+
+        serialIoManager = new SerialInputOutputManager(port, listener);
+        executorService.submit(serialIoManager);
+        connected = true;
+
+        // after 2 seconds, send initial messages to arduino.
+        new Timer().schedule(new TimerTask() {
+            @Override
+            public void run() {
+                sendInitialPackets();
+                Intent intent = new Intent();
+                intent.setAction(CONNECTED_INTENT);
+                sendBroadcast(intent);
+            }
+        }, 3000);
     }
 }

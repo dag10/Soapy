@@ -25,12 +25,14 @@ use Propel\Runtime\Exception\PropelException;
  * @method     ChildUserQuery orderByFirstName($order = Criteria::ASC) Order by the firstname column
  * @method     ChildUserQuery orderByLastName($order = Criteria::ASC) Order by the lastname column
  * @method     ChildUserQuery orderByPlaylistId($order = Criteria::ASC) Order by the playlist_id column
+ * @method     ChildUserQuery orderByPlaybackMode($order = Criteria::ASC) Order by the playbackmode column
  *
  * @method     ChildUserQuery groupById() Group by the id column
  * @method     ChildUserQuery groupByLdap() Group by the ldap column
  * @method     ChildUserQuery groupByFirstName() Group by the firstname column
  * @method     ChildUserQuery groupByLastName() Group by the lastname column
  * @method     ChildUserQuery groupByPlaylistId() Group by the playlist_id column
+ * @method     ChildUserQuery groupByPlaybackMode() Group by the playbackmode column
  *
  * @method     ChildUserQuery leftJoin($relation) Adds a LEFT JOIN clause to the query
  * @method     ChildUserQuery rightJoin($relation) Adds a RIGHT JOIN clause to the query
@@ -79,7 +81,8 @@ use Propel\Runtime\Exception\PropelException;
  * @method     ChildUser findOneByLdap(string $ldap) Return the first ChildUser filtered by the ldap column
  * @method     ChildUser findOneByFirstName(string $firstname) Return the first ChildUser filtered by the firstname column
  * @method     ChildUser findOneByLastName(string $lastname) Return the first ChildUser filtered by the lastname column
- * @method     ChildUser findOneByPlaylistId(int $playlist_id) Return the first ChildUser filtered by the playlist_id column *
+ * @method     ChildUser findOneByPlaylistId(int $playlist_id) Return the first ChildUser filtered by the playlist_id column
+ * @method     ChildUser findOneByPlaybackMode(int $playbackmode) Return the first ChildUser filtered by the playbackmode column *
 
  * @method     ChildUser requirePk($key, ConnectionInterface $con = null) Return the ChildUser by primary key and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
  * @method     ChildUser requireOne(ConnectionInterface $con = null) Return the first ChildUser matching the query and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
@@ -89,6 +92,7 @@ use Propel\Runtime\Exception\PropelException;
  * @method     ChildUser requireOneByFirstName(string $firstname) Return the first ChildUser filtered by the firstname column and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
  * @method     ChildUser requireOneByLastName(string $lastname) Return the first ChildUser filtered by the lastname column and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
  * @method     ChildUser requireOneByPlaylistId(int $playlist_id) Return the first ChildUser filtered by the playlist_id column and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
+ * @method     ChildUser requireOneByPlaybackMode(int $playbackmode) Return the first ChildUser filtered by the playbackmode column and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
  *
  * @method     ChildUser[]|ObjectCollection find(ConnectionInterface $con = null) Return ChildUser objects based on current ModelCriteria
  * @method     ChildUser[]|ObjectCollection findById(int $id) Return ChildUser objects filtered by the id column
@@ -96,6 +100,7 @@ use Propel\Runtime\Exception\PropelException;
  * @method     ChildUser[]|ObjectCollection findByFirstName(string $firstname) Return ChildUser objects filtered by the firstname column
  * @method     ChildUser[]|ObjectCollection findByLastName(string $lastname) Return ChildUser objects filtered by the lastname column
  * @method     ChildUser[]|ObjectCollection findByPlaylistId(int $playlist_id) Return ChildUser objects filtered by the playlist_id column
+ * @method     ChildUser[]|ObjectCollection findByPlaybackMode(int $playbackmode) Return ChildUser objects filtered by the playbackmode column
  * @method     ChildUser[]|\Propel\Runtime\Util\PropelModelPager paginate($page = 1, $maxPerPage = 10, ConnectionInterface $con = null) Issue a SELECT query based on the current ModelCriteria and uses a page and a maximum number of results per page to compute an offset and a limit
  *
  */
@@ -188,7 +193,7 @@ abstract class UserQuery extends ModelCriteria
      */
     protected function findPkSimple($key, ConnectionInterface $con)
     {
-        $sql = 'SELECT id, ldap, firstname, lastname, playlist_id FROM user WHERE id = :p0';
+        $sql = 'SELECT id, ldap, firstname, lastname, playlist_id, playbackmode FROM user WHERE id = :p0';
         try {
             $stmt = $con->prepare($sql);
             $stmt->bindValue(':p0', $key, PDO::PARAM_INT);
@@ -447,6 +452,39 @@ abstract class UserQuery extends ModelCriteria
         }
 
         return $this->addUsingAlias(UserTableMap::COL_PLAYLIST_ID, $playlistId, $comparison);
+    }
+
+    /**
+     * Filter the query on the playbackmode column
+     *
+     * @param     mixed $playbackMode The value to use as filter
+     * @param     string $comparison Operator to use for the column comparison, defaults to Criteria::EQUAL
+     *
+     * @return $this|ChildUserQuery The current query, for fluid interface
+     */
+    public function filterByPlaybackMode($playbackMode = null, $comparison = null)
+    {
+        $valueSet = UserTableMap::getValueSet(UserTableMap::COL_PLAYBACKMODE);
+        if (is_scalar($playbackMode)) {
+            if (!in_array($playbackMode, $valueSet)) {
+                throw new PropelException(sprintf('Value "%s" is not accepted in this enumerated column', $playbackMode));
+            }
+            $playbackMode = array_search($playbackMode, $valueSet);
+        } elseif (is_array($playbackMode)) {
+            $convertedValues = array();
+            foreach ($playbackMode as $value) {
+                if (!in_array($value, $valueSet)) {
+                    throw new PropelException(sprintf('Value "%s" is not accepted in this enumerated column', $value));
+                }
+                $convertedValues []= array_search($value, $valueSet);
+            }
+            $playbackMode = $convertedValues;
+            if (null === $comparison) {
+                $comparison = Criteria::IN;
+            }
+        }
+
+        return $this->addUsingAlias(UserTableMap::COL_PLAYBACKMODE, $playbackMode, $comparison);
     }
 
     /**

@@ -101,6 +101,14 @@ abstract class User implements ActiveRecordInterface
     protected $playlist_id;
 
     /**
+     * The value for the playbackmode field.
+     *
+     * Note: this column has a database default value of: 0
+     * @var        int
+     */
+    protected $playbackmode;
+
+    /**
      * @var        ChildPlaylist
      */
     protected $aPlaylist;
@@ -138,10 +146,23 @@ abstract class User implements ActiveRecordInterface
     protected $pastPlaylistsScheduledForDeletion = null;
 
     /**
+     * Applies default values to this object.
+     * This method should be called from the object's constructor (or
+     * equivalent initialization method).
+     * @see __construct()
+     */
+    public function applyDefaultValues()
+    {
+        $this->playbackmode = 0;
+    }
+
+    /**
      * Initializes internal state of Base\User object.
+     * @see applyDefaults()
      */
     public function __construct()
     {
+        $this->applyDefaultValues();
     }
 
     /**
@@ -405,6 +426,25 @@ abstract class User implements ActiveRecordInterface
     }
 
     /**
+     * Get the [playbackmode] column value.
+     *
+     * @return string
+     * @throws \Propel\Runtime\Exception\PropelException
+     */
+    public function getPlaybackMode()
+    {
+        if (null === $this->playbackmode) {
+            return null;
+        }
+        $valueSet = UserTableMap::getValueSet(UserTableMap::COL_PLAYBACKMODE);
+        if (!isset($valueSet[$this->playbackmode])) {
+            throw new PropelException('Unknown stored enum key: ' . $this->playbackmode);
+        }
+
+        return $valueSet[$this->playbackmode];
+    }
+
+    /**
      * Set the value of [id] column.
      *
      * @param int $v new value
@@ -509,6 +549,31 @@ abstract class User implements ActiveRecordInterface
     } // setPlaylistId()
 
     /**
+     * Set the value of [playbackmode] column.
+     *
+     * @param  string $v new value
+     * @return $this|\User The current object (for fluent API support)
+     * @throws \Propel\Runtime\Exception\PropelException
+     */
+    public function setPlaybackMode($v)
+    {
+        if ($v !== null) {
+            $valueSet = UserTableMap::getValueSet(UserTableMap::COL_PLAYBACKMODE);
+            if (!in_array($v, $valueSet)) {
+                throw new PropelException(sprintf('Value "%s" is not accepted in this enumerated column', $v));
+            }
+            $v = array_search($v, $valueSet);
+        }
+
+        if ($this->playbackmode !== $v) {
+            $this->playbackmode = $v;
+            $this->modifiedColumns[UserTableMap::COL_PLAYBACKMODE] = true;
+        }
+
+        return $this;
+    } // setPlaybackMode()
+
+    /**
      * Indicates whether the columns in this object are only set to default values.
      *
      * This method can be used in conjunction with isModified() to indicate whether an object is both
@@ -518,6 +583,10 @@ abstract class User implements ActiveRecordInterface
      */
     public function hasOnlyDefaultValues()
     {
+            if ($this->playbackmode !== 0) {
+                return false;
+            }
+
         // otherwise, everything was equal, so return TRUE
         return true;
     } // hasOnlyDefaultValues()
@@ -558,6 +627,9 @@ abstract class User implements ActiveRecordInterface
 
             $col = $row[TableMap::TYPE_NUM == $indexType ? 4 + $startcol : UserTableMap::translateFieldName('PlaylistId', TableMap::TYPE_PHPNAME, $indexType)];
             $this->playlist_id = (null !== $col) ? (int) $col : null;
+
+            $col = $row[TableMap::TYPE_NUM == $indexType ? 5 + $startcol : UserTableMap::translateFieldName('PlaybackMode', TableMap::TYPE_PHPNAME, $indexType)];
+            $this->playbackmode = (null !== $col) ? (int) $col : null;
             $this->resetModified();
 
             $this->setNew(false);
@@ -566,7 +638,7 @@ abstract class User implements ActiveRecordInterface
                 $this->ensureConsistency();
             }
 
-            return $startcol + 5; // 5 = UserTableMap::NUM_HYDRATE_COLUMNS.
+            return $startcol + 6; // 6 = UserTableMap::NUM_HYDRATE_COLUMNS.
 
         } catch (Exception $e) {
             throw new PropelException(sprintf('Error populating %s object', '\\User'), 0, $e);
@@ -832,6 +904,9 @@ abstract class User implements ActiveRecordInterface
         if ($this->isColumnModified(UserTableMap::COL_PLAYLIST_ID)) {
             $modifiedColumns[':p' . $index++]  = 'playlist_id';
         }
+        if ($this->isColumnModified(UserTableMap::COL_PLAYBACKMODE)) {
+            $modifiedColumns[':p' . $index++]  = 'playbackmode';
+        }
 
         $sql = sprintf(
             'INSERT INTO user (%s) VALUES (%s)',
@@ -857,6 +932,9 @@ abstract class User implements ActiveRecordInterface
                         break;
                     case 'playlist_id':
                         $stmt->bindValue($identifier, $this->playlist_id, PDO::PARAM_INT);
+                        break;
+                    case 'playbackmode':
+                        $stmt->bindValue($identifier, $this->playbackmode, PDO::PARAM_INT);
                         break;
                 }
             }
@@ -935,6 +1013,9 @@ abstract class User implements ActiveRecordInterface
             case 4:
                 return $this->getPlaylistId();
                 break;
+            case 5:
+                return $this->getPlaybackMode();
+                break;
             default:
                 return null;
                 break;
@@ -970,6 +1051,7 @@ abstract class User implements ActiveRecordInterface
             $keys[2] => $this->getFirstName(),
             $keys[3] => $this->getLastName(),
             $keys[4] => $this->getPlaylistId(),
+            $keys[5] => $this->getPlaybackMode(),
         );
         $virtualColumns = $this->virtualColumns;
         foreach ($virtualColumns as $key => $virtualColumn) {
@@ -1071,6 +1153,13 @@ abstract class User implements ActiveRecordInterface
             case 4:
                 $this->setPlaylistId($value);
                 break;
+            case 5:
+                $valueSet = UserTableMap::getValueSet(UserTableMap::COL_PLAYBACKMODE);
+                if (isset($valueSet[$value])) {
+                    $value = $valueSet[$value];
+                }
+                $this->setPlaybackMode($value);
+                break;
         } // switch()
 
         return $this;
@@ -1111,6 +1200,9 @@ abstract class User implements ActiveRecordInterface
         }
         if (array_key_exists($keys[4], $arr)) {
             $this->setPlaylistId($arr[$keys[4]]);
+        }
+        if (array_key_exists($keys[5], $arr)) {
+            $this->setPlaybackMode($arr[$keys[5]]);
         }
     }
 
@@ -1167,6 +1259,9 @@ abstract class User implements ActiveRecordInterface
         }
         if ($this->isColumnModified(UserTableMap::COL_PLAYLIST_ID)) {
             $criteria->add(UserTableMap::COL_PLAYLIST_ID, $this->playlist_id);
+        }
+        if ($this->isColumnModified(UserTableMap::COL_PLAYBACKMODE)) {
+            $criteria->add(UserTableMap::COL_PLAYBACKMODE, $this->playbackmode);
         }
 
         return $criteria;
@@ -1258,6 +1353,7 @@ abstract class User implements ActiveRecordInterface
         $copyObj->setFirstName($this->getFirstName());
         $copyObj->setLastName($this->getLastName());
         $copyObj->setPlaylistId($this->getPlaylistId());
+        $copyObj->setPlaybackMode($this->getPlaybackMode());
 
         if ($deepCopy) {
             // important: temporarily setNew(false) because this affects the behavior of
@@ -1827,8 +1923,10 @@ abstract class User implements ActiveRecordInterface
         $this->firstname = null;
         $this->lastname = null;
         $this->playlist_id = null;
+        $this->playbackmode = null;
         $this->alreadyInSave = false;
         $this->clearAllReferences();
+        $this->applyDefaultValues();
         $this->resetModified();
         $this->setNew(true);
         $this->setDeleted(false);

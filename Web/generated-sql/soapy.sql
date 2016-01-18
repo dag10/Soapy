@@ -16,6 +16,7 @@ CREATE TABLE `user`
     `firstname` TEXT NOT NULL,
     `lastname` TEXT NOT NULL,
     `playlist_id` INTEGER,
+    `playbackmode` TINYINT DEFAULT 0 NOT NULL,
     PRIMARY KEY (`id`),
     INDEX `user_fi_10fa06` (`playlist_id`),
     CONSTRAINT `user_fk_10fa06`

@@ -59,7 +59,7 @@ class UserTableMap extends TableMap
     /**
      * The total number of columns
      */
-    const NUM_COLUMNS = 5;
+    const NUM_COLUMNS = 6;
 
     /**
      * The number of lazy-loaded columns
@@ -69,7 +69,7 @@ class UserTableMap extends TableMap
     /**
      * The number of columns to hydrate (NUM_COLUMNS - NUM_LAZY_LOAD_COLUMNS)
      */
-    const NUM_HYDRATE_COLUMNS = 5;
+    const NUM_HYDRATE_COLUMNS = 6;
 
     /**
      * the column name for the id field
@@ -97,9 +97,18 @@ class UserTableMap extends TableMap
     const COL_PLAYLIST_ID = 'user.playlist_id';
 
     /**
+     * the column name for the playbackmode field
+     */
+    const COL_PLAYBACKMODE = 'user.playbackmode';
+
+    /**
      * The default string format for model objects of the related table
      */
     const DEFAULT_STRING_FORMAT = 'YAML';
+
+    /** The enumerated values for the playbackmode field */
+    const COL_PLAYBACKMODE_LINEAR = 'LINEAR';
+    const COL_PLAYBACKMODE_SHUFFLE = 'SHUFFLE';
 
     /**
      * holds an array of fieldnames
@@ -108,11 +117,11 @@ class UserTableMap extends TableMap
      * e.g. self::$fieldNames[self::TYPE_PHPNAME][0] = 'Id'
      */
     protected static $fieldNames = array (
-        self::TYPE_PHPNAME       => array('Id', 'Ldap', 'FirstName', 'LastName', 'PlaylistId', ),
-        self::TYPE_CAMELNAME     => array('id', 'ldap', 'firstName', 'lastName', 'playlistId', ),
-        self::TYPE_COLNAME       => array(UserTableMap::COL_ID, UserTableMap::COL_LDAP, UserTableMap::COL_FIRSTNAME, UserTableMap::COL_LASTNAME, UserTableMap::COL_PLAYLIST_ID, ),
-        self::TYPE_FIELDNAME     => array('id', 'ldap', 'firstname', 'lastname', 'playlist_id', ),
-        self::TYPE_NUM           => array(0, 1, 2, 3, 4, )
+        self::TYPE_PHPNAME       => array('Id', 'Ldap', 'FirstName', 'LastName', 'PlaylistId', 'PlaybackMode', ),
+        self::TYPE_CAMELNAME     => array('id', 'ldap', 'firstName', 'lastName', 'playlistId', 'playbackMode', ),
+        self::TYPE_COLNAME       => array(UserTableMap::COL_ID, UserTableMap::COL_LDAP, UserTableMap::COL_FIRSTNAME, UserTableMap::COL_LASTNAME, UserTableMap::COL_PLAYLIST_ID, UserTableMap::COL_PLAYBACKMODE, ),
+        self::TYPE_FIELDNAME     => array('id', 'ldap', 'firstname', 'lastname', 'playlist_id', 'playbackmode', ),
+        self::TYPE_NUM           => array(0, 1, 2, 3, 4, 5, )
     );
 
     /**
@@ -122,12 +131,41 @@ class UserTableMap extends TableMap
      * e.g. self::$fieldKeys[self::TYPE_PHPNAME]['Id'] = 0
      */
     protected static $fieldKeys = array (
-        self::TYPE_PHPNAME       => array('Id' => 0, 'Ldap' => 1, 'FirstName' => 2, 'LastName' => 3, 'PlaylistId' => 4, ),
-        self::TYPE_CAMELNAME     => array('id' => 0, 'ldap' => 1, 'firstName' => 2, 'lastName' => 3, 'playlistId' => 4, ),
-        self::TYPE_COLNAME       => array(UserTableMap::COL_ID => 0, UserTableMap::COL_LDAP => 1, UserTableMap::COL_FIRSTNAME => 2, UserTableMap::COL_LASTNAME => 3, UserTableMap::COL_PLAYLIST_ID => 4, ),
-        self::TYPE_FIELDNAME     => array('id' => 0, 'ldap' => 1, 'firstname' => 2, 'lastname' => 3, 'playlist_id' => 4, ),
-        self::TYPE_NUM           => array(0, 1, 2, 3, 4, )
+        self::TYPE_PHPNAME       => array('Id' => 0, 'Ldap' => 1, 'FirstName' => 2, 'LastName' => 3, 'PlaylistId' => 4, 'PlaybackMode' => 5, ),
+        self::TYPE_CAMELNAME     => array('id' => 0, 'ldap' => 1, 'firstName' => 2, 'lastName' => 3, 'playlistId' => 4, 'playbackMode' => 5, ),
+        self::TYPE_COLNAME       => array(UserTableMap::COL_ID => 0, UserTableMap::COL_LDAP => 1, UserTableMap::COL_FIRSTNAME => 2, UserTableMap::COL_LASTNAME => 3, UserTableMap::COL_PLAYLIST_ID => 4, UserTableMap::COL_PLAYBACKMODE => 5, ),
+        self::TYPE_FIELDNAME     => array('id' => 0, 'ldap' => 1, 'firstname' => 2, 'lastname' => 3, 'playlist_id' => 4, 'playbackmode' => 5, ),
+        self::TYPE_NUM           => array(0, 1, 2, 3, 4, 5, )
     );
+
+    /** The enumerated values for this table */
+    protected static $enumValueSets = array(
+                UserTableMap::COL_PLAYBACKMODE => array(
+                            self::COL_PLAYBACKMODE_LINEAR,
+            self::COL_PLAYBACKMODE_SHUFFLE,
+        ),
+    );
+
+    /**
+     * Gets the list of values for all ENUM columns
+     * @return array
+     */
+    public static function getValueSets()
+    {
+      return static::$enumValueSets;
+    }
+
+    /**
+     * Gets the list of values for an ENUM column
+     * @param string $colname
+     * @return array list of possible values for the column
+     */
+    public static function getValueSet($colname)
+    {
+        $valueSets = self::getValueSets();
+
+        return $valueSets[$colname];
+    }
 
     /**
      * Initialize the table attributes and columns
@@ -151,6 +189,11 @@ class UserTableMap extends TableMap
         $this->addColumn('firstname', 'FirstName', 'LONGVARCHAR', true, null, null);
         $this->addColumn('lastname', 'LastName', 'LONGVARCHAR', true, null, null);
         $this->addForeignKey('playlist_id', 'PlaylistId', 'INTEGER', 'playlist', 'id', false, null, null);
+        $this->addColumn('playbackmode', 'PlaybackMode', 'ENUM', true, null, 'LINEAR');
+        $this->getColumn('playbackmode')->setValueSet(array (
+  0 => 'LINEAR',
+  1 => 'SHUFFLE',
+));
     } // initialize()
 
     /**
@@ -327,12 +370,14 @@ class UserTableMap extends TableMap
             $criteria->addSelectColumn(UserTableMap::COL_FIRSTNAME);
             $criteria->addSelectColumn(UserTableMap::COL_LASTNAME);
             $criteria->addSelectColumn(UserTableMap::COL_PLAYLIST_ID);
+            $criteria->addSelectColumn(UserTableMap::COL_PLAYBACKMODE);
         } else {
             $criteria->addSelectColumn($alias . '.id');
             $criteria->addSelectColumn($alias . '.ldap');
             $criteria->addSelectColumn($alias . '.firstname');
             $criteria->addSelectColumn($alias . '.lastname');
             $criteria->addSelectColumn($alias . '.playlist_id');
+            $criteria->addSelectColumn($alias . '.playbackmode');
         }
     }
 

@@ -213,8 +213,8 @@ $app->get('/me/playlists/?', function() use ($app) {
   $app->render('data_playlists.html', $ctx);
 });
 
-// AJAX endpoint for setting the selected playlist for a user.
-$app->post('/me/playlist/set', function() use ($app) {
+// AJAX endpoint for setting the playback settings for a user.
+$app->post('/me/playback', function() use ($app) {
   $ctx = start_view_context($app, ['require_spotify' => true]);
 
   $new_playlist = $app->request->post('playlist_uri');

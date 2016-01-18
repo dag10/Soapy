@@ -31,7 +31,7 @@ Playlists
   $(function() {
     $(".btn-deselect-playlists").click(function() {
       var btn = $(this);
-      $.post("/me/playlist/set", {
+      $.post("/me/playback", {
         playlist_uri: null
       }, function() {
         $(".btn-select-playlist.playlist-selected")
@@ -45,7 +45,7 @@ Playlists
 
     $(".btn-select-playlist").click(function() {
       var btn = $(this);
-      $.post("/me/playlist/set", {
+      $.post("/me/playback", {
         playlist_uri: $(this).data("uri")
       }, function() {
         $(".btn-select-playlist.playlist-selected")

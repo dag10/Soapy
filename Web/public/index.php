@@ -218,7 +218,17 @@ $app->post('/me/playback', function() use ($app) {
   $ctx = start_view_context($app, ['require_spotify' => true]);
 
   $new_playlist = $app->request->post('playlist_uri');
-  $ctx['user']->setPlaylistUri($new_playlist);
+  if ($new_playlist !== null) {
+    $ctx['user']->setPlaylistUri($new_playlist);
+  }
+
+  $shuffle = $app->request->post('shuffle');
+  if ($shuffle !== null) {
+    $shuffle = ($shuffle == 'true');
+    $mode = $shuffle ? 'SHUFFLE' : 'LINEAR';
+    $ctx['user']->setPlaybackMode($mode);
+    $ctx['user']->save();
+  }
 
   dieWithJsonSuccess();
 });

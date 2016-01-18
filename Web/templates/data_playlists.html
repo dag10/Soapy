@@ -3,6 +3,14 @@
 {% block panel_title %}
 Playlists
 <div style="float: right;">
+  <label for="shuffle-checkbox" class="btn btn-xs">
+    {% if user.PlaybackMode == 'SHUFFLE' %}
+    <input type="checkbox" checked="checked" id="shuffle-checkbox" />
+    {% else %}
+    <input type="checkbox" id="shuffle-checkbox" />
+    {% endif %}
+    Shuffle
+  </label>
   {% if selected_playlist_uri %}
   <button class="btn btn-xs btn-deselect-playlists">Clear Selection</button>
   {% else %}
@@ -60,6 +68,21 @@ Playlists
           .text("Selected");
         $(".btn-deselect-playlists")
           .removeAttr("disabled");
+      });
+    });
+
+    $("#shuffle-checkbox").change(function() {
+      var cb = $(this);
+      var label = $(this).parent();
+
+      cb.attr("disabled", "disabled");
+      label.addClass("disabled");
+
+      $.post("/me/playback", {
+        shuffle: cb.is(":checked")
+      }, function() {
+        cb.removeAttr("disabled");
+        label.removeClass("disabled");
       });
     });
   });

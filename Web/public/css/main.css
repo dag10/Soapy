@@ -41,3 +41,7 @@ body {
   display: none;
 }
 
+label.btn {
+  background-color: rgb(192, 192, 192);
+}
+

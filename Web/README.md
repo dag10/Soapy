@@ -8,12 +8,26 @@ account.
 Installation
 --
 
+#### Packages
+
+Make sure you have [Composer](https://getcomposer.org) installed. From the Soapy/Web directory, run `composer install` to install Soapy's required php packages.
+
+#### Configuration
+
 Copy config.php.default to config.php and customize as needed, adding your Spotify API client ID and secret token.
 
 Then copy propel.yaml.default to propel.yaml and add your mysql connection settings.
 Once you edit propel.yaml, run `php vendor/bin/propel config:convert`. You must do this every time you edit propel.yaml.
 
+#### Populating the database
+
 Create the mysql database, then run `php vendor/bin/propel sql:insert` to populate it.
+
+#### Serving
+
+For production, point your web server to serve out of the Soapy/Web/public directory.
+
+For development, go to the Soapy/Web/public directory and run `php -S 0.0.0.0:9000` and point your browser [there](http://localhost:9000).
 
 Development
 --

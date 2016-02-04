@@ -179,7 +179,13 @@ $app->get(
   $spotifyacct->setAccessToken("initial");
   $spotifyacct->setExpiration(0);
 
-  $spotifyacct->save();
+  try {
+    \Spotify\refresh_account($spotifyacct);
+  } catch (\SpotifyWebAPI\SpotifyWebAPIException $e) {
+    $app->flash('error', "Failed to create SpotifyAccount. Error: " .
+                         $e->getMessage());
+    $app->redirect($base_url);
+  }
 
   $app->redirect($base_url);
 });

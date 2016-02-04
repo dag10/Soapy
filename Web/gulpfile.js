@@ -6,13 +6,13 @@ var sourcemaps = require('gulp-sourcemaps');
 var tslint = require('gulp-tslint');
 
 var tsSource = 'typescript/**/';
-var jsOut = 'public/js/';
-var tsOut = jsOut + 'app/';
-var libOut = jsOut + 'lib/';
+var tsOut = 'public/app/';
+var libOut = 'public/lib/';
 
 // Clean the contents of the distribution directory
 gulp.task('clean', function () {
-  return del(jsOut + '**/*');
+  return del([tsOut + '**/*',
+              libOut + '**/*']);
 });
 
 // TypeScript lint

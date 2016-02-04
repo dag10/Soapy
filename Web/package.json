@@ -2,8 +2,6 @@
   "name": "soapy",
   "version": "1.0.0",
   "scripts": {
-    "tsc": "tsc",
-    "tsc:w": "tsc -w",
     "gulp": "gulp",
     "tslint": "tslint -c tslint.json typescript/**/*.ts"
   },

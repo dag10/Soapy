@@ -10,6 +10,8 @@ use \User as ChildUser;
 use \UserQuery as ChildUserQuery;
 use \Exception;
 use \PDO;
+use Map\PlaylistTableMap;
+use Map\SpotifyAccountTableMap;
 use Map\UserTableMap;
 use Propel\Runtime\Propel;
 use Propel\Runtime\ActiveQuery\Criteria;
@@ -372,7 +374,15 @@ abstract class User implements ActiveRecordInterface
     {
         $this->clearAllReferences();
 
-        return array_keys(get_object_vars($this));
+        $cls = new \ReflectionClass($this);
+        $propertyNames = [];
+        $serializableProperties = array_diff($cls->getProperties(), $cls->getProperties(\ReflectionProperty::IS_STATIC));
+
+        foreach($serializableProperties as $property) {
+            $propertyNames[] = $property->getName();
+        }
+
+        return $propertyNames;
     }
 
     /**
@@ -1511,7 +1521,10 @@ abstract class User implements ActiveRecordInterface
         if (null !== $this->collSpotifyAccounts && !$overrideExisting) {
             return;
         }
-        $this->collSpotifyAccounts = new ObjectCollection();
+
+        $collectionClassName = SpotifyAccountTableMap::getTableMap()->getCollectionClassName();
+
+        $this->collSpotifyAccounts = new $collectionClassName;
         $this->collSpotifyAccounts->setModel('\SpotifyAccount');
     }
 
@@ -1656,6 +1669,10 @@ abstract class User implements ActiveRecordInterface
 
         if (!$this->collSpotifyAccounts->contains($l)) {
             $this->doAddSpotifyAccount($l);
+
+            if ($this->spotifyAccountsScheduledForDeletion and $this->spotifyAccountsScheduledForDeletion->contains($l)) {
+                $this->spotifyAccountsScheduledForDeletion->remove($this->spotifyAccountsScheduledForDeletion->search($l));
+            }
         }
 
         return $this;
@@ -1729,7 +1746,10 @@ abstract class User implements ActiveRecordInterface
         if (null !== $this->collPastPlaylists && !$overrideExisting) {
             return;
         }
-        $this->collPastPlaylists = new ObjectCollection();
+
+        $collectionClassName = PlaylistTableMap::getTableMap()->getCollectionClassName();
+
+        $this->collPastPlaylists = new $collectionClassName;
         $this->collPastPlaylists->setModel('\Playlist');
     }
 
@@ -1874,6 +1894,10 @@ abstract class User implements ActiveRecordInterface
 
         if (!$this->collPastPlaylists->contains($l)) {
             $this->doAddPastPlaylist($l);
+
+            if ($this->pastPlaylistsScheduledForDeletion and $this->pastPlaylistsScheduledForDeletion->contains($l)) {
+                $this->pastPlaylistsScheduledForDeletion->remove($this->pastPlaylistsScheduledForDeletion->search($l));
+            }
         }
 
         return $this;

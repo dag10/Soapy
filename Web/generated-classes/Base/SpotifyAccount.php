@@ -339,7 +339,15 @@ abstract class SpotifyAccount implements ActiveRecordInterface
     {
         $this->clearAllReferences();
 
-        return array_keys(get_object_vars($this));
+        $cls = new \ReflectionClass($this);
+        $propertyNames = [];
+        $serializableProperties = array_diff($cls->getProperties(), $cls->getProperties(\ReflectionProperty::IS_STATIC));
+
+        foreach($serializableProperties as $property) {
+            $propertyNames[] = $property->getName();
+        }
+
+        return $propertyNames;
     }
 
     /**
@@ -873,12 +881,14 @@ abstract class SpotifyAccount implements ActiveRecordInterface
             implode(', ', $modifiedColumns),
             implode(', ', array_keys($modifiedColumns))
         );
+        //var_dump($modifiedColumns); exit; // TODO TMP
 
         try {
             $stmt = $con->prepare($sql);
             foreach ($modifiedColumns as $identifier => $columnName) {
                 switch ($columnName) {
                     case 'id':
+            //echo "BLAH[$columnName][$identifier]"; exit; // TODO TMP
                         $stmt->bindValue($identifier, $this->id, PDO::PARAM_INT);
                         break;
                     case 'user_id':
@@ -1020,12 +1030,8 @@ abstract class SpotifyAccount implements ActiveRecordInterface
             $keys[5] => $this->getExpiration(),
             $keys[6] => $this->getAvatar(),
         );
-
-        $utc = new \DateTimeZone('utc');
         if ($result[$keys[5]] instanceof \DateTime) {
-            // When changing timezone we don't want to change existing instances
-            $dateTime = clone $result[$keys[5]];
-            $result[$keys[5]] = $dateTime->setTimezone($utc)->format('Y-m-d\TH:i:s\Z');
+            $result[$keys[5]] = $result[$keys[5]]->format('c');
         }
 
         $virtualColumns = $this->virtualColumns;

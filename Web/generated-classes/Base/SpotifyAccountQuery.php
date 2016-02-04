@@ -148,7 +148,7 @@ abstract class SpotifyAccountQuery extends ModelCriteria
         if ($key === null) {
             return null;
         }
-        if ((null !== ($obj = SpotifyAccountTableMap::getInstanceFromPool((string) $key))) && !$this->formatter) {
+        if ((null !== ($obj = SpotifyAccountTableMap::getInstanceFromPool(null === $key || is_scalar($key) || is_callable([$key, '__toString']) ? (string) $key : $key))) && !$this->formatter) {
             // the object is already in the instance pool
             return $obj;
         }
@@ -192,7 +192,7 @@ abstract class SpotifyAccountQuery extends ModelCriteria
             /** @var ChildSpotifyAccount $obj */
             $obj = new ChildSpotifyAccount();
             $obj->hydrate($row);
-            SpotifyAccountTableMap::addInstanceToPool($obj, (string) $key);
+            SpotifyAccountTableMap::addInstanceToPool($obj, null === $key || is_scalar($key) || is_callable([$key, '__toString']) ? (string) $key : $key);
         }
         $stmt->closeCursor();
 

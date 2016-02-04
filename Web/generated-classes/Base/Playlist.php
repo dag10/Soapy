@@ -9,6 +9,7 @@ use \UserQuery as ChildUserQuery;
 use \Exception;
 use \PDO;
 use Map\PlaylistTableMap;
+use Map\UserTableMap;
 use Propel\Runtime\Propel;
 use Propel\Runtime\ActiveQuery\Criteria;
 use Propel\Runtime\ActiveQuery\ModelCriteria;
@@ -330,7 +331,15 @@ abstract class Playlist implements ActiveRecordInterface
     {
         $this->clearAllReferences();
 
-        return array_keys(get_object_vars($this));
+        $cls = new \ReflectionClass($this);
+        $propertyNames = [];
+        $serializableProperties = array_diff($cls->getProperties(), $cls->getProperties(\ReflectionProperty::IS_STATIC));
+
+        foreach($serializableProperties as $property) {
+            $propertyNames[] = $property->getName();
+        }
+
+        return $propertyNames;
     }
 
     /**
@@ -1299,7 +1308,10 @@ abstract class Playlist implements ActiveRecordInterface
         if (null !== $this->collUsersRelatedByPlaylistId && !$overrideExisting) {
             return;
         }
-        $this->collUsersRelatedByPlaylistId = new ObjectCollection();
+
+        $collectionClassName = UserTableMap::getTableMap()->getCollectionClassName();
+
+        $this->collUsersRelatedByPlaylistId = new $collectionClassName;
         $this->collUsersRelatedByPlaylistId->setModel('\User');
     }
 
@@ -1444,6 +1456,10 @@ abstract class Playlist implements ActiveRecordInterface
 
         if (!$this->collUsersRelatedByPlaylistId->contains($l)) {
             $this->doAddUserRelatedByPlaylistId($l);
+
+            if ($this->usersRelatedByPlaylistIdScheduledForDeletion and $this->usersRelatedByPlaylistIdScheduledForDeletion->contains($l)) {
+                $this->usersRelatedByPlaylistIdScheduledForDeletion->remove($this->usersRelatedByPlaylistIdScheduledForDeletion->search($l));
+            }
         }
 
         return $this;

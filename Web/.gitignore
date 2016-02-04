@@ -8,3 +8,8 @@ vendor/
 logs/
 templates/cache/
 
+public/js/app
+public/js/lib
+
+node_modules/
+

@@ -3,6 +3,7 @@ var del = require('del');
 var typescript = require('gulp-typescript');
 var tscConfig = require('./tsconfig.json');
 var sourcemaps = require('gulp-sourcemaps');
+var tslint = require('gulp-tslint');
 
 var tsSource = 'typescript/**/';
 var jsOut = 'public/js/';
@@ -12,6 +13,13 @@ var libOut = jsOut + 'lib/';
 // Clean the contents of the distribution directory
 gulp.task('clean', function () {
   return del(jsOut + '**/*');
+});
+
+// TypeScript lint
+gulp.task('tslint', function() {
+  return gulp.src(tsSource + '*.ts')
+    .pipe(tslint())
+    .pipe(tslint.report('verbose'));
 });
 
 // TypeScript compile
@@ -42,6 +50,6 @@ gulp.task('copy:libs', ['clean'], function() {
   .pipe(gulp.dest(libOut));
 });
 
-gulp.task('build', ['compile', 'copy:libs']);
+gulp.task('build', ['tslint', 'compile', 'copy:libs']);
 gulp.task('default', ['build']);
 

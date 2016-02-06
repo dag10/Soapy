@@ -8,6 +8,7 @@ vendor/
 logs/
 templates/cache/
 
+public/css
 public/app
 public/lib
 

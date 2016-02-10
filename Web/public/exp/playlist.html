@@ -1,6 +1,9 @@
 <!doctype html>
 <html>
   <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <meta charset="utf-8"/>
+
     <title>Playlist Control</title>
 
     <script src="/lib/es6-shim.min.js"></script>
@@ -28,9 +31,24 @@
       System.import('app')
             .then(null, console.error.bind(console));
     </script>
+
+    <link href='https://fonts.googleapis.com/css?family=Nunito:400,300,700' rel='stylesheet' type='text/css'>
+    <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/css/layout.css" rel="stylesheet">
   </head>
   <body>
-		<playlist-component>Loading...</playlist-component>
+    <div class="header">
+      <h1>Soapy</h1>
+    </div>
+    <div class="card">
+      <p>
+        Soapy lets you listen to your music in the dorm showers with a tap of
+        your rfid tag.
+      </p>
+    </div>
+    <div class="card highlighted">
+      <playlist-component></playlist-component>
+    </div>
   </body>
 </html>
 

@@ -1,0 +1,4 @@
+<select class="playlist">
+  <option *ngFor="#playlist of playlists" [value]="playlist.id" [selected]="playlist == selectedPlaylist">{{ playlist.title }}</option>
+</select>
+

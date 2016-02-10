@@ -1,8 +1,13 @@
 import {Component} from 'angular2/core';
 
+import {PlaylistListComponent} from './playlist-list.component';
+
+
 @Component({
+  directives: [PlaylistListComponent],
   selector: 'playlist-component',
-  template: '<h1>Woo! It works!</h1>'
+  templateUrl: '/app/playlist.controls.html',
 })
-export class PlaylistComponent { }
+export class PlaylistComponent {
+}
 

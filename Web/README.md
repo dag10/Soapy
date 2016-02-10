@@ -48,7 +48,8 @@ run:
 npm run gulp
 ```
 
-You must do this every time you edit any files in the `Soapy/Web/typescript` directory.
+You must do this every time you edit any files in the `Soapy/Web/typescript`,
+`Soapy/Web/templates/app`, or `Soapy/Web/less`  directories.
 
 #### Serving
 

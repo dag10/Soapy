@@ -15,12 +15,23 @@ var libOut = 'public/lib/';
 var lessSource = 'less/**/';
 var cssOut = 'public/css/';
 
-// Clean the compiles and copied javascript and style resources
-gulp.task('clean', function () {
-  return del([tsOut + '**/*',
-              libOut + '**/*',
-              cssOut + '**/*']);
+// Clean the compiled typescript and templates
+gulp.task('clean:app', function () {
+  return del([tsOut + '**/*']);
 });
+
+// Clean the copied javascript libraries
+gulp.task('clean:lib', function () {
+  return del([libOut + '**/*']);
+});
+
+// Clean the compiled and copied stylesheets
+gulp.task('clean:css', function () {
+  return del([cssOut + '**/*']);
+});
+
+// Clean the compiled and copied javascript and style resources
+gulp.task('clean', ['clean:app', 'clean:css', 'clean:lib']);
 
 // TypeScript lint
 gulp.task('tslint', function() {
@@ -31,7 +42,7 @@ gulp.task('tslint', function() {
 });
 
 // Compile LESS to CSS
-gulp.task('less', ['clean'], function() {
+gulp.task('less', ['clean:css'], function() {
   return gulp
     .src(lessSource + '*.less')
     .pipe(less())
@@ -39,7 +50,7 @@ gulp.task('less', ['clean'], function() {
 });
 
 // Copy non-less CSS files
-gulp.task('copy:css', ['clean'], function() {
+gulp.task('copy:css', ['clean:css'], function() {
   return gulp
     .src([lessSource + '*', '!' + lessSource + '*.less'],
          { base : './less' })
@@ -47,7 +58,7 @@ gulp.task('copy:css', ['clean'], function() {
 });
 
 // TypeScript compile
-gulp.task('compile', ['clean'], function() {
+gulp.task('compile', ['clean:app'], function() {
   return gulp
     .src(tsSource + '*.ts')
     .pipe(sourcemaps.init())
@@ -57,7 +68,7 @@ gulp.task('compile', ['clean'], function() {
 });
 
 // Copy static assets (non TypeScript compiled files)
-gulp.task('copy:assets', ['clean'], function() {
+gulp.task('copy:assets', ['clean:css'], function() {
   return gulp
     .src([tsSource + '*', '!' + tsSource + '*.ts'],
          { base : './typescript' })
@@ -65,7 +76,7 @@ gulp.task('copy:assets', ['clean'], function() {
 });
 
 // Copy dependencies
-gulp.task('copy:libs', ['clean'], function() {
+gulp.task('copy:libs', ['clean:lib'], function() {
   return gulp
     .src([
     'node_modules/es6-shim/es6-shim.js',

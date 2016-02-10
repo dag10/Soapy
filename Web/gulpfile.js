@@ -7,12 +7,14 @@ var tslint = require('gulp-tslint');
 var less = require('gulp-less');
 var minifyCss = require('gulp-minify-css');
 
+// Directories
 
+var templateSource = 'templates/app/**/';
 var tsSource = 'typescript/**/';
+var lessSource = 'less/**/';
+
 var tsOut = 'public/app/';
 var libOut = 'public/lib/';
-
-var lessSource = 'less/**/';
 var cssOut = 'public/css/';
 
 // Clean the compiled typescript and templates
@@ -67,11 +69,11 @@ gulp.task('compile', ['clean:app'], function() {
     .pipe(gulp.dest(tsOut));
 });
 
-// Copy static assets (non TypeScript compiled files)
-gulp.task('copy:assets', ['clean:css'], function() {
+// Copy app templates
+gulp.task('copy:templates', ['clean:app'], function() {
   return gulp
-    .src([tsSource + '*', '!' + tsSource + '*.ts'],
-         { base : './typescript' })
+    .src([templateSource + '*'],
+         { base : './templates/app' })
     .pipe(gulp.dest(tsOut));
 });
 
@@ -114,7 +116,7 @@ gulp.task('build', [
     'less',
     'copy:css',
     'compile',
-    'copy:assets',
+    'copy:templates',
     'copy:libs'
   ]);
 

@@ -1,6 +1,10 @@
 <resources>
     <string name="app_name">Soapy</string>
-    <string name="tap_rfid">Tap your RFID tag to manage settings.</string>
+    <string name="tap_rfid">
+        To listen to music, tap your rfid tag in the shower.\n
+        \n
+        To configure your music, visit soapy.csh.rit.edu.\n
+    </string>
     <string name="title_playlist_list">Playlists</string>
     <string name="title_playlist_detail">Playlist Detail</string>
     <string name="title_activity_playlist_selection">PlaylistSelectionActivity</string>
@@ -8,4 +12,5 @@
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
     <string name="title_activity_log_view">LogViewActivity</string>
+    <string name="title_activity_settings">SettingsActivity</string>
 </resources>

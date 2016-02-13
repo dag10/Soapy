@@ -1,6 +1,5 @@
 body {
   background-color: #eee;
-  background-image: url('../images/background.png');
   background-attachment: fixed;
   padding-top: 76px;
   padding-bottom: 20px;
@@ -43,5 +42,9 @@ body {
 
 label.btn {
   background-color: rgb(192, 192, 192);
+}
+
+.panel-heading .btn {
+  color: black;
 }
 

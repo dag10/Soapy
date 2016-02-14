@@ -175,8 +175,10 @@ public class SpotifyService extends Service implements PlayerNotificationCallbac
         return deferred.promise();
     }
 
-    protected Promise<Void, Throwable, Void> startPlayer(final String accessToken) {
+    protected Promise<Void, Throwable, Void> startPlayer() {
         final Deferred<Void, Throwable, Void> deferred = new DeferredObject<>();
+
+        final String accessToken = getCurrentShower().getUser().getSpotifyAccessToken();
 
         if (mPlayer == null) {
             Log.i(TAG, "Creating player for token " + accessToken.substring(0, 50) + "...");
@@ -236,28 +238,16 @@ public class SpotifyService extends Service implements PlayerNotificationCallbac
         mPlayer.play(track.getURI());
 
         Shower shower = getCurrentShower();
-        if (shower != null) {
-            dm.when(SoapyWebAPI.getInstance().setLastSongPlayed(shower.getRfid(), track.getURI())).fail(new FailCallback<SoapyWebAPI.SoapyWebError>() {
-                @Override
-                public void onFail(SoapyWebAPI.SoapyWebError result) {
-                    Log.e(TAG, "Failed to update lastPlayedSong on server.");
-                }
-            });
 
-            dm.when(shower.getUser()).done(new DoneCallback<SoapyUser>() {
-                @Override
-                public void onDone(SoapyUser result) {
-                    Log.i(TAG, result.getFullName() + " started playing track: " + track);
-                }
-            }).fail(new FailCallback<Throwable>() {
-                @Override
-                public void onFail(Throwable result) {
-                    Log.i(TAG, "Playing track: " + track);
-                }
-            });
-        } else {
-            Log.i(TAG, "Playing track: " + track);
-        }
+        Log.i(TAG, shower.getUser().getFullName() + " started playing track: " + track);
+
+        // Notify API that we are playing the current song.
+        dm.when(SoapyWebAPI.getInstance().setPlayingSong(shower.getRfid(), track.getURI())).fail(new FailCallback<SoapyWebAPI.SoapyWebError>() {
+            @Override
+            public void onFail(SoapyWebAPI.SoapyWebError result) {
+                Log.e(TAG, "Failed to update lastPlayedSong on server.");
+            }
+        });
     }
 
     protected boolean isShowerOccupied(int index) {
@@ -309,7 +299,7 @@ public class SpotifyService extends Service implements PlayerNotificationCallbac
         Shower shower = showers[index];
         shower.setRfid(rfid);
 
-        dm.when(shower.getUser()).done(new DoneCallback<SoapyUser>() {
+        dm.when(shower.loadUser()).done(new DoneCallback<SoapyUser>() {
             @Override
             public void onDone(SoapyUser result) {
                 soundPlayer.playSuccessSound();
@@ -364,57 +354,7 @@ public class SpotifyService extends Service implements PlayerNotificationCallbac
         destroyShower(index);
     }
 
-    protected Promise playShower(final int showerIndex) {
-        final Deferred deferred = new DeferredObject();
-
-        currentlyPlayingShower = showerIndex;
-
-        dm.when(showers[showerIndex].getAccessToken()).done(new DoneCallback<String>() {
-            @Override
-            public void onDone(String accessToken) {
-                Log.i(TAG, "Got access token for shower " + showerIndex + ": " +
-                        accessToken.substring(0, 50) + "...");
-
-                dm.when(startPlayer(accessToken)).done(new DoneCallback<Void>() {
-                    @Override
-                    public void onDone(Void result) {
-                        //currentlyPlayingShower = showerIndex;
-                    }
-                }).fail(new FailCallback<Throwable>() {
-                    @Override
-                    public void onFail(Throwable result) {
-                        Log.e(TAG, "Failed to start player when playing shower " +
-                                showerIndex + ". Error: " + result.getMessage());
-                        deferred.reject(null);
-                    }
-                });
-            }
-        })
-        .fail(new FailCallback<Throwable>() {
-            @Override
-            public void onFail(Throwable result) {
-                Log.e(TAG, "Failed to fetch accessToken to start music for shower " +
-                        showerIndex + ". Error: " + result.getMessage());
-                deferred.reject(null);
-            }
-        });
-
-        Promise promise = deferred.promise();
-
-        promise.fail(new FailCallback() {
-            @Override
-            public void onFail(Object result) {
-                Log.i(TAG, "Setting currentlyPlayingShower to -1 because startShower() failed.");
-                currentlyPlayingShower = -1;
-            }
-        });
-
-        return promise;
-    }
-
-    protected void playNextSong() {
-        Log.i(TAG, "Playing next song!");
-
+    protected int nextPlayableShowerIndex() {
         int nextShowerIndex = -1;
         for (int i = 0; i < NUM_SHOWERS; i++) {
 
@@ -429,28 +369,33 @@ public class SpotifyService extends Service implements PlayerNotificationCallbac
             }
         }
 
-        // We're not going to play any shower. Just stop the music.
-        if (nextShowerIndex == -1) {
+        return nextShowerIndex;
+    }
+
+    protected void playNextSong() {
+        Log.i(TAG, "Playing next song!");
+
+        int nextShowerIndex = nextPlayableShowerIndex();
+
+        if (nextShowerIndex < 0) {
             Log.i(TAG, "Found no shower to play from. Just stopping music.");
             stopPlayer();
             currentlyPlayingShower = -1;
             return;
         }
 
-        final int finalShowerIndex = nextShowerIndex;
+        currentlyPlayingShower = nextShowerIndex;
 
-        dm.when(playShower(nextShowerIndex))
-        .fail(new FailCallback() {
+        dm.when(startPlayer()).fail(new FailCallback() {
             @Override
             public void onFail(Object result) {
                 Log.e(TAG, "Failed to start player for shower " +
-                        finalShowerIndex + ". Removing shower.");
+                        currentlyPlayingShower + ". Removing shower.");
                 soundPlayer.playErrorSound();
-                resetShower(finalShowerIndex);
+                resetShower(currentlyPlayingShower);
                 playNextSong();
             }
         });
-
     }
 
     protected void doorClosed(int index) {

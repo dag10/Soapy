@@ -11,6 +11,7 @@ import org.jdeferred.Promise;
 import org.jdeferred.impl.DefaultDeferredManager;
 import org.jdeferred.impl.DeferredObject;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -39,7 +40,11 @@ public class Shower {
         return rfid;
     }
 
-    public Promise<SoapyUser, Throwable, Void> getUser() {
+    public SoapyUser getUser() {
+        return user;
+    }
+
+    public Promise<SoapyUser, Throwable, Void> loadUser() {
         final Deferred<SoapyUser, Throwable, Void> deferred = new DeferredObject<>();
 
         if (user == null) {
@@ -75,24 +80,6 @@ public class Shower {
         } else {
             deferred.resolve(user);
         }
-
-        return deferred.promise();
-    }
-
-    public Promise<String, Throwable, Void> getAccessToken() {
-        final Deferred<String, Throwable, Void> deferred = new DeferredObject<>();
-
-        dm.when(getUser()).done(new DoneCallback<SoapyUser>() {
-            @Override
-            public void onDone(SoapyUser user) {
-                deferred.resolve(user.getSpotifyAccessToken());
-            }
-        }).fail(new FailCallback<Throwable>() {
-            @Override
-            public void onFail(Throwable result) {
-                deferred.reject(result);
-            }
-        });
 
         return deferred.promise();
     }

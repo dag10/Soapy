@@ -213,7 +213,7 @@ public class SoapyWebAPI {
         return deferred.promise();
     }
 
-    public Promise<Void, SoapyWebError, Void> setLastSongPlayed(final String rfid, final String songUri) {
+    public Promise<Void, SoapyWebError, Void> setPlayingSong(final String rfid, final String songUri) {
         final Deferred<Void, SoapyWebError, Void> deferred = new DeferredObject<>();
 
         HashMap<String, String> vars = new HashMap<>();

@@ -11,6 +11,7 @@ templates/cache/
 public/css
 public/app
 public/lib
+public/fonts
 
 node_modules/
 

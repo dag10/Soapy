@@ -16,6 +16,7 @@ var lessSource = 'less/**/';
 var tsOut = 'public/app/';
 var libOut = 'public/lib/';
 var cssOut = 'public/css/';
+var fontsOut = 'public/fonts/';
 
 // Clean the compiled typescript and templates
 gulp.task('clean:app', function () {
@@ -30,6 +31,11 @@ gulp.task('clean:lib', function () {
 // Clean the compiled and copied stylesheets
 gulp.task('clean:css', function () {
   return del([cssOut + '**/*']);
+});
+
+// Clean the fonts directory
+gulp.task('clean:fonts', function () {
+  return del([fontsOut + '**/*']);
 });
 
 // Clean the compiled and copied javascript and style resources
@@ -77,7 +83,28 @@ gulp.task('copy:templates', ['clean:app'], function() {
     .pipe(gulp.dest(tsOut));
 });
 
-// Copy dependencies
+// Copy bootstrap css
+gulp.task('copy:css:bootstrap', ['clean:css'], function() {
+  return gulp
+    .src([
+    'node_modules/bootstrap/dist/css/bootstrap.min.css',
+    'node_modules/bootstrap/dist/css/bootstrap.min.css.map',
+    'node_modules/bootstrap/dist/css/bootstrap-theme.min.css',
+    'node_modules/bootstrap/dist/css/bootstrap-theme.min.css.map',
+  ])
+  .pipe(gulp.dest(cssOut));
+});
+
+// Copy fonts
+gulp.task('copy:fonts', ['clean:fonts'], function() {
+  return gulp
+    .src([
+    'node_modules/bootstrap/dist/fonts/*.*',
+  ])
+  .pipe(gulp.dest(fontsOut));
+});
+
+// Copy library dependencies
 gulp.task('copy:libs', ['clean:lib'], function() {
   return gulp
     .src([
@@ -107,6 +134,9 @@ gulp.task('copy:libs', ['clean:lib'], function() {
     'node_modules/rxjs/bundles/Rx.js',
     'node_modules/rxjs/bundles/Rx.min.js',
     'node_modules/rxjs/bundles/Rx.min.js.map',
+
+    'node_modules/bootstrap/dist/js/bootstrap.js',
+    'node_modules/bootstrap/dist/js/bootstrap.min.js',
   ])
   .pipe(gulp.dest(libOut));
 });
@@ -115,9 +145,11 @@ gulp.task('build', [
     'tslint',
     'less',
     'copy:css',
+    'copy:css:bootstrap',
     'compile',
     'copy:templates',
-    'copy:libs'
+    'copy:libs',
+    'copy:fonts',
   ]);
 
 gulp.task('default', ['build']);

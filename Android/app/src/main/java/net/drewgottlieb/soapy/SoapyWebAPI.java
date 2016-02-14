@@ -302,7 +302,7 @@ public class SoapyWebAPI {
     }
 
     public Promise<SoapyUser, SoapyWebError, Void> fetchUserAndTracks(String rfid) {
-        return fetchUser(rfid, "tracks");
+        return fetchUser(rfid, "playlist/selected");
     }
 
     /**

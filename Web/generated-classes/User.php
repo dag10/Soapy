@@ -19,6 +19,9 @@ class User extends BaseUser
       'ldap' => $this->getLdap(),
       'firstName' => $this->getFirstName(),
       'lastName' => $this->getLastName(),
+      'playback' => [
+        'playbackMode' => $this->getPlaybackMode(),
+        ],
       ];
 
     $spotifyAccount = $this->getSpotifyAccount();

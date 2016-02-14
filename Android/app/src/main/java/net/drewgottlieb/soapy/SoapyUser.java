@@ -21,6 +21,7 @@ public class SoapyUser {
     private String spotifyAccessToken = null;
     private ArrayList<SoapyPlaylist> playlists = null;
     private SoapyPlaylist playlist = null;
+    private SoapyPlayback playback = null;
 
     public SoapyUser(String rfid) {
         this.rfid = rfid;
@@ -34,6 +35,10 @@ public class SoapyUser {
         ldap = jUser.getString("ldap");
         firstName = jUser.getString("firstName");
         lastName = jUser.getString("lastName");
+
+        if (jUser.has("playback")) {
+            playback = new SoapyPlayback(jUser.getJSONObject("playback"));
+        }
 
         if (jUser.has("spotifyAccount")) {
             JSONObject jSpotifyAccount = jUser.getJSONObject("spotifyAccount");
@@ -115,5 +120,9 @@ public class SoapyUser {
         }
 
         return playlist.getTracks();
+    }
+
+    public SoapyPlayback getPlayback() {
+        return playback;
     }
 }

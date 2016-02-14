@@ -70,6 +70,10 @@ public class Shower {
                     if (tracks.size() > 0) {
                         nextTrackIndex %= tracks.size();
                     }
+                    if (user.getPlayback().getPlaybackMode() == SoapyPlayback.PlaybackMode.SHUFFLE) {
+                        Collections.shuffle(tracks);
+                        nextTrackIndex = 0;
+                    }
                     deferred.resolve(user);
                 }
             }).fail(new FailCallback<SoapyWebAPI.SoapyWebError>() {

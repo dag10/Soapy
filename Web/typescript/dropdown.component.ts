@@ -1,6 +1,7 @@
 import {Component, EventEmitter, Input, Output} from 'angular2/core';
 
 import {SelectableOption} from './soapy.interfaces';
+import * as util from './soapy.utils';
 
 
 @Component({
@@ -21,18 +22,8 @@ export class DropdownComponent {
   }
 
   set selectedItemId(id: String) {
-    this.selectedItem = this.itemForId(id);
+    this.selectedItem = util.findByProperty(this.items, 'id', id);
     this.selectedItemChange.next(this.selectedItem);
-  }
-
-  protected itemForId(id: String): SelectableOption {
-    for (var item of this.items) {
-      if (item.id === id) {
-        return item;
-      }
-    }
-
-    return null;
   }
 }
 

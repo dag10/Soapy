@@ -2,9 +2,12 @@ import {Component, OnInit} from 'angular2/core';
 
 import {Playlist} from './soapy.interfaces';
 import {DropdownComponent} from './dropdown.component';
+import {SoapyService, ServicePlaylistData} from './soapy.service';
+import * as util from './soapy.utils';
 
 
 @Component({
+  providers: [SoapyService],
   directives: [DropdownComponent],
   selector: 'playback-component',
   templateUrl: '/app/playback.component.html',
@@ -13,72 +16,16 @@ export class PlaybackComponent implements OnInit {
   public playlists: Playlist[];
   public selectedPlaylist: Playlist;
 
-  //constructor(private _service: PlaylistService) {}
+  constructor(private _soapyService: SoapyService) {}
 
   public ngOnInit() {
 
-    // Temporary bootstrap with fake data
-    this.playlists = [
-      {
-        id: 'playlist:1',
-        title: 'The Happy Hipster',
-        tracks: [
-          {
-            id: 'track:1',
-            title: 'Hipster Track One',
-            artist: 'The Mowgli\'s',
-          },
-          {
-            id: 'track:2',
-            title: 'Hipster Track Two',
-            artist: 'Dirtwire',
-          },
-          {
-            id: 'track:3',
-            title: 'Hipster Track Three',
-            artist: 'Powers',
-          },
-        ],
-      },
-      {
-        id: 'playlist:2',
-        title: 'Hot Alternative',
-        tracks: [
-          {
-            id: 'track:4',
-            title: 'Alt Track One',
-            artist: 'Daft Punk',
-          },
-          {
-            id: 'track:5',
-            title: 'Alt Track Two',
-            artist: 'Little Comets',
-          },
-          {
-            id: 'track:6',
-            title: 'Alt Track Three',
-            artist: 'Kanye West',
-          },
-        ],
-      },
-      {
-        id: 'playlist:3',
-        title: 'Workout',
-        tracks: [
-          {
-            id: 'track:7',
-            title: 'Some Workout Track',
-            artist: 'Loners',
-          },
-        ],
-      },
-      {
-        id: 'playlist:4',
-        title: 'Liked On Radio',
-      },
-    ];
-
-    this.selectedPlaylist = this.playlists[1];
+    this._soapyService.getPlaylists()
+    .then((data: ServicePlaylistData) => {
+      this.playlists = data.playlists;
+      this.selectedPlaylist = util.findByProperty(
+          this.playlists, 'id', data.selectedPlaylist);
+    });
   }
 }
 

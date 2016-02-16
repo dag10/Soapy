@@ -6,10 +6,10 @@ import {DropdownComponent} from './dropdown.component';
 
 @Component({
   directives: [DropdownComponent],
-  selector: 'playlist-component',
-  templateUrl: '/app/playlist.controls.html',
+  selector: 'playback-component',
+  templateUrl: '/app/playback.component.html',
 })
-export class PlaylistComponent implements OnInit {
+export class PlaybackComponent implements OnInit {
   public playlists: Playlist[];
   public selectedPlaylist: Playlist;
 

@@ -1,3 +1,22 @@
 <h1>Choose your shower playlist</h1>
 
-<playlist-list></playlist-list>
+<soapy-dropdown
+  class="playlist"
+  [items]="playlists"
+  [selectedItem]="selectedPlaylist"
+  (selectedItemChange)="selectedPlaylist = $event"
+  >
+</soapy-dropdown>
+
+<h1>{{ selectedPlaylist.title }} Tracks</h1>
+
+<em *ngIf="!selectedPlaylist.tracks">
+  No tracks
+</em>
+
+<ul>
+  <li *ngFor="#track of selectedPlaylist.tracks">
+    {{ track.title }} - {{ track.artist }}
+  </li>
+</ul>
+

@@ -8,15 +8,3 @@
   >
 </soapy-dropdown>
 
-<h1>{{ selectedPlaylist.title }} Tracks</h1>
-
-<em *ngIf="!selectedPlaylist.tracks">
-  No tracks
-</em>
-
-<ul>
-  <li *ngFor="#track of selectedPlaylist.tracks">
-    {{ track.title }} - {{ track.artist }}
-  </li>
-</ul>
-

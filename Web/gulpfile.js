@@ -54,6 +54,7 @@ gulp.task('less', ['clean:css'], function() {
   return gulp
     .src(lessSource + '*.less')
     .pipe(less())
+    .pipe(minifyCss())
     .pipe(gulp.dest(cssOut));
 });
 
@@ -62,6 +63,7 @@ gulp.task('copy:css', ['clean:css'], function() {
   return gulp
     .src([lessSource + '*', '!' + lessSource + '*.less'],
          { base : './less' })
+    .pipe(minifyCss())
     .pipe(gulp.dest(cssOut));
 });
 
@@ -78,7 +80,7 @@ gulp.task('compile', ['clean:app'], function() {
 // Copy app templates
 gulp.task('copy:templates', ['clean:app'], function() {
   return gulp
-    .src([templateSource + '*'],
+    .src([templateSource + '*.html'],
          { base : './templates/app' })
     .pipe(gulp.dest(tsOut));
 });

@@ -1,11 +1,11 @@
 var gulp = require('gulp');
 var del = require('del');
 var typescript = require('gulp-typescript');
-var tscConfig = require('./tsconfig.json');
 var sourcemaps = require('gulp-sourcemaps');
 var tslint = require('gulp-tslint');
 var less = require('gulp-less');
 var minifyCss = require('gulp-minify-css');
+var uglify = require('gulp-uglify');
 
 // Directories
 
@@ -72,7 +72,21 @@ gulp.task('compile', ['clean:app'], function() {
   return gulp
     .src(tsSource + '*.ts')
     .pipe(sourcemaps.init())
-    .pipe(typescript(tscConfig.compilerOptions))
+    .pipe(typescript({
+      typescript: require('typescript'), // our desired version
+      target: 'ES5',
+      module: 'system',
+      sourceMap: true,
+      moduleResolution: 'node',
+      experimentalDecorators: true,
+      emitDecoratorMetadata: true,
+      outFile: 'soapy.js',
+      removeComments: false,
+      noImplicitAny: false,
+    }))
+    .pipe(uglify({
+      mangle: false,
+    }))
     .pipe(sourcemaps.write('.'))
     .pipe(gulp.dest(tsOut));
 });

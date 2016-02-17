@@ -6,29 +6,18 @@
 
     <title>Playlist Control</title>
 
+    <script src="/lib/angular2-polyfills.js"></script>
     <script src="/lib/es6-shim.min.js"></script>
     <script src="/lib/system-polyfills.js"></script>
 
-    <script src="/lib/angular2-polyfills.js"></script>
     <script src="/lib/system.src.js"></script>
     <script src="/lib/Rx.js"></script>
     <script src="/lib/angular2.dev.js"></script>
 
+    <script src="/app/soapy.js"></script>
+
     <script>
-      System.config({
-        map: {
-          'app': '/app'
-        },
-
-        packages: {
-          'app': {
-            main: 'main.js',
-            defaultExtension: 'js'
-          }
-        }
-      });
-
-      System.import('app')
+      System.import('main')
             .then(null, console.error.bind(console));
     </script>
 

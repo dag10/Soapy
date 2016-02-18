@@ -239,11 +239,8 @@ $app->post('/me/playback', function() use ($app) {
   dieWithJsonSuccess();
 });
 
-// API for fetching playlists for a user.
-$app->get('/api/rfid/:rfid/playlists/?', function($rfid) use ($app) {
-  $ctx = start_view_context($app, [
-    'require_spotify' => true, 'rfid' => $rfid, 'require_secret' => true]);
-
+// Dual API for fetching playlists for a user.
+function apiHandlerGetPlaylists($ctx) {
   $json_data = [
     'user' => $ctx['user']->getDataForJson(),
     ];
@@ -264,16 +261,25 @@ $app->get('/api/rfid/:rfid/playlists/?', function($rfid) use ($app) {
   }
 
   dieWithJson($json_data);
+}
+
+// Web API for fetching playlists for a user.
+$app->get('/api/me/playlists/?', function() use ($app) {
+  $ctx = start_view_context($app, ['require_spotify' => true]);
+
+  apiHandlerGetPlaylists($ctx);
 });
 
-// API for fetching songs for a user from their selected playlist.
-$app->get(
-    '/api/rfid/:rfid/playlist/:playlistId',
-    function($rfid, $playlistId) use ($app) {
-
+// Device API for fetching playlists for a user.
+$app->get('/api/rfid/:rfid/playlists/?', function($rfid) use ($app) {
   $ctx = start_view_context($app, [
     'require_spotify' => true, 'rfid' => $rfid, 'require_secret' => true]);
 
+  apiHandlerGetPlaylists($ctx);
+});
+
+// Dual API for fetching songs for a user from their selected playlist.
+function apiHandlerGetPlaylist($ctx, $playlistId) {
   if ($playlistId == "selected") {
     $playlist = $ctx['user']->getPlaylist();
     if (!$playlist) {
@@ -312,9 +318,28 @@ $app->get(
   }
 
   dieWithJson($json_data);
+}
+
+// Web API for fetching songs for a user from their selected playlist.
+$app->get(
+    '/api/rfid/:rfid/playlist/:playlistId',
+    function($rfid, $playlistId) use ($app) {
+
+  $ctx = start_view_context($app, [
+    'require_spotify' => true, 'rfid' => $rfid, 'require_secret' => true]);
+
+  apiHandlerGetPlaylist($ctx, $playlistId);
 });
 
-// API for setting the selected playlist for a user.
+// Device API for fetching songs for a user from their selected playlist.
+$app->get('/api/me/playlist/:playlistId', function($playlistId) use ($app) {
+
+  $ctx = start_view_context($app, ['require_spotify' => true]);
+
+  apiHandlerGetPlaylist($ctx, $playlistId);
+});
+
+// Device API for setting the selected playlist for a user.
 $app->post('/api/rfid/:rfid/playlist/set', function($rfid) use ($app) {
   $ctx = start_view_context($app, [
     'require_spotify' => true, 'rfid' => $rfid, 'require_secret' => true]);
@@ -325,7 +350,7 @@ $app->post('/api/rfid/:rfid/playlist/set', function($rfid) use ($app) {
   dieWithJsonSuccess();
 });
 
-// API for updating the current song being played.
+// Device API for updating the current song being played.
 $app->post('/api/rfid/:rfid/song/playing', function($rfid) use ($app) {
   $ctx = start_view_context($app, [
     'require_spotify' => true, 'rfid' => $rfid, 'require_secret' => true]);
@@ -347,7 +372,7 @@ $app->post('/api/rfid/:rfid/song/playing', function($rfid) use ($app) {
   dieWithJsonSuccess();
 });
 
-// API for submitting log messages.
+// Device API for submitting log messages.
 $app->post('/api/log/add', function() use ($app) {
   $ctx = start_view_context($app, ['require_secret' => true]);
 

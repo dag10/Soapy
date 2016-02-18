@@ -310,6 +310,7 @@ public class SpotifyService extends Service implements PlayerNotificationCallbac
         }).fail(new FailCallback<Throwable>() {
             @Override
             public void onFail(Throwable result) {
+                Log.e(TAG, "Failed to load user for shower " + index + ": " + result.getMessage());
                 soundPlayer.playErrorSound();
                 resetShower(index);
             }

@@ -3,11 +3,13 @@ package net.drewgottlieb.soapy;
 import android.content.Context;
 import android.media.AudioManager;
 import android.media.SoundPool;
+import android.util.Log;
 
 import java.util.HashMap;
 import java.util.Map;
 
 public class SoapySoundPlayer {
+    private static String TAG = "SoapySoundPlayer";
     private static SoapySoundPlayer instance = null;
 
     private Context context;
@@ -47,6 +49,7 @@ public class SoapySoundPlayer {
     }
 
     public synchronized void playSoundResource(int resId) {
+        Log.i(TAG, "Playing sound resource: " + context.getResources().getResourceEntryName(resId));
         pool.play(getSoundId(resId), 1.f, 1.f, 0, 0, 1.f);
     }
 

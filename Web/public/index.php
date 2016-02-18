@@ -287,11 +287,11 @@ function apiHandlerGetPlaylist($ctx, $playlistId) {
     }
   } else {
     $playlist = PlaylistQuery::create()->findPk($playlistId);
-    if ($playlist->getOwnerId() != $ctx['user']->getId()) {
-      dieWithJsonError("This is not your playlist.");
-    }
     if (!$playlist) {
       dieWithJsonError("Playlist not found.");
+    }
+    if ($playlist->getOwnerId() != $ctx['user']->getId()) {
+      dieWithJsonError("This is not your playlist.");
     }
   }
 

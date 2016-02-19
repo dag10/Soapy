@@ -13,7 +13,7 @@ export class DropdownComponent {
   @Input() selectedItem: SelectableOption;
   @Output() selectedItemChange = new EventEmitter();
 
-  get selectedItemId(): String {
+  get selectedItemId(): string {
     if (this.selectedItem == null) {
       return null;
     }
@@ -21,7 +21,7 @@ export class DropdownComponent {
     return this.selectedItem.id;
   }
 
-  set selectedItemId(id: String) {
+  set selectedItemId(id: string) {
     this.selectedItem = util.findByProperty(this.items, 'id', id);
     this.selectedItemChange.next(this.selectedItem);
   }

@@ -135,6 +135,10 @@ gulp.task('copy:libs', ['clean:lib'], function() {
     'node_modules/angular2/bundles/angular2.min.js',
     'node_modules/angular2/bundles/angular2.dev.js',
 
+    'node_modules/angular2/bundles/http.js',
+    'node_modules/angular2/bundles/http.min.js',
+    'node_modules/angular2/bundles/http.dev.js',
+
     'node_modules/systemjs/dist/system.js',
     'node_modules/systemjs/dist/system.js.map',
     'node_modules/systemjs/dist/system.src.js',

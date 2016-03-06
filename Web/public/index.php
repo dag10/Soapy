@@ -245,19 +245,21 @@ function apiHandlerGetPlaylists($ctx) {
     'user' => $ctx['user']->getDataForJson(),
     ];
 
-  try {
-    $playlists = \Spotify\get_playlists($ctx['sp_api'], $ctx['user']);
-  } catch (\SpotifyWebAPI\SpotifyWebAPIException $e) {
-    dieWithJsonError("Error getting playlists: " . $e->getMessage());
-  }
+  if ($ctx['authorized']) {
+    try {
+      $playlists = \Spotify\get_playlists($ctx['sp_api'], $ctx['user']);
+    } catch (\SpotifyWebAPI\SpotifyWebAPIException $e) {
+      dieWithJsonError("Error getting playlists: " . $e->getMessage());
+    }
 
-  if ($playlists) {
-    $json_data['user']['playlists'] = $playlists;
-  }
+    if ($playlists) {
+      $json_data['user']['playlists'] = $playlists;
+    }
 
-  $playlist = $ctx['user']->getPlaylist();
-  if ($playlist) {
-    $json_data['user']['selectedPlaylist'] = $playlist->getDataForJson();
+    $playlist = $ctx['user']->getPlaylist();
+    if ($playlist) {
+      $json_data['user']['selectedPlaylist'] = $playlist->getDataForJson();
+    }
   }
 
   dieWithJson($json_data);
@@ -265,7 +267,7 @@ function apiHandlerGetPlaylists($ctx) {
 
 // Web API for fetching playlists for a user.
 $app->get('/api/me/playlists/?', function() use ($app) {
-  $ctx = start_view_context($app, ['require_spotify' => true]);
+  $ctx = start_view_context($app);
 
   apiHandlerGetPlaylists($ctx);
 });
@@ -303,7 +305,6 @@ function apiHandlerGetPlaylist($ctx, $playlistId) {
     getDataForJson();
 
   try {
-    //$json_data['user']['selectedPlaylist']['tracklist'] =
     $tracklist =
       \Spotify\get_formatted_tracks_for_playlist($ctx['sp_api'], $playlist);
   } catch (\SpotifyWebAPI\SpotifyWebAPIException $e) {
@@ -320,7 +321,7 @@ function apiHandlerGetPlaylist($ctx, $playlistId) {
   dieWithJson($json_data);
 }
 
-// Web API for fetching songs for a user from their selected playlist.
+// Device API for fetching songs for a user from their selected playlist.
 $app->get(
     '/api/rfid/:rfid/playlist/:playlistId',
     function($rfid, $playlistId) use ($app) {
@@ -331,12 +332,35 @@ $app->get(
   apiHandlerGetPlaylist($ctx, $playlistId);
 });
 
-// Device API for fetching songs for a user from their selected playlist.
+// Web API for fetching songs for a user from their selected playlist.
 $app->get('/api/me/playlist/:playlistId', function($playlistId) use ($app) {
 
   $ctx = start_view_context($app, ['require_spotify' => true]);
 
   apiHandlerGetPlaylist($ctx, $playlistId);
+});
+
+// Web API for fetching app data.
+// It always returns useful information.
+// If the user has a paired spotify account, it will return the account
+// data, and either:
+//   - Playlist list if no playlist is selected, or
+//   - Selected playlist and tracklist if there is one.
+$app->get('/api/me/appdata', function() use ($app) {
+  $ctx = start_view_context($app);
+
+  //var_dump($ctx);
+  //exit;
+
+  $json_data = [
+    'user' => $ctx['user']->getDataForJson(),
+    ];
+
+  if ($ctx['authorized']) {
+    // TODO
+  }
+
+  dieWithJson($json_data);
 });
 
 // Device API for setting the selected playlist for a user.

@@ -58,10 +58,23 @@ export class SoapyService {
    * Maps SoapyPlaylist object from an API response into a Playlist object.
    */
   private formatPlaylistFromAPI(data: API.SoapyPlaylist): Playlist {
-    return {
+    var playlist: Playlist = {
       id: '' + data.soapyPlaylistId,
       title: data.spotifyPlaylist.name,
+      tracks: data.spotifyPlaylist.tracks.total,
     };
+
+    if (data.spotifyPlaylist && data.spotifyPlaylist.images) {
+      var images = data.spotifyPlaylist.images;
+      if (images.length > 0) {
+        images.sort((a, b) => {
+          return a.width - b.width;
+        });
+        playlist.image = images[0].url;
+      }
+    }
+
+    return playlist;
   }
 }
 

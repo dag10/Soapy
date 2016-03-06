@@ -13,6 +13,8 @@ export interface Track extends SelectableOption {
 export interface Playlist extends SelectableOption {
   id: string;
   title: string;
-  tracks?: Track[];
+  tracklist?: Track[];
+  tracks?: number;
+  image?: string;
 }
 

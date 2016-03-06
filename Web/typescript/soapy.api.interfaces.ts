@@ -8,12 +8,24 @@ export interface SpotifyAccount {
   avatar?: string;
 }
 
+export interface SpotifyPlaylistImage {
+  height: number;
+  width: number;
+  url: string;
+}
+
+export interface SpotifyPlaylistTracks {
+  total: number;
+}
+
 export interface SpotifyPlaylist {
   id: string;
   href: string;
   uri: string;
   name: string;
   public: boolean;
+  tracks: SpotifyPlaylistTracks;
+  images?: SpotifyPlaylistImage[];
   // Note: incomplete...
 }
 

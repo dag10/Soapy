@@ -7,10 +7,10 @@ import * as util from './soapy.utils';
 
 @Component({
   providers: [SoapyService],
-  selector: 'playback-card',
-  templateUrl: '/app/playback.component.html',
+  selector: 'playlist-card',
+  templateUrl: '/app/playlist.card.html',
 })
-export class PlaybackComponent implements OnInit {
+export class PlaylistCardComponent implements OnInit {
   public playlists: Playlist[] = null;
   public selectedPlaylist: Playlist = null;
 

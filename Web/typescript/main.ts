@@ -2,7 +2,7 @@
 
 import {bootstrap} from 'angular2/platform/browser';
 import {HTTP_PROVIDERS} from 'angular2/http';
-import {PlaybackComponent} from './playback.component';
+import {PlaylistCardComponent} from './playlist.card';
 
-bootstrap(PlaybackComponent, [HTTP_PROVIDERS]);
+bootstrap(PlaylistCardComponent, [HTTP_PROVIDERS]);
 

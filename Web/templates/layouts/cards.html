@@ -1,0 +1,58 @@
+<!doctype html>
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <meta charset="utf-8"/>
+
+    <title>{% block title %}Soapy{% endblock %}</title>
+
+    <script src="{{ base_url }}/lib/angular2-polyfills.js"></script>
+    <script src="{{ base_url }}/lib/es6-shim.min.js"></script>
+    <script src="{{ base_url }}/lib/system-polyfills.js"></script>
+
+    <script src="{{ base_url }}/lib/system.src.js"></script>
+    <script src="{{ base_url }}/lib/Rx.js"></script>
+    <script src="{{ base_url }}/lib/angular2.dev.js"></script>
+    <script src="{{ base_url }}/lib/http.dev.js"></script>
+
+    <script src="{{ base_url }}/app/soapy.js"></script>
+
+    {% block additional_scripts %}
+    {% endblock %}
+
+    {% block init_script %}
+    <script>
+      System.import('{{ main_module }}')
+            .then(null, console.error.bind(console));
+    </script>
+    {% endblock %}
+
+  </head>
+  <body>
+    <navbar>
+      <div class="navbar navbar-fixed-top navbar-inverse" role="navigation">
+        <div class="container">
+          <div class="navbar-header">
+            <a class="navbar-brand" href="#"><img src="{{ base_url }}/images/csh_logo_white.svg" alt="CSH" class="logo"/> <span>Soapy</span></a>
+          </div>
+        </div>
+      </div>
+    </navbar>
+
+    <div class="container">
+      {% if flash.error %}
+        <div class="alert alert-daner">{{ flash.error }}</div>
+      {% endif %}
+      {% block content %}
+      {% endblock %}
+    </div>
+
+    {% block stylesheets %}
+      <link href="//fonts.googleapis.com/css?family=Open+Sans:400,300,600,700,800" rel="stylesheet" type="text/css">
+      <link href="{{ base_url }}/css/layout.css" rel="stylesheet">
+    {% endblock %}
+    {% block additional_stylesheets %}
+    {% endblock %}
+  </body>
+</html>
+

@@ -190,6 +190,15 @@ $app->get(
   $app->redirect($base_url);
 });
 
+$app->get(
+    '/v2/?', function() use ($app) {
+
+  $ctx = start_view_context($app);
+  $ctx['main_module'] = 'main';
+
+  $app->render('app.html', $ctx);
+});
+
 $app->post('/unpair/spotify/?', function() use ($app) {
   global $base_url;
 

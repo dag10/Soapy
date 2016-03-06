@@ -1,25 +1,10 @@
 {% extends "layouts/cards.html" %}
 
 {% block content %}
-  <soapy-cards>
-    <div class="card about-card">
-      <p>
-        Soapy lets you listen to your music in the dorm showers with a tap of
-        your rfid tag.
-      </p>
-      <a href="#">Learn more</a>
-    </div>
-    <div class="card account-paired-card">
-      <div class="card-content">
-        <div class="image" style="background-image: url('//scontent.xx.fbcdn.net/hprofile-xpf1/v/t1.0-1/p200x200/12507186_1270809279612293_7867193708218617160_n.jpg?oh=c3a4c3ad2d5956f0b2317e7801962092&oe=574E6EB4');">
-          <div class="image-slant"></div>
-        </div>
-        <h1>Your Spotify account is paired.</h1>
-        <span class="line-2">4 playlists found</span>
-      </div>
-      <a href="#">Unpair</a>
-    </div>
-    <playlist-card class="card"></playlist-card>
-  </soapy-cards>
+  <soapy-app>
+    <about-card>
+    {% include "app/about.card.html" %}
+    </about-card>
+  </soapy-app>
 {% endblock %}
 

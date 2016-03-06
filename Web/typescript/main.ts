@@ -2,7 +2,7 @@
 
 import {bootstrap} from 'angular2/platform/browser';
 import {HTTP_PROVIDERS} from 'angular2/http';
-import {PlaylistCardComponent} from './playlist.card';
+import {SoapyAppComponent} from './soapy.app';
 
-bootstrap(PlaylistCardComponent, [HTTP_PROVIDERS]);
+bootstrap(SoapyAppComponent, [HTTP_PROVIDERS]);
 

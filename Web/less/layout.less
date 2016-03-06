@@ -1,80 +1,15 @@
 @import '../node_modules/bootstrap/less/bootstrap.less';
 @import '../node_modules/bootstrap-csh/dev/members-flat.less';
 @import 'variables.less';
+@import 'nav.less';
+@import 'cards.less';
 
 body {
-  background-color: @body-bg-color;
-  font-family: 'Nunito';
-  padding-top: 140px;
+  font-family: @font-family-sans-serif;
+  padding-top: 50px;
 }
 
-.header {
-  background: linear-gradient(to bottom, @body-top-color 0%, @body-bg-color 100%);
-  margin-top: 0;
-  padding-top: 10px;
-  height: 330px;
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: 0;
-  z-index: -1;
-
-  h1 {
-    margin-top: 0;
-    font-size: 60pt;
-    text-align: center;
-    color: white;
-    font-weight: 100;
-    text-shadow: 0px 3px 17px rgba(0, 0, 0, 0.68);
-  }
-}
-
-.card {
-  display: block;
-  width: 560px;
-  margin: 0 auto 40px auto;
-  background-color: @card-bg-color;
-  border-radius: 3px;
-  padding: 20px;
-  box-shadow: 0px 2px 10px 0px rgba(0,0,0,0.75);
-
-  &.highlighted {
-    box-shadow: 0px 0px 23px 10px @card-highlight-shadow-color;
-  }
-
-  h1 {
-    margin: 30px auto 20px auto;
-    font-size: 19pt;
-    font-weight: 400;
-
-    &:first-child {
-      margin-top: 0;
-    }
-  }
-
-  p {
-    margin-right: 100px;
-    font-size: 12pt;
-    font-weight: 100;
-
-    &:last-child {
-      margin-bottom: 0px;
-    }
-  }
-}
-
-soapy-dropdown.playlist {
-  select {
-    width: 100%;
-    height: 80px;
-    appearance: menulist-button;
-    border: none;
-    border-radius: 0;
-    outline: none;
-    font-size: 30px;
-    box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.24);
-    font-family: 'nunito';
-    font-weight: 200;
-  }
+.container {
+  width: @site-width;
 }
 

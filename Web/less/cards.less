@@ -1,0 +1,53 @@
+@import '../node_modules/bootstrap/less/bootstrap.less';
+@import 'variables.less';
+
+.card {
+  @card-vertical-margin: 30px;
+
+  display: block;
+  margin: 0 auto @card-vertical-margin auto;
+  background-color: @card-bg-color;
+  box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.3);
+  border-radius: 3px;
+  padding: 20px;
+
+  &:first-child {
+    margin-top: @card-vertical-margin;
+  }
+
+  h1 {
+    margin: 30px auto 20px auto;
+    font-size: 19px;
+    font-weight: 400;
+
+    &:first-child {
+      margin-top: 0;
+    }
+
+    &.centered {
+      text-align: center;
+    }
+  }
+
+  p {
+    font-size: 15px;
+    font-weight: 100;
+  }
+}
+
+.button-card {
+  .make-row(0px);
+
+  & > p {
+    .make-sm-column(9);
+  }
+
+  & > a {
+    .make-sm-column(3);
+  }
+}
+
+.card.about-card {
+  .button-card;
+}
+

@@ -26,17 +26,26 @@
     <link href="/css/layout.css" rel="stylesheet">
   </head>
   <body>
-    <div class="header">
-      <h1>Soapy</h1>
-    </div>
-    <div class="card">
-      <p>
-        Soapy lets you listen to your music in the dorm showers with a tap of
-        your rfid tag.
-      </p>
-    </div>
-    <div class="card highlighted">
-      <playback-component></playback-component>
+    <navbar>
+      <div class="navbar navbar-fixed-top navbar-inverse" role="navigation">
+        <div class="container">
+          <div class="navbar-header">
+            <a class="navbar-brand" href="#"><img src="/images/csh_logo_white.svg" alt="CSH" class="logo"/> <span>Soapy</span></a>
+          </div>
+        </div>
+      </div>
+    </navbar>
+    <div class="container">
+      <div class="card about-card">
+        <p>
+          Soapy lets you listen to your music in the dorm showers with a tap of
+          your rfid tag.
+        </p>
+        <a href="#">Learn more</a>
+      </div>
+      <div class="card">
+        <playback-component></playback-component>
+      </div>
     </div>
   </body>
 </html>

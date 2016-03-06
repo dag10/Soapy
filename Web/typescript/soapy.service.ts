@@ -7,38 +7,61 @@ import {Playlist} from './soapy.interfaces';
 import * as API from './soapy.api.interfaces';
 
 
-export interface ServicePlaylistData {
+export interface ServiceAppData {
   playlists?: Playlist[];
   selectedPlaylist?: string;
 }
 
 @Injectable()
 export class SoapyService {
-  constructor(private http: Http) {}
+  private playlistResponseObservable: Rx.Observable<ServiceAppData> = null;
 
-  public getPlaylists(): Rx.Observable<ServicePlaylistData> {
-    return this.http.get('/api/me/playlists')
+  constructor(private http: Http) {
+    this.playlistResponseObservable = this.http.get('/api/me/playlists')
       .map(res => res.json())
-      .map(this.formatPlaylistsData.bind(this));
+      .map(this.formatAppData.bind(this));
   }
 
-  private formatPlaylistFromAPI(data: API.SoapyPlaylist): Playlist {
-    return {
-      id: '' + data.soapyPlaylistId,
-      title: data.spotifyPlaylist.name,
-    };
+  /**
+   * Gets the playlists from the server, or fails with an error.
+   */
+  public getPlaylists(): Rx.Observable<ServiceAppData> {
+    return this.playlistResponseObservable;
   }
 
-  private formatPlaylistsData(data: API.Response): ServicePlaylistData {
-    var ret: ServicePlaylistData = {
-      playlists: data.user.playlists.map(this.formatPlaylistFromAPI),
-    };
+  /**
+   * Maps API response to a ServiceAppData.
+   *
+   * Throws an error if the response is an error message.
+   */
+  private formatAppData(data: API.Response): ServiceAppData {
+    if (data.error) {
+      throw new Error('API Error: ' + data.error);
+    } else if (!data.user) {
+      throw new Error('No User object in API response.');
+    }
+
+    var ret: ServiceAppData = {};
+
+    if (data.user.playlists) {
+      ret.playlists = data.user.playlists.map(this.formatPlaylistFromAPI);
+    }
 
     if (data.user.selectedPlaylist) {
       ret.selectedPlaylist = '' + data.user.selectedPlaylist.soapyPlaylistId;
     }
 
     return ret;
+  }
+
+  /**
+   * Maps SoapyPlaylist object from an API response into a Playlist object.
+   */
+  private formatPlaylistFromAPI(data: API.SoapyPlaylist): Playlist {
+    return {
+      id: '' + data.soapyPlaylistId,
+      title: data.spotifyPlaylist.name,
+    };
   }
 }
 

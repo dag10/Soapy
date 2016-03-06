@@ -1,6 +1,11 @@
 @import '../node_modules/bootstrap/less/bootstrap.less';
 @import 'variables.less';
 
+.card-copy {
+  font-size: 15px;
+  font-weight: 300;
+}
+
 .card {
   @card-vertical-margin: 30px;
 
@@ -30,8 +35,7 @@
   }
 
   p {
-    font-size: 15px;
-    font-weight: 100;
+    .card-copy;
   }
 }
 
@@ -93,12 +97,15 @@
     }
 
     .line-2 {
+      .card-copy;
+
       display: block;
       position: relative;
       left: 6px;
     }
 
     .image {
+      background-color: darken(@card-bg-color, 5%);
       width: @image-bottom-width;
       height: @image-height;
       border-top-left-radius: @card-border-radius;

@@ -172,5 +172,7 @@ gulp.task('build', [
     'copy:fonts',
   ]);
 
+gulp.task('css', ['less', 'copy:css', 'copy:css:bootstrap']);
+
 gulp.task('default', ['build']);
 

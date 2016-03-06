@@ -9,11 +9,12 @@ import * as API from './soapy.api.interfaces';
 
 export interface ServiceAppData {
   playlists?: Playlist[];
-  selectedPlaylist?: string;
+  selectedPlaylist?: Playlist;
 }
 
 @Injectable()
 export class SoapyService {
+  private playlists: { [id: string] : Playlist; } = {};
   private playlistResponseObservable: Rx.Observable<ServiceAppData> = null;
 
   constructor(private http: Http) {
@@ -27,6 +28,17 @@ export class SoapyService {
    */
   public getPlaylists(): Rx.Observable<ServiceAppData> {
     return this.playlistResponseObservable;
+  }
+
+  /**
+   * Gets the playlist for a given id, or null if playlist isn't loaded.
+   */
+  public getPlaylist(id: string): Playlist {
+    if (this.playlists[id]) {
+      return this.playlists[id];
+    }
+
+    return null;
   }
 
   /**
@@ -44,11 +56,20 @@ export class SoapyService {
     var ret: ServiceAppData = {};
 
     if (data.user.playlists) {
-      ret.playlists = data.user.playlists.map(this.formatPlaylistFromAPI);
+      data.user.playlists.forEach(this.cachePlaylist.bind(this));
+      ret.playlists = data.user.playlists.map((apiPlaylist) => {
+        return this.getPlaylist('' + apiPlaylist.soapyPlaylistId);
+      });
     }
 
     if (data.user.selectedPlaylist) {
-      ret.selectedPlaylist = '' + data.user.selectedPlaylist.soapyPlaylistId;
+      var playlist = data.user.selectedPlaylist;
+
+      if (!this.getPlaylist('' + playlist.soapyPlaylistId)) {
+        this.cachePlaylist(playlist);
+      }
+
+      ret.selectedPlaylist = this.getPlaylist('' + playlist.soapyPlaylistId);
     }
 
     return ret;
@@ -75,6 +96,14 @@ export class SoapyService {
     }
 
     return playlist;
+  }
+
+  /**
+   * Adds the playlist to the playlist dictionary.
+   */
+  private cachePlaylist(playlist: API.SoapyPlaylist) {
+    this.playlists['' + playlist.soapyPlaylistId] =
+        this.formatPlaylistFromAPI(playlist);
   }
 }
 

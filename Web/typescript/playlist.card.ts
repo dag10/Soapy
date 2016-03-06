@@ -2,7 +2,6 @@ import {Component, OnInit, ChangeDetectorRef} from 'angular2/core';
 
 import {Playlist} from './soapy.interfaces';
 import {SoapyService, ServiceAppData} from './soapy.service';
-import * as util from './soapy.utils';
 
 
 @Component({
@@ -21,11 +20,7 @@ export class PlaylistCardComponent implements OnInit {
     this._soapyService.getPlaylists()
     .subscribe((data: ServiceAppData) => {
       this.playlists = data.playlists;
-
-      if (this.playlists) {
-        this.selectedPlaylist = util.findByProperty(
-            this.playlists, 'id', data.selectedPlaylist);
-      }
+      this.selectedPlaylist = data.selectedPlaylist;
 
       // Manually detect and propagate changes because:
       // http://stackoverflow.com/a/35106069/3333841

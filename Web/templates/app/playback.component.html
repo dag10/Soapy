@@ -1,10 +1,11 @@
 <h1 class="centered">Choose a playlist for your next shower</h1>
 
-<soapy-dropdown
-  class="playlist"
-  [items]="playlists"
-  [selectedItem]="selectedPlaylist"
-  (selectedItemChange)="selectedPlaylist = $event"
-  >
-</soapy-dropdown>
+<ul>
+  <li
+    *ngFor="#playlist of playlists"
+    [style.color]='playlist == selectedPlaylist ? "#B0197E" : "black"'
+    >
+    {{ playlist.title }}
+  </li>
+</ul>
 

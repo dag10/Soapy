@@ -36,10 +36,12 @@
 }
 
 /* Standard card template intended to be subclassed by specific cards. */
-.button-card() {
+.button-card(@card-height) {
   .make-row(0px);
 
   padding: 0;
+  height: @card-height;
+  position: relative;
 
   .left-side {
     .make-sm-column(9);
@@ -51,14 +53,20 @@
     .make-sm-column(3);
 
     padding: @card-padding;
+    text-align: right;
+    position: absolute;
+    right: 0;
+    top: @card-height - 70px;
   }
 }
 
 .card.about-card {
-  .button-card;
+  .button-card(75px);
 
   & > p {
     .left-side;
+
+    padding: 15px 22px;
   }
 }
 
@@ -68,7 +76,7 @@
   @image-height: 75px;
   @slant-angle: atan((@image-bottom-width - @image-top-width) / @image-height);
 
-  .button-card;
+  .button-card(75px);
 
   & > div.card-content {
     .left-side;

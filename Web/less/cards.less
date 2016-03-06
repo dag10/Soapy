@@ -8,8 +8,8 @@
   margin: 0 auto @card-vertical-margin auto;
   background-color: @card-bg-color;
   box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.3);
-  border-radius: 3px;
-  padding: 20px;
+  border-radius: @card-border-radius;
+  padding: @card-padding;
 
   &:first-child {
     margin-top: @card-vertical-margin;
@@ -35,19 +35,84 @@
   }
 }
 
-.button-card {
+/* Standard card template intended to be subclassed by specific cards. */
+.button-card() {
   .make-row(0px);
 
-  & > p {
+  padding: 0;
+
+  .left-side {
     .make-sm-column(9);
+
+    padding: @card-padding;
   }
 
   & > a {
     .make-sm-column(3);
+
+    padding: @card-padding;
   }
 }
 
 .card.about-card {
   .button-card;
+
+  & > p {
+    .left-side;
+  }
+}
+
+.card.account-paired-card {
+  @image-top-width: 65px;
+  @image-bottom-width: 115px;
+  @image-height: 75px;
+  @slant-angle: atan((@image-bottom-width - @image-top-width) / @image-height);
+
+  .button-card;
+
+  & > div.card-content {
+    .left-side;
+
+    padding: 0;
+    overflow: hidden;
+    position: relative;
+    height: @image-height;
+
+    h1 {
+      margin: 13px auto 7px 0;
+      position: relative;
+      left: -13px;
+    }
+
+    .line-2 {
+      display: block;
+      position: relative;
+      left: 6px;
+    }
+
+    .image {
+      width: @image-bottom-width;
+      height: @image-height;
+      border-top-left-radius: @card-border-radius;
+      border-bottom-left-radius: @card-border-radius;
+      float: left;
+      position: relative;
+      overflow: hidden;
+
+      /* TODO: Smart positioning */
+      background-size: 120%;
+      background-position: 62% 63%;
+
+      .image-slant {
+        background-color: @card-bg-color;
+        transform: skewX(@slant-angle);
+        width: cos(@slant-angle) * @image-height;
+        height: @image-height;
+        position: absolute;
+        top: 0;
+        left: @image-top-width + (sin(@slant-angle) * @image-height / 2) + 3px;
+      }
+    }
+  }
 }
 

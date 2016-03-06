@@ -14,20 +14,14 @@ export interface ServiceAppData {
 
 @Injectable()
 export class SoapyService {
+  public playlistsObservable: Rx.Observable<ServiceAppData> = null;
+
   private playlists: { [id: string] : Playlist; } = {};
-  private playlistResponseObservable: Rx.Observable<ServiceAppData> = null;
 
   constructor(private http: Http) {
-    this.playlistResponseObservable = this.http.get('/api/me/playlists')
+    this.playlistsObservable = this.http.get('/api/me/playlists')
       .map(res => res.json())
       .map(this.formatAppData.bind(this));
-  }
-
-  /**
-   * Gets the playlists from the server, or fails with an error.
-   */
-  public getPlaylists(): Rx.Observable<ServiceAppData> {
-    return this.playlistResponseObservable;
   }
 
   /**

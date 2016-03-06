@@ -9,7 +9,8 @@ import * as util from './soapy.utils';
 @Component({
   providers: [SoapyService],
   directives: [DropdownComponent],
-  selector: 'playback-component',
+  selector: 'playback-card',
+  styles: ['.card'],
   templateUrl: '/app/playback.component.html',
 })
 export class PlaybackComponent implements OnInit {

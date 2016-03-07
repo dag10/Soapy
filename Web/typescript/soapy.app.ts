@@ -25,7 +25,7 @@ export class SoapyAppComponent implements OnInit {
 
   public ngOnInit() {
     this._soapyService
-    .playlistsObservable
+    .playlistsData
     .subscribe((data: ServiceAppData) => {
       this.playlists = data.playlists;
       this.selectedPlaylist = data.selectedPlaylist;
@@ -34,8 +34,6 @@ export class SoapyAppComponent implements OnInit {
       // http://stackoverflow.com/a/35106069/3333841
       this._changeDetector.detectChanges();
 
-    }, (error) => {
-      console.error("Failed to get playlists:", error);
     });
   }
 }

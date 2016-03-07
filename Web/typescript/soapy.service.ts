@@ -1,8 +1,8 @@
 import {Injectable} from 'angular2/core';
-import {Http} from 'angular2/http';
-import 'rxjs/add/operator/map';
-import * as Rx from 'rxjs';
+import {Http, Response} from 'angular2/http';
+import * as Rx from 'rxjs/Rx';
 
+import {BaseError} from './error';
 import {Playlist} from './soapy.interfaces';
 import * as API from './soapy.api.interfaces';
 
@@ -12,16 +12,41 @@ export interface ServiceAppData {
   selectedPlaylist?: Playlist;
 }
 
+export class APIError extends BaseError {
+  constructor(message: string) {
+    super(message);
+  };
+}
+
 @Injectable()
 export class SoapyService {
-  public playlistsObservable: Rx.Observable<ServiceAppData> = null;
+  public playlistsData: Rx.ConnectableObservable<ServiceAppData> = null;
 
   private playlists: { [id: string] : Playlist; } = {};
 
   constructor(private http: Http) {
-    this.playlistsObservable = this.http.get('/api/me/playlists')
+    this.playlistsData = this.http.get('/api/me/playlists')
+      .catch((err) => {
+        var ret = err;
+
+        if (err instanceof Response) {
+          var res: Response = err;
+          var json = res.json();
+          if (json.hasOwnProperty('error')) {
+            ret = new APIError(json.error);
+          }
+        }
+
+        return Rx.Observable.throw(ret);
+      })
       .map(res => res.json())
-      .map(this.formatAppData.bind(this));
+      .map(this.processAppData.bind(this))
+      .do(null, (error) => {
+        console.info('Error fetching playlist data:', error);
+      })
+      .publish();
+
+    this.playlistsData.connect();
   }
 
   /**
@@ -36,11 +61,11 @@ export class SoapyService {
   }
 
   /**
-   * Maps API response to a ServiceAppData.
+   * Formats API response to a ServiceAppData and caches data.
    *
    * Throws an error if the response is an error message.
    */
-  private formatAppData(data: API.Response): ServiceAppData {
+  private processAppData(data: API.Response): ServiceAppData {
     if (data.error) {
       throw new Error('API Error: ' + data.error);
     } else if (!data.user) {

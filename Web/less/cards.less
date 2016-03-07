@@ -255,6 +255,13 @@ playlist-card {
         .title {
           .make-sm-column(9);
 
+          padding-left: (2 * @playlist-image-margin) + @playlist-image-size;
+          font-size: 20px;
+          font-weight: 100;
+          line-height: @playlist-li-height;
+          white-space: nowrap;
+          overflow: hidden;
+
           .image-container {
             position: absolute;
             top: 0;
@@ -281,11 +288,6 @@ playlist-card {
               bottom: 1px;
             }
           }
-
-          padding-left: (2 * @playlist-image-margin) + @playlist-image-size;
-          font-size: 20px;
-          font-weight: 100;
-          line-height: @playlist-li-height;
         }
 
         .tracks {

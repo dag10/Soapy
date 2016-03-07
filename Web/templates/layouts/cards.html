@@ -20,13 +20,6 @@
     {% block additional_scripts %}
     {% endblock %}
 
-    {% block init_script %}
-    <script>
-      System.import('{{ main_module }}')
-            .then(null, console.error.bind(console));
-    </script>
-    {% endblock %}
-
   </head>
   <body>
     <navbar>
@@ -52,6 +45,14 @@
       <link href="{{ base_url }}/css/layout.css" rel="stylesheet">
     {% endblock %}
     {% block additional_stylesheets %}
+    {% endblock %}
+    {% block data_bootstrap %}
+    {% endblock %}
+    {% block init_script %}
+    <script>
+      System.import('{{ main_module }}')
+            .then(null, console.error.bind(console));
+    </script>
     {% endblock %}
   </body>
 </html>

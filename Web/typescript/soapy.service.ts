@@ -20,7 +20,7 @@ export class APIError extends BaseError {
 
 @Injectable()
 export class SoapyService {
-  public playlistsData: Rx.ConnectableObservable<ServiceAppData> = null;
+  public playlistsData: Rx.Observable<ServiceAppData> = null;
   public errors: EventEmitter<any> = new EventEmitter();
 
   private playlists: { [id: string] : Playlist; } = {};
@@ -32,6 +32,7 @@ export class SoapyService {
 
     this.playlistsData = this.http.get('/api/me/playlists')
       .map(res => res.json())
+      .startWith((<any>window).userData)
       .map(this.processAppData.bind(this))
       .catch((err) => {
         var ret = err;
@@ -47,9 +48,7 @@ export class SoapyService {
         this.errors.emit(ret);
         return Rx.Observable.throw(ret);
       })
-      .publish();
-
-    this.playlistsData.connect();
+      .share();
   }
 
   /**

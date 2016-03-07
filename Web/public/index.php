@@ -195,6 +195,7 @@ $app->get(
 
   $ctx = start_view_context($app);
   $ctx['main_module'] = 'main';
+  $ctx['playlist_api_data'] = apiRawUserData($ctx);
 
   $app->render('app.html', $ctx);
 });
@@ -248,8 +249,17 @@ $app->post('/me/playback', function() use ($app) {
   dieWithJsonSuccess();
 });
 
-// Dual API for fetching playlists for a user.
-function apiHandlerGetPlaylists($ctx) {
+// Raw API for fetching basic user data. Doesn't call any Spotify APIs.
+function apiRawUserData($ctx) {
+  $json_data = [
+    'user' => $ctx['user']->getDataForJson(),
+    ];
+
+  return $json_data;
+}
+
+// Raw API for fetching playlists for a user.
+function apiRawGetPlaylists($ctx) {
   $json_data = [
     'user' => $ctx['user']->getDataForJson(),
     ];
@@ -271,7 +281,12 @@ function apiHandlerGetPlaylists($ctx) {
     }
   }
 
-  dieWithJson($json_data);
+  return $json_data;
+}
+
+// Dual API for fetching playlists for a user.
+function apiHandlerGetPlaylists($ctx) {
+  dieWithJson(apiRawGetPlaylists($ctx));
 }
 
 // Web API for fetching playlists for a user.

@@ -30,8 +30,9 @@ export class SoapyService {
       console.error('An error occurred in SoapyService:', error);
     });
 
-    var rawPlaylistsData: API.Response = (<any>window).bootstrap_data.playlists;
-    this.playlistsData = Rx.Observable.of(rawPlaylistsData)
+    this.playlistsData = this.http.get('/api/me/playlists')
+      .map(res => res.json())
+      .startWith((<any>window).userData)
       .map(this.processAppData.bind(this))
       .catch((err) => {
         var ret = err;
@@ -46,7 +47,8 @@ export class SoapyService {
 
         this.errors.emit(ret);
         return Rx.Observable.throw(ret);
-      });
+      })
+      .share();
   }
 
   /**

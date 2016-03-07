@@ -16,8 +16,7 @@
 {% block data_bootstrap %}
   {% if playlist_api_data %}
     <script>
-      window.bootstrap_data = window.bootstrap_data || {};
-      window.bootstrap_data.playlists = {{ playlist_api_data | json_encode() | raw }};
+      window.userData = window.userData || {{ playlist_api_data | json_encode() | raw }};
     </script>
   {% endif %}
 {% endblock %}

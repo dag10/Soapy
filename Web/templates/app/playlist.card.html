@@ -10,7 +10,7 @@
         <div class="image-container">
           <div
             class="image"
-            style="background-image: url('{{ playlist.image }}');"></div>
+            [ngStyle]="{'background-image': 'url(' + playlist.image + ')'}"></div>
         </div>
         {{ playlist.title }}
       </div>

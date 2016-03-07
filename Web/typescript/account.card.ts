@@ -5,7 +5,7 @@ import {User, Playlist} from './soapy.interfaces';
 
 @Component({
   selector: 'account-card',
-  templateUrl: '/app/account.card.html',
+  template: (<any>window).templates.account_card,
   host: {
     '[class.hidden]': '!user',
     '[class.paired]': 'user && user.paired',

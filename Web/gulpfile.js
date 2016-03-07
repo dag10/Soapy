@@ -6,10 +6,12 @@ var tslint = require('gulp-tslint');
 var less = require('gulp-less');
 var minifyCss = require('gulp-minify-css');
 var uglify = require('gulp-uglify');
+var html2json = require('gulp-html-to-json');
 
 // Directories
 
-var templateSource = 'templates/app/**/';
+var templateSource = 'templates/app/templates.tpl';
+var templateOut = 'templates/app/compiled/';
 var tsSource = 'typescript/**/';
 var lessSource = 'less/**/';
 
@@ -94,9 +96,9 @@ gulp.task('compile', ['clean:app'], function() {
 // Copy app templates
 gulp.task('copy:templates', ['clean:app'], function() {
   return gulp
-    .src([templateSource + '*.html'],
-         { base : './templates/app' })
-    .pipe(gulp.dest(tsOut));
+    .src(templateSource)
+    .pipe(html2json())
+    .pipe(gulp.dest(templateOut));
 });
 
 // Copy bootstrap css

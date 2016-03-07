@@ -50,6 +50,7 @@
     {% endblock %}
     {% block init_script %}
     <script>
+      window.templates = window.templates || {{ source('/app/compiled/templates.json') }};
       System.import('{{ main_module }}')
             .then(null, console.error.bind(console));
     </script>

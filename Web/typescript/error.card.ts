@@ -3,7 +3,7 @@ import {Component, Input} from 'angular2/core';
 
 @Component({
   selector: 'error-card',
-  templateUrl: '/app/error.card.html',
+  template: (<any>window).templates.error_card,
   host: {
     '[class.hidden]': 'errors.length == 0',
     '[class.single-error]': 'errors.length == 1',

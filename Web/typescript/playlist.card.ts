@@ -5,7 +5,7 @@ import {Playlist} from './soapy.interfaces';
 
 @Component({
   selector: 'playlist-card',
-  templateUrl: '/app/playlist.card.html',
+  template: (<any>window).templates.playlist_card,
   host: {
     '[class.hidden]': '!playlists',
   },

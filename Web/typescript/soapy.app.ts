@@ -12,7 +12,7 @@ import {SoapyService, ServiceAppData} from './soapy.service';
 @Component({
   providers: [SoapyService],
   selector: 'soapy-app',
-  templateUrl: '/app/soapy.app.html',
+  template: (<any>window).templates.soapy_app,
   directives: [
     ErrorCardComponent,
     AboutCardComponent,

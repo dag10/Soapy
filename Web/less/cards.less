@@ -102,13 +102,14 @@ about-card {
   }
 }
 
-.card.account-paired-card {
+account-card {
+  .card();
+  .button-card(@image-height);
+
   @image-top-width: 65px;
   @image-bottom-width: 115px;
   @image-height: 75px;
   @slant-angle: atan((@image-bottom-width - @image-top-width) / @image-height);
-
-  .button-card(@image-height);
 
   & > div.card-content {
     .left-side;

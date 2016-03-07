@@ -1,6 +1,6 @@
 import {Component, Input} from 'angular2/core';
 
-import {User} from './soapy.interfaces';
+import {User, Playlist} from './soapy.interfaces';
 
 
 @Component({
@@ -13,10 +13,19 @@ import {User} from './soapy.interfaces';
 })
 export class AccountCardComponent {
   @Input() user: User;
+  @Input() playlists: Playlist[];
 
   public get image(): string {
     if (this.user && this.user.image) {
       return this.user.image;
+    }
+
+    return null;
+  }
+
+  public get numPlaylists(): number {
+    if (this.playlists) {
+      return this.playlists.length;
     }
 
     return null;

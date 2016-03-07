@@ -3,7 +3,7 @@
     <div class="image-slant"></div>
   </div>
   <h1>Your Spotify account is paired.</h1>
-  <span class="line-2">4 playlists found</span>
+  <span *ngIf="numPlaylists !== null" class="line-2">{{ numPlaylists }} playlist<span *ngIf="numPlaylists != 1">s</span></span>
 </div>
 
 <a class="paired" href="#">Unpair</a>

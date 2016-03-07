@@ -3,13 +3,14 @@ import {Http, Response} from 'angular2/http';
 import * as Rx from 'rxjs/Rx';
 
 import {BaseError} from './error';
-import {Playlist} from './soapy.interfaces';
+import {User, Playlist} from './soapy.interfaces';
 import * as API from './soapy.api.interfaces';
 
 
 export interface ServiceAppData {
   playlists?: Playlist[];
   selectedPlaylist?: Playlist;
+  user?: User;
 }
 
 export class APIError extends BaseError {
@@ -21,6 +22,7 @@ export class APIError extends BaseError {
 @Injectable()
 export class SoapyService {
   public playlistsData: Rx.Observable<ServiceAppData> = null;
+  public userData: Rx.Observable<User> = null;
   public errors: EventEmitter<any> = new EventEmitter();
 
   private playlists: { [id: string] : Playlist; } = {};
@@ -30,9 +32,15 @@ export class SoapyService {
       console.error('An error occurred in SoapyService:', error);
     });
 
-    this.playlistsData = this.http.get('/api/me/playlists')
-      .map(res => res.json())
-      .startWith((<any>window).userData)
+    // API-formatted data embedded in the page.
+    var rawUserData = Rx.Observable.of((<any>window).userData);
+
+    // API-formatted data with a playlist list fetched with AJAX.
+    var rawPlaylistsData = this.http.get('/api/me/playlists')
+      .map(res => res.json());
+
+    // Consolidated stream of all data sources, formatted as ServiceAppData.
+    var appData = Rx.Observable.merge(rawPlaylistsData, rawUserData)
       .map(this.processAppData.bind(this))
       .catch((err) => {
         var ret = err;
@@ -45,10 +53,27 @@ export class SoapyService {
           }
         }
 
-        this.errors.emit(ret);
         return Rx.Observable.throw(ret);
       })
+      .do(null, (error) => {
+        this.errors.emit(error);
+      })
+      .publishReplay(1);
+
+    // Stream of AppData for external consumers.
+    this.playlistsData = appData.share();
+
+    // Stream of User data for external consumers.
+    this.userData = appData
+      .filter((data: ServiceAppData) => {
+        return data.user !== undefined;
+      })
+      .map((data: ServiceAppData) => {
+        return data.user;
+      })
       .share();
+
+    appData.connect();
   }
 
   /**
@@ -75,6 +100,16 @@ export class SoapyService {
     }
 
     var ret: ServiceAppData = {};
+
+    ret.user = {
+      ldap: data.user.ldap,
+      firstName: data.user.firstName,
+      lastName: data.user.lastName,
+    };
+
+    if (data.user.spotifyAccount) {
+      ret.user.image = data.user.spotifyAccount.avatar;
+    }
 
     if (data.user.playlists) {
       data.user.playlists.forEach(this.cachePlaylist.bind(this));

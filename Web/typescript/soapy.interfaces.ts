@@ -18,3 +18,10 @@ export interface Playlist extends SelectableOption {
   image?: string;
 }
 
+export interface User {
+  ldap: string;
+  firstName: string;
+  lastName: string;
+  image?: string;
+}
+

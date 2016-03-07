@@ -4,7 +4,7 @@ import {ErrorCardComponent} from './error.card';
 import {AboutCardComponent} from './about.card';
 import {PlaylistCardComponent} from './playlist.card';
 
-import {Playlist} from './soapy.interfaces';
+import {User, Playlist} from './soapy.interfaces';
 import {SoapyService, ServiceAppData} from './soapy.service';
 
 
@@ -33,14 +33,15 @@ export class SoapyAppComponent implements OnInit {
       this._changeDetector.detectChanges();
     });
 
+    this._soapyService.userData.subscribe((user: User) => {
+      console.info('User data:', user);
+    });
+
     this._soapyService.playlistsData.subscribe((data: ServiceAppData) => {
+      console.info('Playlist data:', data); // TODO TMP
       this.playlists = data.playlists;
       this.selectedPlaylist = data.selectedPlaylist;
-
-      // Manually detect and propagate changes because:
-      // http://stackoverflow.com/a/35106069/3333841
       this._changeDetector.detectChanges();
-
     });
   }
 }

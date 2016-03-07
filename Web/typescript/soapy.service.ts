@@ -105,10 +105,12 @@ export class SoapyService {
       ldap: data.user.ldap,
       firstName: data.user.firstName,
       lastName: data.user.lastName,
+      paired: false,
     };
 
     if (data.user.spotifyAccount) {
       ret.user.image = data.user.spotifyAccount.avatar;
+      ret.user.paired = true;
     }
 
     if (data.user.playlists) {

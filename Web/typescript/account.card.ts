@@ -6,6 +6,10 @@ import {User} from './soapy.interfaces';
 @Component({
   selector: 'account-card',
   templateUrl: '/app/account.card.html',
+  host: {
+    '[class.hidden]': '!user',
+    '[class.paired]': 'user && user.paired',
+  },
 })
 export class AccountCardComponent {
   @Input() user: User;

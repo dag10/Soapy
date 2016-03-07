@@ -1,5 +1,6 @@
 @import '../node_modules/bootstrap/less/bootstrap.less';
 @import 'variables.less';
+@import 'ui-elements.less';
 
 .card-copy() {
   font-size: 15px;
@@ -104,58 +105,95 @@ about-card {
 
 account-card {
   .card();
-  .button-card(@image-height);
 
-  @image-top-width: 65px;
-  @image-bottom-width: 115px;
-  @image-height: 75px;
-  @slant-angle: atan((@image-bottom-width - @image-top-width) / @image-height);
+  &.paired {
+    .button-card(@image-height);
 
-  & > div.card-content {
-    .left-side;
+    & > :not(.paired) {
+      display: none;
+    }
 
-    padding: 0;
-    overflow: hidden;
-    position: relative;
-    height: @image-height;
+    @image-top-width: 65px;
+    @image-bottom-width: 115px;
+    @image-height: 75px;
+    @slant-angle: atan((@image-bottom-width - @image-top-width) / @image-height);
+
+    & > div.card-content {
+      .left-side;
+
+      padding: 0;
+      overflow: hidden;
+      position: relative;
+      height: @image-height;
+
+      h1 {
+        margin: 13px auto 7px 0;
+        position: relative;
+        left: -13px;
+      }
+
+      .line-2 {
+        .card-copy;
+
+        display: block;
+        position: relative;
+        left: 6px;
+      }
+
+      .image {
+        background-color: darken(@card-bg-color, 5%);
+        width: @image-bottom-width;
+        height: @image-height;
+        border-top-left-radius: @card-border-radius;
+        border-bottom-left-radius: @card-border-radius;
+        float: left;
+        position: relative;
+        overflow: hidden;
+
+        /* TODO: Smart positioning */
+        background-size: 120%;
+        background-position: 62% 63%;
+
+        .image-slant {
+          background-color: @card-bg-color;
+          transform: skewX(@slant-angle);
+          width: cos(@slant-angle) * @image-height;
+          height: @image-height;
+          position: absolute;
+          top: 0;
+          left: @image-top-width + (sin(@slant-angle) * @image-height / 2) + 3px;
+        }
+      }
+    }
+  }
+
+  &:not(.paired) {
+    & > .paired {
+      display: none;
+    }
 
     h1 {
-      margin: 13px auto 7px 0;
-      position: relative;
-      left: -13px;
+      text-align: center;
+      margin-top: 0;
     }
 
-    .line-2 {
-      .card-copy;
+    a.spotify-login {
+      .spotify-button();
 
-      display: block;
-      position: relative;
-      left: 6px;
-    }
-
-    .image {
-      background-color: darken(@card-bg-color, 5%);
-      width: @image-bottom-width;
-      height: @image-height;
-      border-top-left-radius: @card-border-radius;
-      border-bottom-left-radius: @card-border-radius;
-      float: left;
-      position: relative;
-      overflow: hidden;
-
-      /* TODO: Smart positioning */
-      background-size: 120%;
-      background-position: 62% 63%;
-
-      .image-slant {
-        background-color: @card-bg-color;
-        transform: skewX(@slant-angle);
-        width: cos(@slant-angle) * @image-height;
-        height: @image-height;
-        position: absolute;
-        top: 0;
-        left: @image-top-width + (sin(@slant-angle) * @image-height / 2) + 3px;
+      .spotify-logo {
+        margin-left: -10px;
+        margin-right: 5px;
+        position: relative;
+        bottom: 1px;
       }
+
+      margin: 17px auto;
+      padding-top: 6px;
+      position: relative;
+      left: 50%;
+      transform: translateX(-50%);
+      display: inline-block;
+      font-size: 18px;
     }
   }
 }

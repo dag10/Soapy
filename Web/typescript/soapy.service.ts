@@ -1,4 +1,4 @@
-import {Injectable} from 'angular2/core';
+import {EventEmitter, Injectable} from 'angular2/core';
 import {Http, Response} from 'angular2/http';
 import * as Rx from 'rxjs/Rx';
 
@@ -21,11 +21,18 @@ export class APIError extends BaseError {
 @Injectable()
 export class SoapyService {
   public playlistsData: Rx.ConnectableObservable<ServiceAppData> = null;
+  public errors: EventEmitter<any> = new EventEmitter();
 
   private playlists: { [id: string] : Playlist; } = {};
 
   constructor(private http: Http) {
+    this.errors.subscribe((error) => {
+      console.error('An error occurred in SoapyService:', error);
+    });
+
     this.playlistsData = this.http.get('/api/me/playlists')
+      .map(res => res.json())
+      .map(this.processAppData.bind(this))
       .catch((err) => {
         var ret = err;
 
@@ -37,12 +44,8 @@ export class SoapyService {
           }
         }
 
+        this.errors.emit(ret);
         return Rx.Observable.throw(ret);
-      })
-      .map(res => res.json())
-      .map(this.processAppData.bind(this))
-      .do(null, (error) => {
-        console.info('Error fetching playlist data:', error);
       })
       .publish();
 

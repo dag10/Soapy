@@ -34,6 +34,7 @@ export class SoapyAppComponent implements OnInit {
       var message = err.hasOwnProperty('message') ? err.message : '' + err;
       this.errors.push(message);
       this._changeDetector.detectChanges();
+      window.scrollTo(0, 0);
     });
 
     this._soapyService.userData.subscribe((user: User) => {

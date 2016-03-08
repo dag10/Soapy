@@ -229,7 +229,32 @@ $app->get('/me/playlists/?', function() use ($app) {
   $app->render('data_playlists.html', $ctx);
 });
 
+// API endpoint for setting the playback settings for a user.
+$app->post('/api/me/playback', function() use ($app) {
+  $ctx = start_view_context($app, ['require_spotify' => true]);
+
+  $new_playlist = $app->request->post('selectedPlaylistId');
+  if ($new_playlist !== null) {
+    try {
+      $ctx['user']->setSelectedPlaylistById($new_playlist);
+    } catch (\Exception $e) {
+      dieWithJsonError($e->getMessage());
+    }
+  }
+
+  $shuffle = $app->request->post('shuffle');
+  if ($shuffle !== null) {
+    $shuffle = ($shuffle == 'true');
+    $mode = $shuffle ? 'SHUFFLE' : 'LINEAR';
+    $ctx['user']->setPlaybackMode($mode);
+    $ctx['user']->save();
+  }
+
+  dieWithJsonSuccess();
+});
+
 // AJAX endpoint for setting the playback settings for a user.
+// TODO: Remove this when I switch to the v2 frontend.
 $app->post('/me/playback', function() use ($app) {
   $ctx = start_view_context($app, ['require_spotify' => true]);
 

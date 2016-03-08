@@ -20,57 +20,25 @@ var libOut = 'public/lib/';
 var cssOut = 'public/css/';
 var fontsOut = 'public/fonts/';
 
+/* ***************
+   Typescript Generation
+   *************** */
+
 // Clean the compiled typescript and templates
 gulp.task('clean:app', function () {
   return del([tsOut + '**/*']);
 });
 
-// Clean the copied javascript libraries
-gulp.task('clean:lib', function () {
-  return del([libOut + '**/*']);
-});
-
-// Clean the compiled and copied stylesheets
-gulp.task('clean:css', function () {
-  return del([cssOut + '**/*']);
-});
-
-// Clean the fonts directory
-gulp.task('clean:fonts', function () {
-  return del([fontsOut + '**/*']);
-});
-
-// Clean the compiled and copied javascript and style resources
-gulp.task('clean', ['clean:app', 'clean:css', 'clean:lib']);
-
 // TypeScript lint
-gulp.task('tslint', function() {
+gulp.task('ts:lint', function() {
   return gulp
     .src(tsSource + '*.ts')
     .pipe(tslint())
     .pipe(tslint.report('verbose'));
 });
 
-// Compile LESS to CSS
-gulp.task('less', ['clean:css'], function() {
-  return gulp
-    .src(lessSource + '*.less')
-    .pipe(less())
-    .pipe(minifyCss())
-    .pipe(gulp.dest(cssOut));
-});
-
-// Copy non-less CSS files
-gulp.task('copy:css', ['clean:css'], function() {
-  return gulp
-    .src([lessSource + '*', '!' + lessSource + '*.less'],
-         { base : './less' })
-    .pipe(minifyCss())
-    .pipe(gulp.dest(cssOut));
-});
-
 // TypeScript compile
-gulp.task('compile', ['clean:app'], function() {
+gulp.task('ts:compile', function() {
   return gulp
     .src(tsSource + '*.ts')
     .pipe(sourcemaps.init())
@@ -93,16 +61,43 @@ gulp.task('compile', ['clean:app'], function() {
     .pipe(gulp.dest(tsOut));
 });
 
-// Copy app templates
-gulp.task('copy:templates', ['clean:app'], function() {
+// App javascript generation
+gulp.task('ts', [
+  'clean:app',
+  'ts:lint',
+  'ts:compile',
+]);
+
+/* ***************
+   CSS Generation
+   *************** */
+
+// Clean the compiled and copied stylesheets
+gulp.task('clean:css', function () {
+  return del([cssOut + '**/*']);
+});
+
+// Compile LESS to CSS
+gulp.task('less', function() {
   return gulp
-    .src(templateSource)
-    .pipe(html2json())
-    .pipe(gulp.dest(templateOut));
+    .src(lessSource + '*.less')
+    .pipe(less())
+    .pipe(minifyCss())
+    .pipe(gulp.dest(cssOut));
+});
+
+// Copy non-less CSS files
+gulp.task('copy:css', function() {
+  return gulp
+    .src([lessSource + '*', '!' + lessSource + '*.less'],
+         { base : './less' })
+    .pipe(minifyCss())
+    .pipe(gulp.dest(cssOut));
 });
 
 // Copy bootstrap css
-gulp.task('copy:css:bootstrap', ['clean:css'], function() {
+// TODO: Remove this when we switch to v2 since we compile bootstrap directly.
+gulp.task('copy:css:bootstrap', function() {
   return gulp
     .src([
     'node_modules/bootstrap/dist/css/bootstrap.min.css',
@@ -113,8 +108,48 @@ gulp.task('copy:css:bootstrap', ['clean:css'], function() {
   .pipe(gulp.dest(cssOut));
 });
 
+// Populate css files
+gulp.task('css', [
+  'clean:css',
+  'less',
+  'copy:css',
+  'copy:css:bootstrap',
+]);
+
+/* ***************
+   Template Generation
+   *************** */
+
+// Clean compiled template file
+gulp.task('clean:templates', function() {
+  return del([templateOut + '**/*']);
+});
+
+// Compile app templates into a json file
+gulp.task('compile:templates', function() {
+  return gulp
+    .src(templateSource)
+    .pipe(html2json())
+    .pipe(gulp.dest(templateOut));
+});
+
+// Generate templates
+gulp.task('templates', [
+  'clean:templates',
+  'compile:templates',
+]);
+
+/* ***************
+   Font Generation
+   *************** */
+
+// Clean the fonts directory
+gulp.task('clean:fonts', function () {
+  return del([fontsOut + '**/*']);
+});
+
 // Copy fonts
-gulp.task('copy:fonts', ['clean:fonts'], function() {
+gulp.task('copy:fonts', function() {
   return gulp
     .src([
     'node_modules/bootstrap/dist/fonts/*.*',
@@ -122,8 +157,23 @@ gulp.task('copy:fonts', ['clean:fonts'], function() {
   .pipe(gulp.dest(fontsOut));
 });
 
+// Generate fonts
+gulp.task('fonts', [
+  'clean:fonts',
+  'copy:fonts',
+]);
+
+/* ***************
+   Library Generation
+   *************** */
+
+// Clean the copied javascript libraries
+gulp.task('clean:lib', function () {
+  return del([libOut + '**/*']);
+});
+
 // Copy library dependencies
-gulp.task('copy:libs', ['clean:lib'], function() {
+gulp.task('copy:libs', function() {
   return gulp
     .src([
     'node_modules/es6-shim/es6-shim.js',
@@ -163,18 +213,33 @@ gulp.task('copy:libs', ['clean:lib'], function() {
   .pipe(gulp.dest(libOut));
 });
 
+// Generate libraries
+gulp.task('libs', [
+  'clean:lib',
+  'copy:libs',
+]);
+
+/* ***************
+   External commands
+   *************** */
+
+// Build everything
 gulp.task('build', [
-    'tslint',
-    'less',
-    'copy:css',
-    'copy:css:bootstrap',
-    'compile',
-    'copy:templates',
-    'copy:libs',
-    'copy:fonts',
+    'ts',
+    'templates',
+    'css',
+    'fonts',
+    'libs',
   ]);
 
-gulp.task('css', ['less', 'copy:css', 'copy:css:bootstrap']);
+// Clean everything
+gulp.task('clean', [
+  'clean:app',
+  'clean:css',
+  'clean:lib',
+  'clean:templates',
+]);
 
+// Default to bulding everything
 gulp.task('default', ['build']);
 

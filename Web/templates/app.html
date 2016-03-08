@@ -3,12 +3,20 @@
 {% block content %}
   <soapy-app>
     <about-card>
-    {% include "app/about.card.html" %}
+    {% include "app/compiled/about.card.html" %}
     </about-card>
+
+    <spinner>
+    {% include "app/compiled/spinner.html" %}
+    </spinner>
+
     <noscript>
       <error-card>
         <h1>Javascript must be enabled.</h1>
       </error-card>
+      <style>
+        .spinner { display: none; }
+      </style>
     </noscript>
   </soapy-app>
 {% endblock %}

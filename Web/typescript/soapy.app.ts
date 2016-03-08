@@ -55,8 +55,14 @@ export class SoapyAppComponent implements OnInit {
   }
 
   public selectPlaylist(playlist: Playlist) {
+    var formerPlaylist = this.selectedPlaylist;
     this.selectedPlaylist = playlist;
-    this._soapyService.selectPlaylist(playlist);
+
+    this._soapyService.selectPlaylist(playlist).subscribe((res) => {
+      // nothing
+    }, (err) => {
+      this.selectedPlaylist = formerPlaylist;
+    });
   }
 }
 

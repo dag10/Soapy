@@ -1,5 +1,5 @@
 import {EventEmitter, Injectable} from 'angular2/core';
-import {Http, Response} from 'angular2/http';
+import {Http, Response, URLSearchParams, Headers, RequestOptions} from 'angular2/http';
 import * as Rx from 'rxjs/Rx';
 
 import {BaseError} from './error';
@@ -42,28 +42,14 @@ export class SoapyService {
     // Consolidated stream of all data sources, formatted as ServiceAppData.
     var appData = Rx.Observable.merge(rawPlaylistsData, rawUserData)
       .map(this.processAppData.bind(this))
-      .catch((err) => {
-        var ret = err;
-
-        if (err instanceof Response) {
-          var res: Response = err;
-          var json = res.json();
-          if (json.hasOwnProperty('error')) {
-            ret = new APIError(json.error);
-          }
-        }
-
-        return Rx.Observable.throw(ret);
-      })
-      .do(null, (error) => {
-        this.errors.emit(error);
-      })
+      .catch(this.catchAPIErrors.bind(this))
       .publishReplay(1);
 
     // Stream of AppData for external consumers.
     this.playlistsData = appData.share();
 
     // Stream of User data for external consumers.
+
     this.userData = appData
       .filter((data: ServiceAppData) => {
         return data.user !== undefined;
@@ -90,8 +76,13 @@ export class SoapyService {
   /**
    * Selects a different playlist.
    */
-  public selectPlaylist(playlist: Playlist) {
-    // TODO: Select playlist on server
+  public selectPlaylist(playlist: Playlist): Rx.Observable<Response> {
+    var params = new URLSearchParams();
+    params.set('selectedPlaylistId', playlist.id);
+
+    return this
+      .makePostRequest('/api/me/playback', params)
+      .map(res => res.json());
   }
 
   /**
@@ -169,6 +160,49 @@ export class SoapyService {
   private cachePlaylist(playlist: API.SoapyPlaylist) {
     this.playlists['' + playlist.soapyPlaylistId] =
         this.formatPlaylistFromAPI(playlist);
+  }
+
+  /**
+   * Makes a parameterize post request to the API.
+   */
+  private makePostRequest(route: string, params?: URLSearchParams)
+      : Rx.Observable<Response> {
+
+    var headers = new Headers({
+      'Content-Type': 'application/x-www-form-urlencoded',
+    });
+
+    var options = new RequestOptions({
+      headers: headers,
+    });
+
+    var body: string = params ? params.toString() : '';
+
+    var res = this.http.post(route, body, options)
+      .catch(this.catchAPIErrors.bind(this))
+      .publishReplay(1);
+
+    res.connect();
+
+    return res;
+  }
+
+  /**
+   * Catches Response errors and extracts an API error message if applicable.
+   */
+  private catchAPIErrors(err) {
+    var ret = err;
+
+    if (err instanceof Response) {
+      var res: Response = err;
+      var json = res.json();
+      if (json.hasOwnProperty('error')) {
+        ret = new APIError(json.error);
+      }
+    }
+
+    this.errors.emit(ret);
+    return Rx.Observable.throw(ret);
   }
 }
 

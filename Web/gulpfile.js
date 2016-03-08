@@ -6,11 +6,14 @@ var tslint = require('gulp-tslint');
 var less = require('gulp-less');
 var minifyCss = require('gulp-minify-css');
 var uglify = require('gulp-uglify');
+var removeHtmlComments = require('gulp-remove-html-comments');
 var html2json = require('gulp-html-to-json');
 
 // Directories
 
-var templateSource = 'templates/app/templates.tpl';
+var templateSource = 'templates/app/';
+var templateList = 'templates/app/templates.tpl';
+var compiledTemplateList = 'templates/app/compiled/templates.tpl';
 var templateOut = 'templates/app/compiled/';
 var tsSource = 'typescript/**/';
 var lessSource = 'less/**/';
@@ -125,10 +128,28 @@ gulp.task('clean:templates', function() {
   return del([templateOut + '**/*']);
 });
 
-// Compile app templates into a json file
-gulp.task('compile:templates', function() {
+// Copy template list file to compiled directory
+gulp.task('copy:template:list', function() {
   return gulp
-    .src(templateSource)
+    .src(templateList)
+    .pipe(gulp.dest(templateOut));
+});
+
+// Remove template comments
+gulp.task('decomment:templates', function() {
+  return gulp
+    .src(templateSource + '*.html',
+         { base: templateSource})
+    .pipe(removeHtmlComments())
+    .pipe(gulp.dest(templateOut));
+});
+
+// Compile app templates into a json file
+gulp.task('compile:templates',
+          [ 'copy:template:list', 'decomment:templates'],
+          function() {
+  return gulp
+    .src(compiledTemplateList)
     .pipe(html2json())
     .pipe(gulp.dest(templateOut));
 });

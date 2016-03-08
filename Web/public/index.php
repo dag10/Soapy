@@ -209,6 +209,7 @@ $app->get(
   $app->render('app.html', $ctx);
 });
 
+// TODO: Remove this when I switch to the v2 frontend.
 $app->post('/unpair/spotify/?', function() use ($app) {
   global $base_url;
 
@@ -236,6 +237,18 @@ $app->get('/me/playlists/?', function() use ($app) {
   }
 
   $app->render('data_playlists.html', $ctx);
+});
+
+// API endpoint for unpairing the connected spotify account.
+$app->post('/api/me/unpair/?', function() use ($app) {
+  global $base_url;
+
+  $ctx = start_view_context($app, ['json' => true, 'require_spotify' => true]);
+  if (!$ctx) return;
+
+  $ctx['user']->getSpotifyAccount()->delete();
+
+  dieWithJsonSuccess();
 });
 
 // API endpoint for setting the playback settings for a user.

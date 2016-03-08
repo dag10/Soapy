@@ -57,6 +57,20 @@ export class SoapyAppComponent implements OnInit {
     });
   }
 
+  public get initialDataIsLoaded(): boolean {
+    if (this.user !== null) {
+      if (!this.user.paired) {
+        // No paired account, so no playlists will be loaded.
+        return true;
+      } else if (this.playlists !== null) {
+        // There is a paired account and playlists are loaded.
+        return true;
+      }
+    }
+
+    return false;
+  }
+
   public selectPlaylist(playlist: Playlist) {
     var formerPlaylist = this.selectedPlaylist;
     this.selectedPlaylist = playlist;

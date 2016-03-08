@@ -49,7 +49,6 @@ export class SoapyService {
     this.playlistsData = appData.share();
 
     // Stream of User data for external consumers.
-
     this.userData = appData
       .filter((data: ServiceAppData) => {
         return data.user !== undefined;

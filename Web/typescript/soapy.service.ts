@@ -88,6 +88,13 @@ export class SoapyService {
   }
 
   /**
+   * Selects a different playlist.
+   */
+  public selectPlaylist(playlist: Playlist) {
+    // TODO: Select playlist on server
+  }
+
+  /**
    * Formats API response to a ServiceAppData and caches data.
    *
    * Throws an error if the response is an error message.

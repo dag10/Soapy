@@ -10,5 +10,6 @@
 <playlist-card
   [playlists]="playlists"
   [selectedPlaylist]="selectedPlaylist"
+  (playlistSelected)="selectPlaylist($event)"
   ></playlist-card>
 

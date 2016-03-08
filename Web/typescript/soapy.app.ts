@@ -42,10 +42,21 @@ export class SoapyAppComponent implements OnInit {
     });
 
     this._soapyService.playlistsData.subscribe((data: ServiceAppData) => {
-      this.playlists = data.playlists;
-      this.selectedPlaylist = data.selectedPlaylist;
+      if (data.playlists) {
+        this.playlists = data.playlists;
+      }
+
+      if (data.selectedPlaylist) {
+        this.selectedPlaylist = data.selectedPlaylist;
+      }
+
       this._changeDetector.detectChanges();
     });
+  }
+
+  public selectPlaylist(playlist: Playlist) {
+    this.selectedPlaylist = playlist;
+    this._soapyService.selectPlaylist(playlist);
   }
 }
 

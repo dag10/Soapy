@@ -1,5 +1,5 @@
 <div class="card-content paired">
-  <div class="image" [ngStyle]="{'background-image': 'url(' + image + ')'}">
+  <div class="image" [ngStyle]="{'background-image': 'url(' + (image || '') + ')'}">
     <div class="image-slant"></div>
   </div>
   <h1>Your Spotify account is paired.</h1>

@@ -44,18 +44,34 @@ function start_view_context($app, $opts=[]) {
   $require_secret = isset($opts['require_secret'])
     ? $opts['require_secret']
     : false;
+  $json = isset($opts['json'])
+    ? $opts['json']
+    : ($rfid != null); // If an rfid is provided, a json response is assumed.
+
+  $dieWithError = function($message, $redirect_url=null) use ($json, $app) {
+    global $base_url;
+
+    $redirect_url = $redirect_url || $base_url;
+
+    if ($json) {
+      dieWithJsonError($message);
+    } else {
+      $app->flash('error', $message);
+      $app->redirect($base_url);
+    }
+  };
 
   if ($require_secret) {
     $request_secret = $app->request->headers->get('X-Soapy-Secret', '');
     if ($request_secret != $cfg['soapy_secret']) {
-      dieWithJsonError("Invalid Soapy secret.");
+      $dieWithError("Invalid Soapy secret.");
     }
   }
 
   if ($rfid) {
     $user = \CSH\user_for_rfid($rfid);
     if (!$user) {
-      dieWithJsonError("User not found!");
+      $dieWithError("User not found!");
     }
   } else {
     $webauth = \CSH\get_webauth($app);
@@ -75,15 +91,13 @@ function start_view_context($app, $opts=[]) {
           \Spotify\refresh_account($spotifyacct); // Also saves the object.
         } catch(\SpotifyWebAPI\SpotifyWebAPIException $e) {
           if ($rfid) {
-            dieWithJsonError(
+            $dieWithError(
               "Failed to refresh spotify access token: " . $e->getMessage());
           } else {
             $spotifyacct->delete();
-            $app->flash(
-              'error',
+            $dieWithError(
               "Failed to refresh spotify acess token. Unpaired. Error: " .
               $e->getMessage());
-            $app->redirect($base_url);
           }
         }
         // Re-fetch associated SpotifyAccount on the next access.
@@ -93,12 +107,7 @@ function start_view_context($app, $opts=[]) {
       $api = \Spotify\get_api($spotifyacct->getAccessToken());
       $api->setReturnAssoc(true);
     } else if ($require_spotify) {
-      if ($rfid) {
-        dieWithJsonError("No spotify account has been linked.");
-      } else {
-        $app->flash('error', "You must connect a Spotify account.");
-        $app->redirect($base_url);
-      }
+      $dieWithError("No spotify account has been linked.");
     }
   }
 

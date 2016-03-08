@@ -1,5 +1,6 @@
 import {Component, OnInit, ChangeDetectorRef} from 'angular2/core';
 
+import {SpinnerComponent} from './spinner';
 import {ErrorCardComponent} from './error.card';
 import {AboutCardComponent} from './about.card';
 import {AccountCardComponent} from './account.card';
@@ -14,6 +15,7 @@ import {SoapyService, ServiceAppData} from './soapy.service';
   selector: 'soapy-app',
   template: (<any>window).templates.soapy_app,
   directives: [
+    SpinnerComponent,
     ErrorCardComponent,
     AboutCardComponent,
     AccountCardComponent,

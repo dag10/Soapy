@@ -35,3 +35,73 @@
   }
 }
 
+.spinner {
+  /*
+  Copyright (c) 2014 - ijczimm - http://codepen.io/jczimm/pen/vEBpoL
+
+  Permission is hereby granted, free of charge, to any person 
+  obtaining a copy of this software and associated documentation 
+  files (the "Software"), to deal in the Software without restriction,
+   including without limitation the rights to use, copy, modify, 
+  merge, publish, distribute, sublicense, and/or sell copies of 
+  the Software, and to permit persons to whom the Software is 
+  furnished to do so, subject to the following conditions:
+
+  The above copyright notice and this permission notice shall 
+  be included in all copies or substantial portions of the Software.
+
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, 
+  EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES 
+  OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND 
+  NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT 
+  HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, 
+  WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, 
+  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER 
+  DEALINGS IN THE SOFTWARE.
+  */
+
+  @width: 100px;
+
+  width: @width;
+  height: @width;
+  margin: -@card-vertical-margin auto @card-vertical-margin auto;
+
+  .circular {
+   animation: rotate 2s linear infinite;
+   height: @width;
+   position: relative;
+   width: @width;
+  }
+
+  .path {
+    stroke-dasharray: 1, 200;
+    stroke-dashoffset: 0;
+    stroke: @brand-primary;
+    animation: dash 1.5s ease-in-out infinite;
+    stroke-linecap: round;
+  }
+
+  @keyframes rotate {
+   100% {
+    transform: rotate(360deg);
+   }
+  }
+
+  @keyframes dash {
+   0% {
+    stroke-dasharray: 1, 200;
+    stroke-dashoffset: 0;
+   }
+
+   50% {
+    stroke-dasharray: 89, 200;
+    stroke-dashoffset: -35;
+   }
+
+   100% {
+    stroke-dasharray: 89, 200;
+    stroke-dashoffset: -124;
+   }
+  }
+}
+

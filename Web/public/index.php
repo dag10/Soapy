@@ -6,6 +6,9 @@ require '../config.php';
 require '../include/spotify.php';
 require '../include/csh.php';
 
+session_cache_limiter(false);
+session_start();
+
 $app = new \Slim\Slim(array(
   'templates.path' => '../templates',
 ));
@@ -140,6 +143,9 @@ function dieWithJsonSuccess() {
 $app->get('/', function() use ($app) {
   global $base_url;
 
+  // Remember where to return to when Spotify authenticates us
+  $_SESSION['version'] = 'v1';
+
   $ctx = start_view_context($app);
 
   if ($ctx['user']->getSpotifyAccount() != null) {
@@ -196,11 +202,18 @@ $app->get(
     $app->redirect($base_url);
   }
 
-  $app->redirect($base_url);
+  if ($_SESSION && $_SESSION['version'] == 'v2') {
+    $app->redirect($base_url . 'v2');
+  } else {
+    $app->redirect($base_url);
+  }
 });
 
 $app->get(
     '/v2/?', function() use ($app) {
+
+  // Remember where to return to when Spotify authenticates us
+  $_SESSION['version'] = 'v2';
 
   $ctx = start_view_context($app);
   $ctx['main_module'] = 'main';

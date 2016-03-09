@@ -17,6 +17,8 @@ export class AccountCardComponent {
   @Input() playlists: Playlist[];
   @Output() unpair: EventEmitter<any> = new EventEmitter();
 
+  public spotifyAuthUrl: string = StaticData.spotifyAuthUrl;
+
   public get image(): string {
     if (this.user && this.user.image) {
       return this.user.image;

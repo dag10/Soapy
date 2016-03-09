@@ -10,6 +10,7 @@ interface TemplateFormat {
 }
 
 interface StaticDataFormat {
+  spotifyAuthUrl: string;
   userData: API.Response;
   templates: TemplateFormat;
 }

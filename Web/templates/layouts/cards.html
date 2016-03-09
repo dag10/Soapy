@@ -49,6 +49,7 @@
           setters: [],
           execute: function() {
             exports("StaticData", {
+              spotifyAuthUrl: "{{ auth_url | raw }}",
               userData: {{ playlist_api_data | json_encode() | raw }},
               templates: {{ source('/app/compiled/templates.json') }},
             });

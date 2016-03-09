@@ -246,8 +246,8 @@ gulp.task('libs', [
 
 // Build everything
 gulp.task('build', [
-    'ts',
     'templates',
+    'ts',
     'css',
     'fonts',
     'libs',

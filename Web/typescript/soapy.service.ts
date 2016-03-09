@@ -58,6 +58,7 @@ export class SoapyService {
       })
       .share();
 
+    // Kick off data loading, even if we have no other subscribers.
     appData.connect();
   }
 
@@ -70,6 +71,15 @@ export class SoapyService {
     }
 
     return null;
+  }
+
+  /**
+   * Unpairs the associated Spotify account.
+   */
+  public unpair(): Rx.Observable<Response> {
+    return this
+      .makePostRequest('/api/me/unpair')
+      .map(res => res.json());
   }
 
   /**

@@ -45,11 +45,15 @@ export class SoapyAppComponent implements OnInit {
     });
 
     this._soapyService.playlistsData.subscribe((data: ServiceAppData) => {
-      if (data.playlists) {
+      if (data.playlists === null) {
+        this.playlists = null;
+      }else if (data.playlists !== undefined) {
         this.playlists = data.playlists;
       }
 
-      if (data.selectedPlaylist) {
+      if (data.selectedPlaylist !== null) {
+        this.selectedPlaylist = null;
+      } else if (data.selectedPlaylist !== undefined) {
         this.selectedPlaylist = data.selectedPlaylist;
       }
 
@@ -69,6 +73,16 @@ export class SoapyAppComponent implements OnInit {
     }
 
     return false;
+  }
+
+  public unpair() {
+    this._soapyService
+      .unpair()
+      .subscribe((res) => {
+        this.user.paired = false;
+        this.playlists = null;
+        this.selectedPlaylist = null;
+      });
   }
 
   public selectPlaylist(playlist: Playlist) {

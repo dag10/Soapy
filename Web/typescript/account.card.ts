@@ -1,4 +1,4 @@
-import {Component, Input} from 'angular2/core';
+import {EventEmitter, Component, Input, Output} from 'angular2/core';
 
 import {User, Playlist} from './soapy.interfaces';
 
@@ -14,6 +14,7 @@ import {User, Playlist} from './soapy.interfaces';
 export class AccountCardComponent {
   @Input() user: User;
   @Input() playlists: Playlist[];
+  @Output() unpair: EventEmitter<any> = new EventEmitter();
 
   public get image(): string {
     if (this.user && this.user.image) {

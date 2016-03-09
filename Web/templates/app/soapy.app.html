@@ -5,6 +5,7 @@
 <account-card
   [user]="user"
   [playlists]="playlists"
+  (unpair)="unpair()"
   ></account-card>
 
 <spinner [class.hidden]="initialDataIsLoaded"></spinner>

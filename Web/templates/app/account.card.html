@@ -6,7 +6,7 @@
   <span *ngIf="numPlaylists !== null" class="line-2">{{ numPlaylists }} playlist<span *ngIf="numPlaylists != 1">s</span></span>
 </div>
 
-<a class="paired" href="#">Unpair</a>
+<a class="paired" (click)="unpair.emit(); false">Unpair</a>
 
 <h1>
   Ready to jam? Let’s pair your Spotify Premium account.

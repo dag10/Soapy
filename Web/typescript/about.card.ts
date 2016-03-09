@@ -1,9 +1,10 @@
 import {Component} from 'angular2/core';
+import {StaticData} from './StaticData';
 
 
 @Component({
   selector: 'about-card',
-  template: (<any>window).templates.about_card,
+  template: StaticData.templates.AboutCard,
 })
 export class AboutCardComponent {
 }

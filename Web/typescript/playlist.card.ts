@@ -1,11 +1,12 @@
 import {EventEmitter, Component, Input, Output} from 'angular2/core';
 
 import {Playlist} from './soapy.interfaces';
+import {StaticData} from './StaticData';
 
 
 @Component({
   selector: 'playlist-card',
-  template: (<any>window).templates.playlist_card,
+  template: StaticData.templates.PlaylistCard,
   host: {
     '[class.hidden]': '!playlists',
   },

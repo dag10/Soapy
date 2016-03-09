@@ -2,6 +2,7 @@ import {EventEmitter, Injectable} from 'angular2/core';
 import {Http, Response, URLSearchParams, Headers, RequestOptions} from 'angular2/http';
 import * as Rx from 'rxjs/Rx';
 
+import {StaticData} from './StaticData';
 import {BaseError} from './error';
 import {User, Playlist} from './soapy.interfaces';
 import * as API from './soapy.api.interfaces';
@@ -33,7 +34,7 @@ export class SoapyService {
     });
 
     // API-formatted data embedded in the page.
-    var rawUserData = Rx.Observable.of((<any>window).userData);
+    var rawUserData = Rx.Observable.of(StaticData.userData);
 
     // API-formatted data with a playlist list fetched with AJAX.
     var rawPlaylistsData = this.http.get('/api/me/playlists')

@@ -1,11 +1,12 @@
 import {EventEmitter, Component, Input, Output} from 'angular2/core';
 
 import {User, Playlist} from './soapy.interfaces';
+import {StaticData} from './StaticData';
 
 
 @Component({
   selector: 'account-card',
-  template: (<any>window).templates.account_card,
+  template: StaticData.templates.AccountCard,
   host: {
     '[class.hidden]': '!user',
     '[class.paired]': 'user && user.paired',

@@ -1,7 +1,7 @@
-//= soapy_app : soapy.app.html
-//= spinner : spinner.html
-//= about_card : about.card.html
-//= error_card : error.card.html
-//= account_card : account.card.html
-//= playlist_card : playlist.card.html
+//= SoapyApp : soapy.app.html
+//= Spinner : spinner.html
+//= AboutCard : about.card.html
+//= ErrorCard : error.card.html
+//= AccountCard : account.card.html
+//= PlaylistCard : playlist.card.html
 

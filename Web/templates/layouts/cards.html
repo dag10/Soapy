@@ -43,8 +43,18 @@
 
     {% block init_script %}
     <script>
-      window.userData = window.userData || {{ playlist_api_data | json_encode() | raw }};
-      window.templates = window.templates || {{ source('/app/compiled/templates.json') }};
+      System.register("StaticData", [], function(exports) {
+        "use strict";
+        return {
+          setters: [],
+          execute: function() {
+            exports("StaticData", {
+              userData: {{ playlist_api_data | json_encode() | raw }},
+              templates: {{ source('/app/compiled/templates.json') }},
+            });
+          }
+        };
+      });
       System.import('{{ main_module }}')
             .then(null, console.error.bind(console));
     </script>

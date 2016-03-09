@@ -6,6 +6,7 @@ import {AboutCardComponent} from './about.card';
 import {AccountCardComponent} from './account.card';
 import {PlaylistCardComponent} from './playlist.card';
 
+import {StaticData} from './StaticData';
 import {User, Playlist} from './soapy.interfaces';
 import {SoapyService, ServiceAppData} from './soapy.service';
 
@@ -13,7 +14,7 @@ import {SoapyService, ServiceAppData} from './soapy.service';
 @Component({
   providers: [SoapyService],
   selector: 'soapy-app',
-  template: (<any>window).templates.soapy_app,
+  template: StaticData.templates.SoapyApp,
   directives: [
     SpinnerComponent,
     ErrorCardComponent,

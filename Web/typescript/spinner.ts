@@ -1,9 +1,10 @@
 import {Component} from 'angular2/core';
+import {StaticData} from './StaticData';
 
 
 @Component({
   selector: 'spinner',
-  template: (<any>window).templates.spinner,
+  template: StaticData.templates.Spinner,
 })
 export class SpinnerComponent {}
 

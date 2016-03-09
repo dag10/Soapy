@@ -1,9 +1,10 @@
 import {Component, Input} from 'angular2/core';
+import {StaticData} from './StaticData';
 
 
 @Component({
   selector: 'error-card',
-  template: (<any>window).templates.error_card,
+  template: StaticData.templates.ErrorCard,
   host: {
     '[class.hidden]': 'errors.length == 0',
     '[class.single-error]': 'errors.length == 1',

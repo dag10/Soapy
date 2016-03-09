@@ -10,8 +10,6 @@
       <link href="{{ base_url }}/css/layout.css" rel="stylesheet">
       <link href="//fonts.googleapis.com/css?family=Open+Sans:400,300,600,700,800" rel="stylesheet" type="text/css">
     {% endblock %}
-    {% block additional_stylesheets %}
-    {% endblock %}
   </head>
   <body>
     <navbar>
@@ -43,13 +41,9 @@
 
     <script src="{{ base_url }}/app/soapy.js"></script>
 
-    {% block additional_scripts %}
-    {% endblock %}
-
-    {% block data_bootstrap %}
-    {% endblock %}
     {% block init_script %}
     <script>
+      window.userData = window.userData || {{ playlist_api_data | json_encode() | raw }};
       window.templates = window.templates || {{ source('/app/compiled/templates.json') }};
       System.import('{{ main_module }}')
             .then(null, console.error.bind(console));

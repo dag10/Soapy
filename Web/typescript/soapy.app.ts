@@ -51,7 +51,7 @@ export class SoapyAppComponent implements OnInit {
         this.playlists = data.playlists;
       }
 
-      if (data.selectedPlaylist !== null) {
+      if (data.selectedPlaylist === null) {
         this.selectedPlaylist = null;
       } else if (data.selectedPlaylist !== undefined) {
         this.selectedPlaylist = data.selectedPlaylist;

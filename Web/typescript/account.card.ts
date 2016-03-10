@@ -1,10 +1,14 @@
 import {EventEmitter, Component, Input, Output} from 'angular2/core';
 
 import {User, Playlist} from './soapy.interfaces';
+import {SpinnerComponent} from './spinner';
 import {StaticData} from './StaticData';
 
 
 @Component({
+  directives: [
+    SpinnerComponent,
+  ],
   selector: 'account-card',
   template: StaticData.templates.AccountCard,
   host: {
@@ -17,6 +21,7 @@ export class AccountCardComponent {
   @Input() playlists: Playlist[];
   @Output() unpair: EventEmitter<any> = new EventEmitter();
 
+  public loadingSpotifyAuth: boolean = false;
   public spotifyAuthUrl: string = StaticData.spotifyAuthUrl;
 
   public get image(): string {
@@ -33,6 +38,10 @@ export class AccountCardComponent {
     }
 
     return null;
+  }
+
+  public login() {
+    this.loadingSpotifyAuth = true;
   }
 }
 

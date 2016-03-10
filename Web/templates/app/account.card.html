@@ -12,9 +12,18 @@
   Ready to jam? Let’s pair your Spotify Premium account.
 </h1>
 
-<a class="spotify-login" [href]="spotifyAuthUrl">
-  <div class="spotify-logo"></div>
-  Log in with Spotify
-</a>
+<div class="login-container">
+  <a
+      class="spotify-login"
+      [href]="spotifyAuthUrl"
+      [class.hidden]="loadingSpotifyAuth"
+      (click)="login()"
+      >
+    <div class="spotify-logo"></div>
+    Log in with Spotify
+  </a>
+
+  <spinner [class.hidden]="!loadingSpotifyAuth"></spinner>
+</div>
 
 

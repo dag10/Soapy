@@ -64,13 +64,12 @@
 
   width: @width;
   height: @width;
-  margin: -@card-vertical-margin auto @card-vertical-margin auto;
 
   .circular {
-   animation: rotate 2s linear infinite;
-   height: @width;
-   position: relative;
-   width: @width;
+    animation: rotate 2s linear infinite;
+    height: @width;
+    position: relative;
+    width: @width;
   }
 
   .path {
@@ -79,29 +78,30 @@
     stroke: @brand-primary;
     animation: dash 1.5s ease-in-out infinite;
     stroke-linecap: round;
+    stroke-width: @spinner-stroke-width;
   }
 
   @keyframes rotate {
-   100% {
-    transform: rotate(360deg);
-   }
+    100% {
+      transform: rotate(360deg);
+    }
   }
 
   @keyframes dash {
-   0% {
-    stroke-dasharray: 1, 200;
-    stroke-dashoffset: 0;
-   }
+    0% {
+      stroke-dasharray: 1, 200;
+      stroke-dashoffset: 0;
+    }
 
-   50% {
-    stroke-dasharray: 89, 200;
-    stroke-dashoffset: -35;
-   }
+    50% {
+      stroke-dasharray: 89, 200;
+      stroke-dashoffset: -35;
+    }
 
-   100% {
-    stroke-dasharray: 89, 200;
-    stroke-dashoffset: -124;
-   }
+    100% {
+      stroke-dasharray: 89, 200;
+      stroke-dashoffset: -124;
+    }
   }
 }
 

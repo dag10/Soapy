@@ -2,6 +2,12 @@
 @import 'variables.less';
 @import 'ui-elements.less';
 
+soapy-app {
+  .spinner {
+    margin: -@card-vertical-margin auto @card-vertical-margin auto;
+  }
+}
+
 .card-copy() {
   font-size: 15px;
   font-weight: 300;
@@ -177,23 +183,38 @@ account-card {
       margin-top: 0;
     }
 
-    a.spotify-login {
-      .spotify-button();
-
-      .spotify-logo {
-        margin-left: -10px;
-        margin-right: 5px;
-        position: relative;
-        bottom: 1px;
-      }
-
+    .login-container {
+      height: 38px;
       margin: 17px auto;
-      padding-top: 6px;
       position: relative;
       left: 50%;
       transform: translateX(-50%);
       display: inline-block;
-      font-size: 18px;
+
+      a.spotify-login {
+        .spotify-button();
+
+        .spotify-logo {
+          margin-left: -10px;
+          margin-right: 5px;
+          position: relative;
+          bottom: 1px;
+        }
+
+        padding-top: 6px;
+        font-size: 18px;
+      }
+
+      spinner {
+        .spinner {
+          @scale: 0.5;
+          zoom: @scale;
+
+          .path {
+            stroke-width: @spinner-stroke-width / @scale;
+          }
+        }
+      }
     }
   }
 }

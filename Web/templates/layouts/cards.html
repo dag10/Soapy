@@ -43,6 +43,16 @@
 
     {% block init_script %}
     <script>
+      System.config({
+        map: {
+          smartcrop: '/lib/smartcrop.js',
+        },
+        meta: {
+          '/lib/smartcrop.js': {
+            format: 'amd',
+          },
+        },
+      });
       System.register("StaticData", [], function(exports) {
         "use strict";
         return {

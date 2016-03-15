@@ -9,6 +9,7 @@ import android.content.ServiceConnection;
 import android.media.AudioManager;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.os.PowerManager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
@@ -23,6 +24,7 @@ public class SoapyActivity extends AppCompatActivity implements StatusStrip.OnFr
 
     protected ArduinoService arduinoService = null;
     protected SoapyPreferences preferences = null;
+    protected PowerManager.WakeLock wakelock = null;
 
     protected void rfidTapped(String rfid) {
     }
@@ -91,6 +93,14 @@ public class SoapyActivity extends AppCompatActivity implements StatusStrip.OnFr
         decorView.setSystemUiVisibility(uiOptions);
     }
 
+    protected void setWakeLock() {
+        if (wakelock != null) return;
+
+        PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
+        wakelock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "Soapy");
+        wakelock.acquire();
+    }
+
     @Override
     protected void onResume() {
         super.onResume();
@@ -100,6 +110,7 @@ public class SoapyActivity extends AppCompatActivity implements StatusStrip.OnFr
         registerReceiver(receiver, filter);
         overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
         //goImmersive();
+        setWakeLock();
 }
 
     @Override

@@ -19,8 +19,8 @@ public class SoapyPreferences implements SharedPreferences.OnSharedPreferenceCha
     protected static final String SPOTIFY_CLIENT_ID = "spotifyClientId";
     protected static final String SOAPY_SECRET = "soapySecret";
     protected static final String SOAPY_URL = "soapyUrl";
-    protected static final String SOAPY_ENABLE_VOLUME_SHORTCUT = "enableVolumeShortcut";
     protected static final String SOAPY_BATHROOM_NAME = "bathroomName";
+    protected static final String SOAPY_ENABLE_VOLUME_SHORTCUT = "false";
 
     public static SoapyPreferences createInstance(Context context) {
         if (instance == null) {

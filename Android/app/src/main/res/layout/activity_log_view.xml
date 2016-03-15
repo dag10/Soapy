@@ -10,14 +10,14 @@
         android:layout_height="match_parent"
         android:orientation="vertical"
         >
-        <fragment
+        <!--<fragment
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:name="net.drewgottlieb.soapy.StatusStrip"
             android:id="@+id/status_strip"
             android:layout_weight="0"
-            app:showCancelButton="true"
-            />
+            app:showCancelButton="false"
+            />-->
 
         <TextView
             android:id="@+id/log_text_view"

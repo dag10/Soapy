@@ -50,13 +50,9 @@ export class AccountCardComponent implements OnInit {
   constructor(private _changeDetector: ChangeDetectorRef) {}
 
   public ngOnInit() {
-    console.info('Init...');
-
     this.imageLoaded.subscribe((img) => {
       // Aim for the focus of the image being to the left of the start of
       // the slant, except extending about 1/3 into the slant.
-      //var minWidth = 65 + ((115 - 65) * 0.3);
-      //var minWidth = 115;
       var minWidth = 65;
       var maxWidth = 115;
       var height = 75;
@@ -70,8 +66,6 @@ export class AccountCardComponent implements OnInit {
       SmartCrop.crop(img, options, (res: SmartCrop.CropResult) => {
         var crop = res.topCrop;
 
-        var oldSize = { width: crop.width, height: crop.height };
-
         // Stretch width from target 65px to final 115px.
         // Also stretch height proportionally.
         crop.width = crop.width * (maxWidth / minWidth);
@@ -81,9 +75,6 @@ export class AccountCardComponent implements OnInit {
           // If stretched width is too wide, scale width and height down.
           crop.height = crop.height * (img.width / crop.width);
           crop.width = img.width;
-
-          // If height changed, shift y accordingly.
-          //crop.y = crop.y * (crop.height / oldSize.height);
         }
 
         // If stretched width sticks off of right edge, shrink it a bit.

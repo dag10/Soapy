@@ -2,7 +2,7 @@
 @import '../node_modules/bootstrap-csh/dev/members-flat.less';
 @import 'variables.less';
 @import 'nav.less';
-@import 'cards.less';
+@import 'cards/cards.less';
 
 body {
   font-family: @font-family-sans-serif;
@@ -13,5 +13,11 @@ body {
 .container {
   width: @site-width;
   padding: 0;
+}
+
+soapy-app {
+  .spinner {
+    margin: -@card-vertical-margin auto @card-vertical-margin auto;
+  }
 }
 

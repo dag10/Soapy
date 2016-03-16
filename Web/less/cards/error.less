@@ -1,0 +1,34 @@
+@import 'base.less';
+
+error-card {
+  .card();
+
+  background-color: @error-color;
+  color: white;
+
+  h1 {
+    margin-bottom: 5px;
+  }
+
+  ul {
+    margin-bottom: 0;
+  }
+
+  &.single-error {
+    h1 {
+      .card-copy();
+      font-weight: 600;
+
+      display: inline-block;
+    }
+
+    ul {
+      .card-copy();
+
+      padding-left: 2px;
+      display: inline-block;
+      list-style: none;
+    }
+  }
+}
+

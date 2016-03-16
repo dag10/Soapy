@@ -1,0 +1,107 @@
+@import 'base.less';
+
+playlist-card {
+  .card();
+
+  ul {
+    margin: -@card-padding;
+    margin-top: 0px;
+    padding: 0;
+    padding-top: 2px;
+
+    li {
+      @playlist-image-size: 45px;
+      @playlist-image-margin: 13px;
+      @playlist-li-height: 66px;
+
+      .make-row(0px);
+
+      display: block;
+      height: @playlist-li-height;
+
+      transition: background-color 0.18s;
+
+      &.selected {
+        background-color: @card-list-selected-bg-color;
+      }
+
+      &:hover {
+        background-color: @card-list-hover-bg-color;
+      }
+
+      &:active {
+        background-color: @card-list-press-bg-color;
+      }
+
+      &:last-child {
+        @additional-bottom-padding: @playlist-image-margin * 0.5;
+        border-bottom-left-radius: @card-border-radius;
+        border-bottom-right-radius: @card-border-radius;
+        height: @playlist-li-height + @additional-bottom-padding;
+
+        a {
+          padding-bottom: @additional-bottom-padding;
+        }
+      }
+
+      a {
+        text-decoration: none;
+
+        &:link,
+        &:visited,
+        &:active,
+        &:hover {
+          color: @text-color;
+        }
+
+        .title {
+          .make-sm-column(9);
+
+          padding-left: (2 * @playlist-image-margin) + @playlist-image-size;
+          font-size: 20px;
+          font-weight: 100;
+          line-height: @playlist-li-height;
+          white-space: nowrap;
+          overflow: hidden;
+
+          .image-container {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: @playlist-image-margin;
+
+            /* Ghost element for vertical centering */
+            &:before {
+              content: '';
+              display: inline-block;
+              height: 100%;
+              vertical-align: middle;
+              margin-right: -0.25em;
+            }
+
+            .image {
+              background-color: fade(@brand-primary, 20%);
+              background-size: cover;
+              height: @playlist-image-size;
+              width: @playlist-image-size;
+              display: inline-block;
+              vertical-align: middle;
+              position: relative;
+              bottom: 1px;
+            }
+          }
+        }
+
+        .tracks {
+          .make-sm-column(3);
+          .card-copy;
+
+          color: lighten(@text-color, 30%);
+          font-weight: 100;
+          line-height: @playlist-li-height;
+        }
+      }
+    }
+  }
+}
+

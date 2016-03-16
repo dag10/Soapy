@@ -20,6 +20,7 @@ var lessSource = 'less/**/';
 
 var tsOut = 'public/app/';
 var libOut = 'public/lib/';
+var lessOut = 'less/compiled/';
 var cssOut = 'public/css/';
 var fontsOut = 'public/fonts/';
 
@@ -75,9 +76,14 @@ gulp.task('ts', [
    CSS Generation
    *************** */
 
-// Clean the compiled and copied stylesheets
+// Clean the copied stylesheets
 gulp.task('clean:css', function () {
   return del([cssOut + '**/*']);
+});
+
+// Clean the compiled stylesheets
+gulp.task('clean:less', function () {
+  return del([lessOut + '**/*']);
 });
 
 // Compile LESS to CSS
@@ -85,15 +91,17 @@ gulp.task('less', function() {
   return gulp
     .src(lessSource + '*.less')
     .pipe(less())
-    .pipe(minifyCss())
-    .pipe(gulp.dest(cssOut));
+    .pipe(gulp.dest(lessOut));
 });
 
-// Copy non-less CSS files
+// Copy compiled CSS files
 gulp.task('copy:css', function() {
   return gulp
-    .src([lessSource + '*', '!' + lessSource + '*.less'],
-         { base : './less' })
+    .src([
+      'less/compiled/soapy.css',
+      'less/members-flat.min.css', // TODO: Remove when switching to v2
+      'less/members-portal.css',   // TODO: Remove when switching to v2
+    ])
     .pipe(minifyCss())
     .pipe(gulp.dest(cssOut));
 });
@@ -113,6 +121,7 @@ gulp.task('copy:css:bootstrap', function() {
 
 // Populate css files
 gulp.task('css', [
+  'clean:less',
   'clean:css',
   'less',
   'copy:css',

@@ -15,9 +15,7 @@
         android:theme="@style/AppTheme" >
         <activity
             android:name=".IdleActivity"
-            android:label="@string/app_name"
-            android:launchMode="singleTask"
-            android:stateNotNeeded="true" >
+            android:label="@string/title_activity_idle" >
         </activity>
         <activity
             android:name=".PlaylistSelectionActivity"
@@ -41,7 +39,10 @@
         </activity>
         <activity
             android:name=".LogViewActivity"
-            android:label="@string/title_activity_log_view" >
+            android:label="@string/app_name"
+            android:launchMode="singleTask"
+            android:stateNotNeeded="true" >
+
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <action android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED" />

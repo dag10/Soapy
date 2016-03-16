@@ -160,9 +160,16 @@ public class SpotifyService extends Service implements PlayerNotificationCallbac
     }
 
     public void onTemporaryError() {
-        Log.w(TAG, "Spotify had a temporary error!");
         soundPlayer.playErrorSound();
-        resetShower(currentlyPlayingShower);
+
+        int count = getCurrentShower().getTempPlaybackErrors();
+        if (count < 10) {
+            Log.w(TAG, "Spotify had a temporary error! This is error #" + count);
+            getCurrentShower().incTempPlaybackErrors();
+        } else {
+            Log.w(TAG, "Spotify had a temporary error! No more are tolerated. Resetting shower.");
+            resetShower(currentlyPlayingShower);
+        }
     }
 
     protected Promise<Boolean, Void, Void> stopPlayer() {

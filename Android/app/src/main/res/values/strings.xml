@@ -11,6 +11,6 @@
 
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
-    <string name="title_activity_log_view">LogViewActivity</string>
+    <string name="title_activity_idle">Idle</string>
     <string name="title_activity_settings">SettingsActivity</string>
 </resources>

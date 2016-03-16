@@ -21,11 +21,20 @@ public class Shower {
     private SoapyUser user = null;
     private List<SoapyTrack> tracks = null;
     private int nextTrackIndex = 0;
+    private int tempPlaybackErrors = 0;
 
     private static final ExecutorService executorService = Executors.newCachedThreadPool();
     private static final DeferredManager dm = new DefaultDeferredManager(executorService);
 
     public Shower() {
+    }
+
+    public int getTempPlaybackErrors() {
+        return tempPlaybackErrors;
+    }
+
+    public void incTempPlaybackErrors() {
+        tempPlaybackErrors++;
     }
 
     public boolean isPlayable() {

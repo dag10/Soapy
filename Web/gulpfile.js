@@ -87,7 +87,7 @@ gulp.task('clean:less', function () {
 });
 
 // Compile LESS to CSS
-gulp.task('less', function() {
+gulp.task('less', ['clean:less'], function() {
   return gulp
     .src(lessSource + '*.less')
     .pipe(less())
@@ -95,7 +95,7 @@ gulp.task('less', function() {
 });
 
 // Copy compiled CSS files
-gulp.task('copy:css', function() {
+gulp.task('copy:css', ['clean:css', 'less', 'copy:css:bootstrap'], function() {
   return gulp
     .src([
       'less/compiled/soapy.css',
@@ -121,11 +121,7 @@ gulp.task('copy:css:bootstrap', function() {
 
 // Populate css files
 gulp.task('css', [
-  'clean:less',
-  'clean:css',
-  'less',
   'copy:css',
-  'copy:css:bootstrap',
 ]);
 
 /* ***************

@@ -157,7 +157,8 @@ export class SoapyService {
         images.sort((a, b) => {
           return a.width - b.width;
         });
-        playlist.image = images[0].url;
+
+        playlist.image = images[images.length > 1 ? 1 : 0].url;
       }
     }
 

@@ -3,6 +3,17 @@
 playlist-card {
   .card();
 
+  position: relative;
+
+  .expanded-title,
+  .collapsed-title {
+    margin-top: 0 !important;
+  }
+
+  .expanded-title {
+    text-align: center;
+  }
+
   ul {
     margin: -@card-padding;
     margin-top: 0px;
@@ -18,8 +29,7 @@ playlist-card {
 
       display: block;
       height: @playlist-li-height;
-
-      transition: background-color 0.18s;
+      position: relative;
 
       &.selected {
         background-color: @card-list-selected-bg-color;
@@ -46,6 +56,11 @@ playlist-card {
 
       a {
         text-decoration: none;
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 0;
+        bottom: 0;
 
         &:link,
         &:visited,
@@ -54,53 +69,131 @@ playlist-card {
           color: @text-color;
         }
 
-        .title {
-          .make-sm-column(9);
+        .image-container {
+          position: absolute;
+          top: 0;
+          bottom: 0;
+          left: @playlist-image-margin;
 
-          padding-left: (2 * @playlist-image-margin) + @playlist-image-size;
-          font-size: 20px;
-          font-weight: 100;
-          line-height: @playlist-li-height;
-          white-space: nowrap;
-          overflow: hidden;
+          /* Ghost element for vertical centering */
+          &:before {
+            content: '';
+            display: inline-block;
+            height: 100%;
+            vertical-align: middle;
+            margin-right: -0.25em;
+          }
 
-          .image-container {
-            position: absolute;
-            top: 0;
-            bottom: 0;
-            left: @playlist-image-margin;
-
-            /* Ghost element for vertical centering */
-            &:before {
-              content: '';
-              display: inline-block;
-              height: 100%;
-              vertical-align: middle;
-              margin-right: -0.25em;
-            }
-
-            .image {
-              background-color: fade(@brand-primary, 20%);
-              background-size: cover;
-              height: @playlist-image-size;
-              width: @playlist-image-size;
-              display: inline-block;
-              vertical-align: middle;
-              position: relative;
-              bottom: 1px;
-            }
+          .image {
+            background-color: fade(@brand-primary, 20%);
+            background-size: cover;
+            height: @playlist-image-size;
+            width: @playlist-image-size;
+            display: inline-block;
+            vertical-align: middle;
+            position: relative;
+            bottom: 1px;
           }
         }
 
+        .title,
         .tracks {
-          .make-sm-column(3);
-          .card-copy;
-
-          color: lighten(@text-color, 30%);
+          position: absolute;
           font-weight: 100;
           line-height: @playlist-li-height;
         }
+
+        .title {
+          left: (2 * @playlist-image-margin) + @playlist-image-size;
+          font-size: 20px;
+          font-weight: 100;
+          white-space: nowrap;
+          overflow: hidden;
+        }
+
+        .tracks {
+          .card-copy;
+
+          left: 75%;
+          color: lighten(@text-color, 30%);
+        }
       }
+    }
+  }
+}
+
+playlist-card:not(.collapsed) {
+  .collapsed-title,
+  .change-btn {
+    display: none;
+  }
+
+  ul li {
+    transition: background-color 0.18s;
+  }
+}
+
+playlist-card.collapsed {
+  @collapsed-card-height: 86px;
+  @text-left-margin: 100px;
+
+  height: @collapsed-card-height;
+  overflow: hidden;
+
+  .expanded-title {
+    display: none;
+  }
+
+  .collapsed-title,
+  .change-btn {
+    z-index: 2;
+  }
+
+  .collapsed-title {
+    position: absolute;
+    left: @text-left-margin;
+  }
+
+  .change-btn {
+    position: absolute;
+    top: @card-padding;
+    right: @card-padding;
+  }
+
+  li.selected {
+    z-index: 1;
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    height: @collapsed-card-height;
+    background-color: @card-bg-color;
+
+    a {
+      cursor: default;
+    }
+
+    .image-container {
+      left: -2px;
+
+      .image {
+        width: @collapsed-card-height + 1px;
+        height: @collapsed-card-height + 1px;
+      }
+    }
+
+    .title,
+    .tracks {
+      top: 24px;
+    }
+
+    .title {
+      left: @text-left-margin;
+      font-weight: 400;
+    }
+
+    .tracks {
+      opacity: 0;
     }
   }
 }

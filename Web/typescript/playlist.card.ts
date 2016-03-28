@@ -1,4 +1,9 @@
-import {EventEmitter, Component, Input, Output} from 'angular2/core';
+import {
+  EventEmitter,
+  Component,
+  Input,
+  Output,
+  ChangeDetectorRef} from 'angular2/core';
 
 import {Playlist} from './soapy.interfaces';
 import {StaticData} from './StaticData';
@@ -8,16 +13,45 @@ import {StaticData} from './StaticData';
   selector: 'playlist-card',
   template: StaticData.templates.PlaylistCard,
   host: {
+    '[class.collapsed]': '!expanded',
     '[class.hidden]': '!playlists',
   },
 })
 export class PlaylistCardComponent {
   @Input() playlists: Playlist[];
-  @Input() selectedPlaylist: Playlist;
   @Output() playlistSelected: EventEmitter<Playlist> = new EventEmitter();
 
+  private _selectedPlaylist: Playlist = null;
+  private _formerlySelectedPlaylist: Playlist = null;
+
+  constructor(private _changeDetector: ChangeDetectorRef) {}
+
+  @Input()
+  public set selectedPlaylist(playlist: Playlist) {
+    this._selectedPlaylist = playlist;
+
+    if (playlist !== null) {
+      this._formerlySelectedPlaylist = playlist;
+    }
+  }
+
+  public get selectedPlaylist(): Playlist {
+    return this._selectedPlaylist;
+  }
+
+  public get formerlySelectedPlaylist(): Playlist {
+    return this._formerlySelectedPlaylist;
+  }
+
+  public get expanded(): boolean {
+    return !this.selectedPlaylist;
+  }
+
   public selectPlaylist(playlist: Playlist) {
-    this.playlistSelected.emit(playlist);
+    if (this.expanded || playlist === null) {
+      this.playlistSelected.emit(playlist);
+    }
+
     return false;
   }
 }

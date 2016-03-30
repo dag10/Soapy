@@ -7,11 +7,15 @@ import {
   Input,
   Output,
   OnInit,
+  ElementRef,
+  AfterViewInit,
   ChangeDetectorRef} from 'angular2/core';
 
 import {User, Playlist} from './soapy.interfaces';
 import {SpinnerComponent} from './spinner';
 import {StaticData} from './StaticData';
+
+declare var jQuery: JQueryStatic;
 
 
 interface Size {
@@ -35,19 +39,23 @@ interface Position {
     '[class.paired]': 'user && user.paired',
   },
 })
-export class AccountCardComponent implements OnInit {
+export class AccountCardComponent implements OnInit, AfterViewInit {
   @Input() playlists: Playlist[];
   @Output() unpair: EventEmitter<any> = new EventEmitter();
 
   public loadingSpotifyAuth: boolean = false;
   public spotifyAuthUrl: string = StaticData.spotifyAuthUrl;
 
+  private $el: JQuery;
   private _user: User;
   private imageLoaded: EventEmitter<any> = new EventEmitter();
   private imageSize: Size = { width: 115, height: 75 };
   private imagePosition: Position = { x: 0, y: 0 };
 
-  constructor(private _changeDetector: ChangeDetectorRef) {}
+  constructor(private el: ElementRef,
+              private _changeDetector: ChangeDetectorRef) {
+    this.$el = jQuery(this.el.nativeElement);
+  }
 
   public ngOnInit() {
     this.imageLoaded.subscribe((img) => {
@@ -96,6 +104,10 @@ export class AccountCardComponent implements OnInit {
         this._changeDetector.detectChanges();
       });
     });
+  }
+
+  public ngAfterViewInit() {
+    this.$el.hide().fadeIn();
   }
 
   @Input()

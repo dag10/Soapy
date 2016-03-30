@@ -236,6 +236,8 @@ gulp.task('copy:libs', function() {
     'node_modules/bootstrap/dist/js/bootstrap.js',
     'node_modules/bootstrap/dist/js/bootstrap.min.js',
 
+    'node_modules/jquery/dist/*',
+
     'node_modules/smartcrop/smartcrop.js',
   ])
   .pipe(gulp.dest(libOut));

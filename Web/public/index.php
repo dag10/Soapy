@@ -259,6 +259,7 @@ $app->post('/api/me/unpair/?', function() use ($app) {
   $ctx = start_view_context($app, ['json' => true, 'require_spotify' => true]);
   if (!$ctx) return;
 
+  $ctx['user']->clearSelectedPlaylist();
   $ctx['user']->getSpotifyAccount()->delete();
 
   dieWithJsonSuccess();

@@ -32,11 +32,16 @@ class User extends BaseUser
     return $data;
   }
 
+  public function clearSelectedPlaylist() {
+    $this->setPlaylistId(null);
+    $this->save();
+    return;
+  }
+
   public function setSelectedPlaylistById($id) {
     // For clearing a playlist selection
     if (!$id) {
-      $this->setPlaylistId(null);
-      $this->save();
+      $this->clearSelectedPlaylist();
       return;
     }
 

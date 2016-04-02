@@ -48,7 +48,7 @@ export class SoapyAppComponent implements OnInit {
     this._soapyService.playlistsData.subscribe((data: ServiceAppData) => {
       if (data.playlists === null) {
         this.playlists = null;
-      }else if (data.playlists !== undefined) {
+      } else if (data.playlists !== undefined) {
         this.playlists = data.playlists;
       }
 
@@ -90,11 +90,13 @@ export class SoapyAppComponent implements OnInit {
     var formerPlaylist = this.selectedPlaylist;
     this.selectedPlaylist = playlist;
 
-    this._soapyService.selectPlaylist(playlist).subscribe((res) => {
-      // nothing
-    }, (err) => {
-      this.selectedPlaylist = formerPlaylist;
-    });
+    if (playlist !== null) {
+      this._soapyService.selectPlaylist(playlist).subscribe((res) => {
+        // nothing
+      }, (err) => {
+        this.selectedPlaylist = formerPlaylist;
+      });
+    }
   }
 }
 

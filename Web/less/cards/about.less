@@ -1,13 +1,46 @@
+@import '../variables.less';
 @import 'base.less';
 
+
 about-card {
+  @collapsed-height: 75px;
+
   .card();
-  .button-card(75px);
 
-  & > p {
-    .left-side;
+  padding: 0;
+  position: relative;
+  overflow-y: hidden;
+  height: @collapsed-height;
 
-    padding: 15px 22px;
+  transition: height 0.4s @swift-out;
+
+  .collapsed {
+    .make-row(0px);
+
+    height: @collapsed-height;
+    position: relative;
+
+    & > p {
+      .make-sm-column(9);
+
+      padding: 15px 22px;
+    }
+
+    & > a {
+      .make-sm-column(3);
+
+      padding: @card-padding;
+      text-align: right;
+      position: absolute;
+      right: 0;
+      top: @collapsed-height - 70px;
+    }
+  }
+
+  .more {
+    padding: 15px 0;
+    margin: auto 20px;
+    border-top: solid 1px fade(@brand-primary, 20%);
   }
 }
 

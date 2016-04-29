@@ -33,6 +33,13 @@
     .card-copy;
   }
 
+  .card-action-button() {
+    text-align: right;
+    position: absolute;
+    right: @card-padding;
+    top: @card-padding;
+  }
+
   spinner {
     .spinner {
       @scale: 0.5;
@@ -42,32 +49,6 @@
         stroke-width: @spinner-stroke-width / @scale;
       }
     }
-  }
-}
-
-/* Standard card template intended to be subclassed by specific cards. */
-.button-card(@card-height) {
-  .card();
-  .make-row(0px);
-
-  padding: 0;
-  height: @card-height;
-  position: relative;
-
-  .left-side {
-    .make-sm-column(9);
-
-    padding: @card-padding;
-  }
-
-  & > a {
-    .make-sm-column(3);
-
-    padding: @card-padding;
-    text-align: right;
-    position: absolute;
-    right: 0;
-    top: @card-height - 70px;
   }
 }
 

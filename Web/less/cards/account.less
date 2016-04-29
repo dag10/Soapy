@@ -4,8 +4,6 @@ account-card {
   .card();
 
   &.paired {
-    .button-card(@image-height);
-
     & > :not(.paired) {
       display: none;
     }
@@ -15,9 +13,15 @@ account-card {
     @image-height: 75px;
     @slant-angle: atan((@image-bottom-width - @image-top-width) / @image-height);
 
-    & > div.card-content {
-      .left-side;
+    padding: 0;
+    height: @image-height;
+    position: relative;
 
+    & > a {
+      .card-action-button;
+    }
+
+    & > div.card-content {
       padding: 0;
       overflow: hidden;
       position: relative;

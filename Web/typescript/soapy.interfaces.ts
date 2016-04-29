@@ -26,3 +26,7 @@ export interface User {
   paired: boolean;
 }
 
+export interface Playback {
+  shuffle: boolean;
+}
+

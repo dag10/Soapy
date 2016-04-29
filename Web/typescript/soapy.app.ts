@@ -8,7 +8,7 @@ import {PlaylistCardComponent} from './playlist.card';
 import {PlaybackCardComponent} from './playback.card';
 
 import {StaticData} from './StaticData';
-import {User, Playlist} from './soapy.interfaces';
+import {User, Playlist, Playback} from './soapy.interfaces';
 import {SoapyService, ServiceAppData} from './soapy.service';
 
 
@@ -30,11 +30,15 @@ export class SoapyAppComponent implements OnInit {
   public playlists: Playlist[] = null;
   public selectedPlaylist: Playlist = null;
   public user: User = null;
+  public playback: Playback = null;
 
   constructor(private _soapyService: SoapyService,
               private _changeDetector: ChangeDetectorRef) {}
 
   public ngOnInit() {
+    // TODO: Get playback data from service.
+    this.playback = { shuffle: true };
+
     this._soapyService.errors.subscribe((err: any) => {
       var message = err.hasOwnProperty('message') ? err.message : '' + err;
       this.errors.push(message);

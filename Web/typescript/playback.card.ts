@@ -5,7 +5,7 @@ import {
   AfterViewInit,
   ChangeDetectorRef} from 'angular2/core';
 
-import {Playlist} from './soapy.interfaces';
+import {Playback, Playlist} from './soapy.interfaces';
 import {StaticData} from './StaticData';
 
 declare var jQuery: JQueryStatic;
@@ -18,6 +18,7 @@ declare var jQuery: JQueryStatic;
 export class PlaybackCardComponent implements AfterViewInit {
   private $el: JQuery;
   private _selectedPlaylist: Playlist = null;
+  private _playback: Playback = null;
 
   constructor(private el: ElementRef,
               private _changeDetector: ChangeDetectorRef) {
@@ -43,6 +44,15 @@ export class PlaybackCardComponent implements AfterViewInit {
 
   public get selectedPlaylist(): Playlist {
     return this._selectedPlaylist;
+  }
+
+  @Input()
+  public set playback(playback: Playback) {
+    this._playback = playback;
+  }
+
+  public get playback(): Playback {
+    return this._playback;
   }
 }
 

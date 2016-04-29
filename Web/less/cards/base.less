@@ -32,6 +32,17 @@
   p {
     .card-copy;
   }
+
+  spinner {
+    .spinner {
+      @scale: 0.5;
+      zoom: @scale;
+
+      .path {
+        stroke-width: @spinner-stroke-width / @scale;
+      }
+    }
+  }
 }
 
 /* Standard card template intended to be subclassed by specific cards. */

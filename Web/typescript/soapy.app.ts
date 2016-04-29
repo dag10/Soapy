@@ -106,8 +106,16 @@ export class SoapyAppComponent implements OnInit {
   }
 
   public updatePlayback(playback: Playback) {
-    // TODO Ask service to toggle shuffle, else revert.
+    var formerPlayback = this.playback;
     this.playback = playback;
+
+    if (playback !== null) {
+      this._soapyService.updatePlayback(playback).subscribe((res) => {
+        // nothing
+      }, (err) => {
+        this.playback = formerPlayback;
+      });
+    }
   }
 }
 

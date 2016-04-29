@@ -4,7 +4,7 @@ import * as Rx from 'rxjs/Rx';
 
 import {StaticData} from './StaticData';
 import {BaseError} from './error';
-import {User, Playlist} from './soapy.interfaces';
+import {User, Playlist, Playback} from './soapy.interfaces';
 import * as API from './soapy.api.interfaces';
 
 
@@ -89,6 +89,18 @@ export class SoapyService {
   public selectPlaylist(playlist: Playlist): Rx.Observable<Response> {
     var params = new URLSearchParams();
     params.set('selectedPlaylistId', playlist.id);
+
+    return this
+      .makePostRequest('/api/me/playback', params)
+      .map(res => res.json());
+  }
+
+  /**
+   * Updates playback settings.
+   */
+  public updatePlayback(playback: Playback): Rx.Observable<Response> {
+    var params = new URLSearchParams();
+    params.set('shuffle', '' + playback.shuffle);
 
     return this
       .makePostRequest('/api/me/playback', params)

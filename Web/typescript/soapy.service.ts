@@ -12,6 +12,7 @@ export interface ServiceAppData {
   playlists?: Playlist[];
   selectedPlaylist?: Playlist;
   user?: User;
+  playback?: Playback;
 }
 
 export class APIError extends BaseError {
@@ -24,6 +25,7 @@ export class APIError extends BaseError {
 export class SoapyService {
   public playlistsData: Rx.Observable<ServiceAppData> = null;
   public userData: Rx.Observable<User> = null;
+  public playbackData: Rx.Observable<Playback> = null;
   public errors: EventEmitter<any> = new EventEmitter();
 
   private playlists: { [id: string] : Playlist; } = {};
@@ -56,6 +58,16 @@ export class SoapyService {
       })
       .map((data: ServiceAppData) => {
         return data.user;
+      })
+      .share();
+
+    // Stream of playback settings data for external consumers.
+    this.playbackData = appData
+      .filter((data: ServiceAppData) => {
+        return data.playback !== undefined;
+      })
+      .map((data: ServiceAppData) => {
+        return data.playback;
       })
       .share();
 
@@ -148,6 +160,12 @@ export class SoapyService {
       }
 
       ret.selectedPlaylist = this.getPlaylist('' + playlist.soapyPlaylistId);
+    }
+
+    if (data.user.playback) {
+      ret.playback = {
+        shuffle: (data.user.playback.playbackMode === 'SHUFFLE'),
+      };
     }
 
     return ret;

@@ -57,6 +57,8 @@ export class PlaybackCardComponent implements AfterViewInit {
     } else {
       this.show();
     }
+
+    this._changeDetector.detectChanges();
   }
 
   public get selectedPlaylist(): Playlist {
@@ -66,6 +68,7 @@ export class PlaybackCardComponent implements AfterViewInit {
   @Input()
   public set playback(playback: Playback) {
     this._playback = playback;
+    this._changeDetector.detectChanges();
   }
 
   public get playback(): Playback {

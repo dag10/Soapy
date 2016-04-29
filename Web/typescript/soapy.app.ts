@@ -36,9 +36,6 @@ export class SoapyAppComponent implements OnInit {
               private _changeDetector: ChangeDetectorRef) {}
 
   public ngOnInit() {
-    // TODO: Get playback data from service.
-    //this.playback = { shuffle: true };
-
     this._soapyService.errors.subscribe((err: any) => {
       var message = err.hasOwnProperty('message') ? err.message : '' + err;
       this.errors.push(message);
@@ -64,6 +61,11 @@ export class SoapyAppComponent implements OnInit {
         this.selectedPlaylist = data.selectedPlaylist;
       }
 
+      this._changeDetector.detectChanges();
+    });
+
+    this._soapyService.playbackData.subscribe((playback: Playback) => {
+      this.playback = playback;
       this._changeDetector.detectChanges();
     });
   }

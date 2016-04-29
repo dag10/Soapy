@@ -7,6 +7,7 @@ interface TemplateFormat {
   AboutCard: string;
   AccountCard: string;
   PlaylistCard: string;
+  PlaybackCard: string;
 }
 
 interface StaticDataFormat {

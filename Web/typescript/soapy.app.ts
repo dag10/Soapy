@@ -5,6 +5,7 @@ import {ErrorCardComponent} from './error.card';
 import {AboutCardComponent} from './about.card';
 import {AccountCardComponent} from './account.card';
 import {PlaylistCardComponent} from './playlist.card';
+import {PlaybackCardComponent} from './playback.card';
 
 import {StaticData} from './StaticData';
 import {User, Playlist} from './soapy.interfaces';
@@ -21,6 +22,7 @@ import {SoapyService, ServiceAppData} from './soapy.service';
     AboutCardComponent,
     AccountCardComponent,
     PlaylistCardComponent,
+    PlaybackCardComponent,
   ],
 })
 export class SoapyAppComponent implements OnInit {

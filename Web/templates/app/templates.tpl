@@ -4,4 +4,5 @@
 //= ErrorCard : error.card.html
 //= AccountCard : account.card.html
 //= PlaylistCard : playlist.card.html
+//= PlaybackCard : playback.card.html
 

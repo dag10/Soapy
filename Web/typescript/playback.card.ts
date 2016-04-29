@@ -1,8 +1,10 @@
 import {
   Component,
   Input,
+  Output,
   ElementRef,
   AfterViewInit,
+  EventEmitter,
   ChangeDetectorRef} from 'angular2/core';
 
 import {Playback, Playlist} from './soapy.interfaces';
@@ -16,6 +18,8 @@ declare var jQuery: JQueryStatic;
   template: StaticData.templates.PlaybackCard,
 })
 export class PlaybackCardComponent implements AfterViewInit {
+  @Output() playbackUpdated: EventEmitter<Playback> = new EventEmitter();
+
   private $el: JQuery;
   private _selectedPlaylist: Playlist = null;
   private _playback: Playback = null;
@@ -59,6 +63,15 @@ export class PlaybackCardComponent implements AfterViewInit {
 
   public get playback(): Playback {
     return this._playback;
+  }
+
+  public toggleShuffle() {
+    var newPlayback = jQuery.extend({}, this.playback);
+    newPlayback.shuffle = !newPlayback.shuffle;
+
+    this.playbackUpdated.emit(newPlayback);
+
+    return false;
   }
 }
 

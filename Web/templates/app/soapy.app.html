@@ -19,5 +19,6 @@
 <playback-card
   [playback]="playback"
   [selectedPlaylist]="selectedPlaylist"
+  (playbackUpdated)="updatePlayback($event)"
   ></playback-card>
 

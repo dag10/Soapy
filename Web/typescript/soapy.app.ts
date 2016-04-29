@@ -104,5 +104,10 @@ export class SoapyAppComponent implements OnInit {
       });
     }
   }
+
+  public updatePlayback(playback: Playback) {
+    // TODO Ask service to toggle shuffle, else revert.
+    this.playback = playback;
+  }
 }
 

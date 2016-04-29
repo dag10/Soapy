@@ -95,28 +95,13 @@ gulp.task('less', ['clean:less'], function() {
 });
 
 // Copy compiled CSS files
-gulp.task('copy:css', ['clean:css', 'less', 'copy:css:bootstrap'], function() {
+gulp.task('copy:css', ['clean:css', 'less'], function() {
   return gulp
     .src([
       'less/compiled/soapy.css',
-      'less/members-flat.min.css', // TODO: Remove when switching to v2
-      'less/members-portal.css',   // TODO: Remove when switching to v2
     ])
     .pipe(minifyCss())
     .pipe(gulp.dest(cssOut));
-});
-
-// Copy bootstrap css
-// TODO: Remove this when we switch to v2 since we compile bootstrap directly.
-gulp.task('copy:css:bootstrap', function() {
-  return gulp
-    .src([
-    'node_modules/bootstrap/dist/css/bootstrap.min.css',
-    'node_modules/bootstrap/dist/css/bootstrap.min.css.map',
-    'node_modules/bootstrap/dist/css/bootstrap-theme.min.css',
-    'node_modules/bootstrap/dist/css/bootstrap-theme.min.css.map',
-  ])
-  .pipe(gulp.dest(cssOut));
 });
 
 // Populate css files

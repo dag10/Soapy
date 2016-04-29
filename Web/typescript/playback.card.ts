@@ -26,7 +26,7 @@ export class PlaybackCardComponent implements AfterViewInit {
   }
 
   public ngAfterViewInit() {
-    this.$el.hide().show(); // TODO: Show based on available data.
+    this.hide();
   }
 
   public hide() {
@@ -40,6 +40,12 @@ export class PlaybackCardComponent implements AfterViewInit {
   @Input()
   public set selectedPlaylist(playlist: Playlist) {
     this._selectedPlaylist = playlist;
+
+    if (this._selectedPlaylist === null) {
+      this.hide();
+    } else {
+      this.show();
+    }
   }
 
   public get selectedPlaylist(): Playlist {

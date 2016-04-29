@@ -140,19 +140,14 @@ function dieWithJsonSuccess() {
 
 /* Routes */
 
-$app->get('/', function() use ($app) {
-  global $base_url;
-
-  // Remember where to return to when Spotify authenticates us
-  $_SESSION['version'] = 'v1';
+$app->get(
+    '/?', function() use ($app) {
 
   $ctx = start_view_context($app);
+  $ctx['main_module'] = 'main';
+  $ctx['playlist_api_data'] = apiRawUserData($ctx);
 
-  if ($ctx['user']->getSpotifyAccount() != null) {
-    $app->redirect($base_url . 'me/playlists');
-  }
-
-  $app->render('index.html', $ctx);
+  $app->render('app.html', $ctx);
 });
 
 // Spotify redirects here after user authenticates.
@@ -202,54 +197,7 @@ $app->get(
     $app->redirect($base_url);
   }
 
-  if ($_SESSION && $_SESSION['version'] == 'v2') {
-    $app->redirect($base_url . 'v2');
-  } else {
-    $app->redirect($base_url);
-  }
-});
-
-$app->get(
-    '/v2/?', function() use ($app) {
-
-  // Remember where to return to when Spotify authenticates us
-  $_SESSION['version'] = 'v2';
-
-  $ctx = start_view_context($app);
-  $ctx['main_module'] = 'main';
-  $ctx['playlist_api_data'] = apiRawUserData($ctx);
-
-  $app->render('app.html', $ctx);
-});
-
-// TODO: Remove this when I switch to the v2 frontend.
-$app->post('/unpair/spotify/?', function() use ($app) {
-  global $base_url;
-
-  $ctx = start_view_context($app, ['require_spotify' => true]);
-  if (!$ctx) return;
-
-  $ctx['user']->getSpotifyAccount()->delete();
-
   $app->redirect($base_url);
-});
-
-// View spotify playlists.
-$app->get('/me/playlists/?', function() use ($app) {
-  $ctx = start_view_context($app, ['require_spotify' => true]);
-  if (!$ctx) return;
-
-  $api = $ctx['sp_api'];
-  $ctx['selected_playlist_uri'] = $ctx['user']->getPlaylistUri();
-  $ctx['playlists'] = array();
-
-  try {
-    $ctx['playlists'] = \Spotify\get_playlists($api, $ctx['user']);
-  } catch (\SpotifyWebAPI\SpotifyWebAPIException $e) {
-    $app->flash('error', 'Spotify error: ' . $e->getMessage());
-  }
-
-  $app->render('data_playlists.html', $ctx);
 });
 
 // API endpoint for unpairing the connected spotify account.
@@ -276,27 +224,6 @@ $app->post('/api/me/playback', function() use ($app) {
     } catch (\Exception $e) {
       dieWithJsonError($e->getMessage());
     }
-  }
-
-  $shuffle = $app->request->post('shuffle');
-  if ($shuffle !== null) {
-    $shuffle = ($shuffle == 'true');
-    $mode = $shuffle ? 'SHUFFLE' : 'LINEAR';
-    $ctx['user']->setPlaybackMode($mode);
-    $ctx['user']->save();
-  }
-
-  dieWithJsonSuccess();
-});
-
-// AJAX endpoint for setting the playback settings for a user.
-// TODO: Remove this when I switch to the v2 frontend.
-$app->post('/me/playback', function() use ($app) {
-  $ctx = start_view_context($app, ['require_spotify' => true]);
-
-  $new_playlist = $app->request->post('playlist_uri');
-  if ($new_playlist !== null) {
-    $ctx['user']->setPlaylistUri($new_playlist);
   }
 
   $shuffle = $app->request->post('shuffle');
@@ -423,40 +350,6 @@ $app->get('/api/me/playlist/:playlistId', function($playlistId) use ($app) {
   $ctx = start_view_context($app, ['require_spotify' => true]);
 
   apiHandlerGetPlaylist($ctx, $playlistId);
-});
-
-// Web API for fetching app data.
-// It always returns useful information.
-// If the user has a paired spotify account, it will return the account
-// data, and either:
-//   - Playlist list if no playlist is selected, or
-//   - Selected playlist and tracklist if there is one.
-$app->get('/api/me/appdata', function() use ($app) {
-  $ctx = start_view_context($app);
-
-  //var_dump($ctx);
-  //exit;
-
-  $json_data = [
-    'user' => $ctx['user']->getDataForJson(),
-    ];
-
-  if ($ctx['authorized']) {
-    // TODO
-  }
-
-  dieWithJson($json_data);
-});
-
-// Device API for setting the selected playlist for a user.
-$app->post('/api/rfid/:rfid/playlist/set', function($rfid) use ($app) {
-  $ctx = start_view_context($app, [
-    'require_spotify' => true, 'rfid' => $rfid, 'require_secret' => true]);
-
-  $new_playlist = $app->request->post('playlist_uri');
-  $ctx['user']->setPlaylistUri($new_playlist);
-
-  dieWithJsonSuccess();
 });
 
 // Device API for updating the current song being played.

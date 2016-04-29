@@ -37,7 +37,7 @@ export class SoapyAppComponent implements OnInit {
 
   public ngOnInit() {
     // TODO: Get playback data from service.
-    this.playback = { shuffle: true };
+    //this.playback = { shuffle: true };
 
     this._soapyService.errors.subscribe((err: any) => {
       var message = err.hasOwnProperty('message') ? err.message : '' + err;

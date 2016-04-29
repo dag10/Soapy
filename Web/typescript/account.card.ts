@@ -29,7 +29,7 @@ interface Position {
 }
 
 @Component({
-    directives: [
+  directives: [
     SpinnerComponent,
   ],
   selector: 'account-card',

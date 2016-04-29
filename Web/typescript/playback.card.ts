@@ -8,14 +8,21 @@ import {
   ChangeDetectorRef} from 'angular2/core';
 
 import {Playback, Playlist} from './soapy.interfaces';
+import {SpinnerComponent} from './spinner';
 import {StaticData} from './StaticData';
 
 declare var jQuery: JQueryStatic;
 
 
 @Component({
+  directives: [
+    SpinnerComponent,
+  ],
   selector: 'playback-card',
   template: StaticData.templates.PlaybackCard,
+  host: {
+    '[class.loading]': '!loaded',
+  },
 })
 export class PlaybackCardComponent implements AfterViewInit {
   @Output() playbackUpdated: EventEmitter<Playback> = new EventEmitter();
@@ -63,6 +70,10 @@ export class PlaybackCardComponent implements AfterViewInit {
 
   public get playback(): Playback {
     return this._playback;
+  }
+
+  public get loaded(): boolean {
+    return (this.playback !== null);
   }
 
   public toggleShuffle() {

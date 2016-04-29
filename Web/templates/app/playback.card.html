@@ -1,12 +1,16 @@
 <h1>Tracklist</h1>
 
-Selected playlist: {{ selectedPlaylist?.title }}<br />
-Shuffle enabled: {{ playback?.shuffle }}<br />
+<spinner></spinner>
 
-<a
-  href="#"
-  (click)="toggleShuffle()"
-  >
-  Toggle Shuffle
-</a>
+<div class="controls">
+  Selected playlist: {{ selectedPlaylist?.title }}<br />
+  Shuffle enabled: {{ playback?.shuffle }}<br />
+
+  <a
+    href="#"
+    (click)="toggleShuffle()"
+    >
+    Toggle Shuffle
+  </a>
+</div>
 

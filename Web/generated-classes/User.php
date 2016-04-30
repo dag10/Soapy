@@ -32,6 +32,31 @@ class User extends BaseUser
     return $data;
   }
 
+  public function clearSelectedPlaylist() {
+    $this->setPlaylistId(null);
+    $this->save();
+    return;
+  }
+
+  public function setSelectedPlaylistById($id) {
+    // For clearing a playlist selection
+    if (!$id) {
+      $this->clearSelectedPlaylist();
+      return;
+    }
+
+    // Make sure the playlist exists
+    $playlist = PlaylistQuery::create()->findPk($id);
+    if (!$playlist) {
+      throw new Exception('Playlist not found: ' . $id);
+    } else if ($playlist->getOwner() != $this) {
+      throw new Exception('You don\'t own playlist ' . $id . '.');
+    }
+
+    $this->setPlaylistId($id);
+    $this->save();
+  }
+
   public function setPlaylistUri($uri) {
     if (!$uri) {
       $this->setPlaylistId(null);

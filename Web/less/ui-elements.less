@@ -1,0 +1,107 @@
+@import 'variables.less';
+
+.spotify-logo {
+  background-image: url('/images/spotify-logo.svg');
+}
+
+.spotify-button() {
+  background-color: @spotify-color;
+  color: white;
+  border-radius: 50px;
+  padding: 7px 28px;
+
+  .spotify-logo {
+    width: 20px;
+    height: 20px;
+    display: inline-block;
+    vertical-align: middle;
+    background-size: contain;
+    background-repeat: no-repeat;
+  }
+
+  &:link,
+  &:active,
+  &:hover,
+  &:visited {
+    text-decoration: none;
+  }
+
+  &:hover {
+    background-color: darken(@spotify-color, 5%);
+  }
+
+  &:active {
+    background-color: darken(@spotify-color, 7%);
+  }
+}
+
+.spinner {
+  /*
+  Copyright (c) 2014 - ijczimm - http://codepen.io/jczimm/pen/vEBpoL
+
+  Permission is hereby granted, free of charge, to any person 
+  obtaining a copy of this software and associated documentation 
+  files (the "Software"), to deal in the Software without restriction,
+   including without limitation the rights to use, copy, modify, 
+  merge, publish, distribute, sublicense, and/or sell copies of 
+  the Software, and to permit persons to whom the Software is 
+  furnished to do so, subject to the following conditions:
+
+  The above copyright notice and this permission notice shall 
+  be included in all copies or substantial portions of the Software.
+
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, 
+  EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES 
+  OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND 
+  NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT 
+  HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, 
+  WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, 
+  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER 
+  DEALINGS IN THE SOFTWARE.
+  */
+
+  @width: 100px;
+
+  width: @width;
+  height: @width;
+
+  .circular {
+    animation: rotate 2s linear infinite;
+    height: @width;
+    position: relative;
+    width: @width;
+  }
+
+  .path {
+    stroke-dasharray: 1, 200;
+    stroke-dashoffset: 0;
+    stroke: @brand-primary;
+    animation: dash 1.5s ease-in-out infinite;
+    stroke-linecap: round;
+    stroke-width: @spinner-stroke-width;
+  }
+
+  @keyframes rotate {
+    100% {
+      transform: rotate(360deg);
+    }
+  }
+
+  @keyframes dash {
+    0% {
+      stroke-dasharray: 1, 200;
+      stroke-dashoffset: 0;
+    }
+
+    50% {
+      stroke-dasharray: 89, 200;
+      stroke-dashoffset: -35;
+    }
+
+    100% {
+      stroke-dasharray: 89, 200;
+      stroke-dashoffset: -124;
+    }
+  }
+}
+

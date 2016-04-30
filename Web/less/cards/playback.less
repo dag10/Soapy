@@ -1,0 +1,32 @@
+@import 'base.less';
+
+playback-card {
+  .card();
+
+  position: relative;
+
+  &.loading {
+    .shuffle-btn,
+    .tracks {
+      display: none;
+    }
+  }
+
+  &:not(.loading) {
+    spinner {
+      display: none;
+    }
+  }
+
+  .shuffle-btn {
+    position: absolute;
+    top: @card-padding;
+    right: @card-padding;
+  }
+
+  .tracks {
+    text-align: center;
+    font-style: italic;
+  }
+}
+

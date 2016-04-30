@@ -1,0 +1,17 @@
+<h1>Your shower tracklist</h1>
+
+<spinner></spinner>
+
+<a
+  class="shuffle-btn"
+  href="#"
+  (click)="toggleShuffle()"
+  >
+  <span *ngIf="playback?.shuffle">Shuffle: ON</span>
+  <span *ngIf="!playback?.shuffle">Shuffle: OFF</span>
+</a>
+
+<div class="tracks">
+  Tracklist not yet implemented.
+</div>
+

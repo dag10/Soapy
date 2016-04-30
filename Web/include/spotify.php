@@ -79,7 +79,9 @@ function get_playlists($api, $user) {
   $spotifyaccount = $user->getSpotifyAccount();
   if (!$spotifyaccount) return null;
   $username = $spotifyaccount->getUsername();
-  $playlists = $api->getUserPlaylists($username, array())['items'];
+  $playlists = $api->getUserPlaylists($username, array(
+    'limit' => 50,
+  ))['items'];
   return array_map($wrapWithModel, $playlists);
 }
 

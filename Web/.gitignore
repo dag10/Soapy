@@ -7,4 +7,13 @@ generated-conf/
 vendor/
 logs/
 templates/cache/
+templates/app/compiled/
+less/compiled/
+
+public/css
+public/app
+public/lib
+public/fonts
+
+node_modules/
 

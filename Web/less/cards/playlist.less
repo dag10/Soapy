@@ -1,0 +1,200 @@
+@import 'base.less';
+
+playlist-card {
+  .card();
+
+  position: relative;
+
+  .expanded-title,
+  .collapsed-title {
+    margin-top: 0 !important;
+  }
+
+  .expanded-title {
+    text-align: center;
+  }
+
+  ul {
+    margin: -@card-padding;
+    margin-top: 0px;
+    padding: 0;
+    padding-top: 2px;
+
+    li {
+      @playlist-image-size: 45px;
+      @playlist-image-margin: 13px;
+      @playlist-li-height: 66px;
+
+      .make-row(0px);
+
+      display: block;
+      height: @playlist-li-height;
+      position: relative;
+
+      &.selected {
+        background-color: @card-list-selected-bg-color;
+      }
+
+      &:hover {
+        background-color: @card-list-hover-bg-color;
+      }
+
+      &:active {
+        background-color: @card-list-press-bg-color;
+      }
+
+      &:last-child {
+        @additional-bottom-padding: @playlist-image-margin * 0.5;
+        border-bottom-left-radius: @card-border-radius;
+        border-bottom-right-radius: @card-border-radius;
+        height: @playlist-li-height + @additional-bottom-padding;
+
+        a {
+          padding-bottom: @additional-bottom-padding;
+        }
+      }
+
+      a {
+        text-decoration: none;
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 0;
+        bottom: 0;
+
+        &:link,
+        &:visited,
+        &:active,
+        &:hover {
+          color: @text-color;
+        }
+
+        .image-container {
+          position: absolute;
+          top: 0;
+          bottom: 0;
+          left: @playlist-image-margin;
+
+          /* Ghost element for vertical centering */
+          &:before {
+            content: '';
+            display: inline-block;
+            height: 100%;
+            vertical-align: middle;
+            margin-right: -0.25em;
+          }
+
+          .image {
+            background-color: fade(@brand-primary, 20%);
+            background-size: cover;
+            height: @playlist-image-size;
+            width: @playlist-image-size;
+            display: inline-block;
+            vertical-align: middle;
+            position: relative;
+            bottom: 1px;
+          }
+        }
+
+        .title,
+        .tracks {
+          position: absolute;
+          font-weight: 100;
+          line-height: @playlist-li-height;
+        }
+
+        .title {
+          left: (2 * @playlist-image-margin) + @playlist-image-size;
+          font-size: 20px;
+          font-weight: 100;
+          white-space: nowrap;
+          overflow: hidden;
+        }
+
+        .tracks {
+          .card-copy;
+
+          left: 75%;
+          color: lighten(@text-color, 30%);
+        }
+      }
+    }
+  }
+}
+
+playlist-card:not(.collapsed) {
+  .collapsed-title,
+  .change-btn {
+    display: none;
+  }
+
+  ul li {
+    transition: background-color 0.18s;
+  }
+}
+
+playlist-card.collapsed {
+  @collapsed-card-height: 86px;
+  @text-left-margin: 100px;
+
+  height: @collapsed-card-height;
+  overflow: hidden;
+
+  .expanded-title {
+    display: none;
+  }
+
+  .collapsed-title,
+  .change-btn {
+    z-index: 2;
+  }
+
+  .collapsed-title {
+    position: absolute;
+    left: @text-left-margin;
+  }
+
+  .change-btn {
+    position: absolute;
+    top: @card-padding;
+    right: @card-padding;
+  }
+
+  li.selected {
+    z-index: 1;
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    height: @collapsed-card-height;
+    background-color: @card-bg-color;
+
+    a {
+      cursor: default;
+    }
+
+    .image-container {
+      left: -2px;
+
+      .image {
+        width: @collapsed-card-height + 1px;
+        height: @collapsed-card-height + 1px;
+      }
+    }
+
+    .title,
+    .tracks {
+      top: 24px;
+    }
+
+    .title {
+      left: @text-left-margin;
+      font-weight: 400;
+    }
+
+    .tracks {
+      opacity: 0;
+    }
+  }
+}
+

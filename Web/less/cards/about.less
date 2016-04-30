@@ -1,0 +1,37 @@
+@import '../variables.less';
+@import 'base.less';
+
+
+about-card {
+  @collapsed-height: 75px;
+
+  .card();
+
+  padding: 0;
+  position: relative;
+  overflow-y: hidden;
+  height: @collapsed-height;
+
+  transition: height 0.3s @swift-out;
+
+  .collapsed {
+    height: @collapsed-height;
+    position: relative;
+
+    & > p {
+      width: 80%;
+      padding: 15px 22px;
+    }
+
+    & > a {
+      .card-action-button;
+    }
+  }
+
+  .more {
+    padding: 15px 0;
+    margin: auto 20px;
+    border-top: solid 1px fade(@brand-primary, 20%);
+  }
+}
+

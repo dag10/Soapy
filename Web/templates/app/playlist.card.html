@@ -1,0 +1,32 @@
+<h1 class="expanded-title">Choose a playlist for your next shower</h1>
+<h1 class="collapsed-title">Shower playlist:</h1>
+
+<a
+  href="#"
+  (click)="selectPlaylist(null)"
+  class="change-btn">
+  Choose a different playlist
+</a>
+
+<ul>
+  <li
+    *ngFor="#playlist of playlists"
+    [class.selected]='playlist == formerlySelectedPlaylist'
+    >
+    <a href="#" (click)="selectPlaylist(playlist)">
+      <div class="image-container">
+        <div
+          class="image"
+          [ngStyle]="{'background-image': 'url(' + (playlist.image || '') + ')'}"
+          ></div>
+      </div>
+      <div class="title">
+        {{ playlist.title }}
+      </div>
+      <div class="tracks">
+        {{ playlist.tracks }} song<span *ngIf="playlist.tracks != 1">s</span>
+      </div>
+    </a>
+  </li>
+</ul>
+

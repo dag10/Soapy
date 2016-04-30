@@ -1,0 +1,76 @@
+<!doctype html>
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <meta charset="utf-8"/>
+
+    <title>{% block title %}Soapy{% endblock %}</title>
+
+    {% block stylesheets %}
+      <link href="{{ base_url }}/css/soapy.css" rel="stylesheet">
+      <link href="//fonts.googleapis.com/css?family=Open+Sans:400,300,600,700,800" rel="stylesheet" type="text/css">
+    {% endblock %}
+  </head>
+  <body>
+    <navbar>
+      <div class="navbar navbar-fixed-top navbar-inverse" role="navigation">
+        <div class="container">
+          <div class="navbar-header">
+            <a class="navbar-brand" href="#"><img src="{{ base_url }}/images/csh_logo_white.svg" alt="CSH" class="logo"/> <span>Soapy</span></a>
+          </div>
+        </div>
+      </div>
+    </navbar>
+
+    <div class="container">
+      {% if flash.error %}
+        <div class="alert alert-daner">{{ flash.error }}</div>
+      {% endif %}
+      {% block content %}
+      {% endblock %}
+    </div>
+
+    <script src="{{ base_url }}/lib/angular2-polyfills.js"></script>
+    <script src="{{ base_url }}/lib/es6-shim.min.js"></script>
+    <script src="{{ base_url }}/lib/system-polyfills.js"></script>
+
+    <script src="{{ base_url }}/lib/system.src.js"></script>
+    <script src="{{ base_url }}/lib/Rx.js"></script>
+    <script src="{{ base_url }}/lib/angular2.dev.js"></script>
+    <script src="{{ base_url }}/lib/http.dev.js"></script>
+    <script src="{{ base_url }}/lib/jquery.min.js"></script>
+
+    <script src="{{ base_url }}/app/soapy.js"></script>
+
+    {% block init_script %}
+    <script>
+      System.config({
+        map: {
+          smartcrop: '/lib/smartcrop.js',
+        },
+        meta: {
+          '/lib/smartcrop.js': {
+            format: 'amd',
+          },
+        },
+      });
+      System.register("StaticData", [], function(exports) {
+        "use strict";
+        return {
+          setters: [],
+          execute: function() {
+            exports("StaticData", {
+              spotifyAuthUrl: "{{ auth_url | raw }}",
+              userData: {{ playlist_api_data | json_encode() | raw }},
+              templates: {{ source('/app/compiled/templates.json') }},
+            });
+          }
+        };
+      });
+      System.import('{{ main_module }}')
+            .then(null, console.error.bind(console));
+    </script>
+    {% endblock %}
+  </body>
+</html>
+

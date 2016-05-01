@@ -64,13 +64,6 @@ abstract class SpotifyAccount implements ActiveRecordInterface
     protected $virtualColumns = array();
 
     /**
-     * The value for the id field.
-     *
-     * @var        int
-     */
-    protected $id;
-
-    /**
      * The value for the user_id field.
      *
      * @var        int
@@ -351,16 +344,6 @@ abstract class SpotifyAccount implements ActiveRecordInterface
     }
 
     /**
-     * Get the [id] column value.
-     *
-     * @return int
-     */
-    public function getId()
-    {
-        return $this->id;
-    }
-
-    /**
      * Get the [user_id] column value.
      *
      * @return int
@@ -429,26 +412,6 @@ abstract class SpotifyAccount implements ActiveRecordInterface
     {
         return $this->avatar;
     }
-
-    /**
-     * Set the value of [id] column.
-     *
-     * @param int $v new value
-     * @return $this|\SpotifyAccount The current object (for fluent API support)
-     */
-    public function setId($v)
-    {
-        if ($v !== null) {
-            $v = (int) $v;
-        }
-
-        if ($this->id !== $v) {
-            $this->id = $v;
-            $this->modifiedColumns[SpotifyAccountTableMap::COL_ID] = true;
-        }
-
-        return $this;
-    } // setId()
 
     /**
      * Set the value of [user_id] column.
@@ -610,28 +573,25 @@ abstract class SpotifyAccount implements ActiveRecordInterface
     {
         try {
 
-            $col = $row[TableMap::TYPE_NUM == $indexType ? 0 + $startcol : SpotifyAccountTableMap::translateFieldName('Id', TableMap::TYPE_PHPNAME, $indexType)];
-            $this->id = (null !== $col) ? (int) $col : null;
-
-            $col = $row[TableMap::TYPE_NUM == $indexType ? 1 + $startcol : SpotifyAccountTableMap::translateFieldName('UserId', TableMap::TYPE_PHPNAME, $indexType)];
+            $col = $row[TableMap::TYPE_NUM == $indexType ? 0 + $startcol : SpotifyAccountTableMap::translateFieldName('UserId', TableMap::TYPE_PHPNAME, $indexType)];
             $this->user_id = (null !== $col) ? (int) $col : null;
 
-            $col = $row[TableMap::TYPE_NUM == $indexType ? 2 + $startcol : SpotifyAccountTableMap::translateFieldName('Username', TableMap::TYPE_PHPNAME, $indexType)];
+            $col = $row[TableMap::TYPE_NUM == $indexType ? 1 + $startcol : SpotifyAccountTableMap::translateFieldName('Username', TableMap::TYPE_PHPNAME, $indexType)];
             $this->username = (null !== $col) ? (string) $col : null;
 
-            $col = $row[TableMap::TYPE_NUM == $indexType ? 3 + $startcol : SpotifyAccountTableMap::translateFieldName('AccessToken', TableMap::TYPE_PHPNAME, $indexType)];
+            $col = $row[TableMap::TYPE_NUM == $indexType ? 2 + $startcol : SpotifyAccountTableMap::translateFieldName('AccessToken', TableMap::TYPE_PHPNAME, $indexType)];
             $this->accesstoken = (null !== $col) ? (string) $col : null;
 
-            $col = $row[TableMap::TYPE_NUM == $indexType ? 4 + $startcol : SpotifyAccountTableMap::translateFieldName('RefreshToken', TableMap::TYPE_PHPNAME, $indexType)];
+            $col = $row[TableMap::TYPE_NUM == $indexType ? 3 + $startcol : SpotifyAccountTableMap::translateFieldName('RefreshToken', TableMap::TYPE_PHPNAME, $indexType)];
             $this->refreshtoken = (null !== $col) ? (string) $col : null;
 
-            $col = $row[TableMap::TYPE_NUM == $indexType ? 5 + $startcol : SpotifyAccountTableMap::translateFieldName('Expiration', TableMap::TYPE_PHPNAME, $indexType)];
+            $col = $row[TableMap::TYPE_NUM == $indexType ? 4 + $startcol : SpotifyAccountTableMap::translateFieldName('Expiration', TableMap::TYPE_PHPNAME, $indexType)];
             if ($col === '0000-00-00 00:00:00') {
                 $col = null;
             }
             $this->expiration = (null !== $col) ? PropelDateTime::newInstance($col, null, 'DateTime') : null;
 
-            $col = $row[TableMap::TYPE_NUM == $indexType ? 6 + $startcol : SpotifyAccountTableMap::translateFieldName('Avatar', TableMap::TYPE_PHPNAME, $indexType)];
+            $col = $row[TableMap::TYPE_NUM == $indexType ? 5 + $startcol : SpotifyAccountTableMap::translateFieldName('Avatar', TableMap::TYPE_PHPNAME, $indexType)];
             $this->avatar = (null !== $col) ? (string) $col : null;
             $this->resetModified();
 
@@ -641,7 +601,7 @@ abstract class SpotifyAccount implements ActiveRecordInterface
                 $this->ensureConsistency();
             }
 
-            return $startcol + 7; // 7 = SpotifyAccountTableMap::NUM_HYDRATE_COLUMNS.
+            return $startcol + 6; // 6 = SpotifyAccountTableMap::NUM_HYDRATE_COLUMNS.
 
         } catch (Exception $e) {
             throw new PropelException(sprintf('Error populating %s object', '\\SpotifyAccount'), 0, $e);
@@ -848,15 +808,8 @@ abstract class SpotifyAccount implements ActiveRecordInterface
         $modifiedColumns = array();
         $index = 0;
 
-        $this->modifiedColumns[SpotifyAccountTableMap::COL_ID] = true;
-        if (null !== $this->id) {
-            throw new PropelException('Cannot insert a value for auto-increment primary key (' . SpotifyAccountTableMap::COL_ID . ')');
-        }
 
          // check the columns in natural order for more readable SQL queries
-        if ($this->isColumnModified(SpotifyAccountTableMap::COL_ID)) {
-            $modifiedColumns[':p' . $index++]  = 'id';
-        }
         if ($this->isColumnModified(SpotifyAccountTableMap::COL_USER_ID)) {
             $modifiedColumns[':p' . $index++]  = 'user_id';
         }
@@ -881,16 +834,11 @@ abstract class SpotifyAccount implements ActiveRecordInterface
             implode(', ', $modifiedColumns),
             implode(', ', array_keys($modifiedColumns))
         );
-        //var_dump($modifiedColumns); exit; // TODO TMP
 
         try {
             $stmt = $con->prepare($sql);
             foreach ($modifiedColumns as $identifier => $columnName) {
                 switch ($columnName) {
-                    case 'id':
-            //echo "BLAH[$columnName][$identifier]"; exit; // TODO TMP
-                        $stmt->bindValue($identifier, $this->id, PDO::PARAM_INT);
-                        break;
                     case 'user_id':
                         $stmt->bindValue($identifier, $this->user_id, PDO::PARAM_INT);
                         break;
@@ -916,13 +864,6 @@ abstract class SpotifyAccount implements ActiveRecordInterface
             Propel::log($e->getMessage(), Propel::LOG_ERR);
             throw new PropelException(sprintf('Unable to execute INSERT statement [%s]', $sql), 0, $e);
         }
-
-        try {
-            $pk = $con->lastInsertId();
-        } catch (Exception $e) {
-            throw new PropelException('Unable to get autoincrement id.', 0, $e);
-        }
-        $this->setId($pk);
 
         $this->setNew(false);
     }
@@ -972,24 +913,21 @@ abstract class SpotifyAccount implements ActiveRecordInterface
     {
         switch ($pos) {
             case 0:
-                return $this->getId();
-                break;
-            case 1:
                 return $this->getUserId();
                 break;
-            case 2:
+            case 1:
                 return $this->getUsername();
                 break;
-            case 3:
+            case 2:
                 return $this->getAccessToken();
                 break;
-            case 4:
+            case 3:
                 return $this->getRefreshToken();
                 break;
-            case 5:
+            case 4:
                 return $this->getExpiration();
                 break;
-            case 6:
+            case 5:
                 return $this->getAvatar();
                 break;
             default:
@@ -1022,16 +960,15 @@ abstract class SpotifyAccount implements ActiveRecordInterface
         $alreadyDumpedObjects['SpotifyAccount'][$this->hashCode()] = true;
         $keys = SpotifyAccountTableMap::getFieldNames($keyType);
         $result = array(
-            $keys[0] => $this->getId(),
-            $keys[1] => $this->getUserId(),
-            $keys[2] => $this->getUsername(),
-            $keys[3] => $this->getAccessToken(),
-            $keys[4] => $this->getRefreshToken(),
-            $keys[5] => $this->getExpiration(),
-            $keys[6] => $this->getAvatar(),
+            $keys[0] => $this->getUserId(),
+            $keys[1] => $this->getUsername(),
+            $keys[2] => $this->getAccessToken(),
+            $keys[3] => $this->getRefreshToken(),
+            $keys[4] => $this->getExpiration(),
+            $keys[5] => $this->getAvatar(),
         );
-        if ($result[$keys[5]] instanceof \DateTime) {
-            $result[$keys[5]] = $result[$keys[5]]->format('c');
+        if ($result[$keys[4]] instanceof \DateTime) {
+            $result[$keys[4]] = $result[$keys[4]]->format('c');
         }
 
         $virtualColumns = $this->virtualColumns;
@@ -1090,24 +1027,21 @@ abstract class SpotifyAccount implements ActiveRecordInterface
     {
         switch ($pos) {
             case 0:
-                $this->setId($value);
-                break;
-            case 1:
                 $this->setUserId($value);
                 break;
-            case 2:
+            case 1:
                 $this->setUsername($value);
                 break;
-            case 3:
+            case 2:
                 $this->setAccessToken($value);
                 break;
-            case 4:
+            case 3:
                 $this->setRefreshToken($value);
                 break;
-            case 5:
+            case 4:
                 $this->setExpiration($value);
                 break;
-            case 6:
+            case 5:
                 $this->setAvatar($value);
                 break;
         } // switch()
@@ -1137,25 +1071,22 @@ abstract class SpotifyAccount implements ActiveRecordInterface
         $keys = SpotifyAccountTableMap::getFieldNames($keyType);
 
         if (array_key_exists($keys[0], $arr)) {
-            $this->setId($arr[$keys[0]]);
+            $this->setUserId($arr[$keys[0]]);
         }
         if (array_key_exists($keys[1], $arr)) {
-            $this->setUserId($arr[$keys[1]]);
+            $this->setUsername($arr[$keys[1]]);
         }
         if (array_key_exists($keys[2], $arr)) {
-            $this->setUsername($arr[$keys[2]]);
+            $this->setAccessToken($arr[$keys[2]]);
         }
         if (array_key_exists($keys[3], $arr)) {
-            $this->setAccessToken($arr[$keys[3]]);
+            $this->setRefreshToken($arr[$keys[3]]);
         }
         if (array_key_exists($keys[4], $arr)) {
-            $this->setRefreshToken($arr[$keys[4]]);
+            $this->setExpiration($arr[$keys[4]]);
         }
         if (array_key_exists($keys[5], $arr)) {
-            $this->setExpiration($arr[$keys[5]]);
-        }
-        if (array_key_exists($keys[6], $arr)) {
-            $this->setAvatar($arr[$keys[6]]);
+            $this->setAvatar($arr[$keys[5]]);
         }
     }
 
@@ -1198,9 +1129,6 @@ abstract class SpotifyAccount implements ActiveRecordInterface
     {
         $criteria = new Criteria(SpotifyAccountTableMap::DATABASE_NAME);
 
-        if ($this->isColumnModified(SpotifyAccountTableMap::COL_ID)) {
-            $criteria->add(SpotifyAccountTableMap::COL_ID, $this->id);
-        }
         if ($this->isColumnModified(SpotifyAccountTableMap::COL_USER_ID)) {
             $criteria->add(SpotifyAccountTableMap::COL_USER_ID, $this->user_id);
         }
@@ -1236,7 +1164,7 @@ abstract class SpotifyAccount implements ActiveRecordInterface
     public function buildPkeyCriteria()
     {
         $criteria = ChildSpotifyAccountQuery::create();
-        $criteria->add(SpotifyAccountTableMap::COL_ID, $this->id);
+        $criteria->add(SpotifyAccountTableMap::COL_USERNAME, $this->username);
 
         return $criteria;
     }
@@ -1249,7 +1177,7 @@ abstract class SpotifyAccount implements ActiveRecordInterface
      */
     public function hashCode()
     {
-        $validPk = null !== $this->getId();
+        $validPk = null !== $this->getUsername();
 
         $validPrimaryKeyFKs = 0;
         $primaryKeyFKs = [];
@@ -1265,22 +1193,22 @@ abstract class SpotifyAccount implements ActiveRecordInterface
 
     /**
      * Returns the primary key for this object (row).
-     * @return int
+     * @return string
      */
     public function getPrimaryKey()
     {
-        return $this->getId();
+        return $this->getUsername();
     }
 
     /**
-     * Generic method to set the primary key (id column).
+     * Generic method to set the primary key (username column).
      *
-     * @param       int $key Primary key.
+     * @param       string $key Primary key.
      * @return void
      */
     public function setPrimaryKey($key)
     {
-        $this->setId($key);
+        $this->setUsername($key);
     }
 
     /**
@@ -1289,7 +1217,7 @@ abstract class SpotifyAccount implements ActiveRecordInterface
      */
     public function isPrimaryKeyNull()
     {
-        return null === $this->getId();
+        return null === $this->getUsername();
     }
 
     /**
@@ -1313,7 +1241,6 @@ abstract class SpotifyAccount implements ActiveRecordInterface
         $copyObj->setAvatar($this->getAvatar());
         if ($makeNew) {
             $copyObj->setNew(true);
-            $copyObj->setId(NULL); // this is a auto-increment column, so set to default value
         }
     }
 
@@ -1400,7 +1327,6 @@ abstract class SpotifyAccount implements ActiveRecordInterface
         if (null !== $this->aUser) {
             $this->aUser->removeSpotifyAccount($this);
         }
-        $this->id = null;
         $this->user_id = null;
         $this->username = null;
         $this->accesstoken = null;

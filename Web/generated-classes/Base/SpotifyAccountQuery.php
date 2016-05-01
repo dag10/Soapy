@@ -20,7 +20,6 @@ use Propel\Runtime\Exception\PropelException;
  *
  *
  *
- * @method     ChildSpotifyAccountQuery orderById($order = Criteria::ASC) Order by the id column
  * @method     ChildSpotifyAccountQuery orderByUserId($order = Criteria::ASC) Order by the user_id column
  * @method     ChildSpotifyAccountQuery orderByUsername($order = Criteria::ASC) Order by the username column
  * @method     ChildSpotifyAccountQuery orderByAccessToken($order = Criteria::ASC) Order by the accesstoken column
@@ -28,7 +27,6 @@ use Propel\Runtime\Exception\PropelException;
  * @method     ChildSpotifyAccountQuery orderByExpiration($order = Criteria::ASC) Order by the expiration column
  * @method     ChildSpotifyAccountQuery orderByAvatar($order = Criteria::ASC) Order by the avatar column
  *
- * @method     ChildSpotifyAccountQuery groupById() Group by the id column
  * @method     ChildSpotifyAccountQuery groupByUserId() Group by the user_id column
  * @method     ChildSpotifyAccountQuery groupByUsername() Group by the username column
  * @method     ChildSpotifyAccountQuery groupByAccessToken() Group by the accesstoken column
@@ -59,7 +57,6 @@ use Propel\Runtime\Exception\PropelException;
  * @method     ChildSpotifyAccount findOne(ConnectionInterface $con = null) Return the first ChildSpotifyAccount matching the query
  * @method     ChildSpotifyAccount findOneOrCreate(ConnectionInterface $con = null) Return the first ChildSpotifyAccount matching the query, or a new ChildSpotifyAccount object populated from the query conditions when no match is found
  *
- * @method     ChildSpotifyAccount findOneById(int $id) Return the first ChildSpotifyAccount filtered by the id column
  * @method     ChildSpotifyAccount findOneByUserId(int $user_id) Return the first ChildSpotifyAccount filtered by the user_id column
  * @method     ChildSpotifyAccount findOneByUsername(string $username) Return the first ChildSpotifyAccount filtered by the username column
  * @method     ChildSpotifyAccount findOneByAccessToken(string $accesstoken) Return the first ChildSpotifyAccount filtered by the accesstoken column
@@ -70,7 +67,6 @@ use Propel\Runtime\Exception\PropelException;
  * @method     ChildSpotifyAccount requirePk($key, ConnectionInterface $con = null) Return the ChildSpotifyAccount by primary key and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
  * @method     ChildSpotifyAccount requireOne(ConnectionInterface $con = null) Return the first ChildSpotifyAccount matching the query and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
  *
- * @method     ChildSpotifyAccount requireOneById(int $id) Return the first ChildSpotifyAccount filtered by the id column and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
  * @method     ChildSpotifyAccount requireOneByUserId(int $user_id) Return the first ChildSpotifyAccount filtered by the user_id column and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
  * @method     ChildSpotifyAccount requireOneByUsername(string $username) Return the first ChildSpotifyAccount filtered by the username column and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
  * @method     ChildSpotifyAccount requireOneByAccessToken(string $accesstoken) Return the first ChildSpotifyAccount filtered by the accesstoken column and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
@@ -79,7 +75,6 @@ use Propel\Runtime\Exception\PropelException;
  * @method     ChildSpotifyAccount requireOneByAvatar(string $avatar) Return the first ChildSpotifyAccount filtered by the avatar column and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
  *
  * @method     ChildSpotifyAccount[]|ObjectCollection find(ConnectionInterface $con = null) Return ChildSpotifyAccount objects based on current ModelCriteria
- * @method     ChildSpotifyAccount[]|ObjectCollection findById(int $id) Return ChildSpotifyAccount objects filtered by the id column
  * @method     ChildSpotifyAccount[]|ObjectCollection findByUserId(int $user_id) Return ChildSpotifyAccount objects filtered by the user_id column
  * @method     ChildSpotifyAccount[]|ObjectCollection findByUsername(string $username) Return ChildSpotifyAccount objects filtered by the username column
  * @method     ChildSpotifyAccount[]|ObjectCollection findByAccessToken(string $accesstoken) Return ChildSpotifyAccount objects filtered by the accesstoken column
@@ -178,10 +173,10 @@ abstract class SpotifyAccountQuery extends ModelCriteria
      */
     protected function findPkSimple($key, ConnectionInterface $con)
     {
-        $sql = 'SELECT id, user_id, username, accesstoken, refreshtoken, expiration, avatar FROM spotifyaccount WHERE id = :p0';
+        $sql = 'SELECT user_id, username, accesstoken, refreshtoken, expiration, avatar FROM spotifyaccount WHERE username = :p0';
         try {
             $stmt = $con->prepare($sql);
-            $stmt->bindValue(':p0', $key, PDO::PARAM_INT);
+            $stmt->bindValue(':p0', $key, PDO::PARAM_STR);
             $stmt->execute();
         } catch (Exception $e) {
             Propel::log($e->getMessage(), Propel::LOG_ERR);
@@ -252,7 +247,7 @@ abstract class SpotifyAccountQuery extends ModelCriteria
     public function filterByPrimaryKey($key)
     {
 
-        return $this->addUsingAlias(SpotifyAccountTableMap::COL_ID, $key, Criteria::EQUAL);
+        return $this->addUsingAlias(SpotifyAccountTableMap::COL_USERNAME, $key, Criteria::EQUAL);
     }
 
     /**
@@ -265,48 +260,7 @@ abstract class SpotifyAccountQuery extends ModelCriteria
     public function filterByPrimaryKeys($keys)
     {
 
-        return $this->addUsingAlias(SpotifyAccountTableMap::COL_ID, $keys, Criteria::IN);
-    }
-
-    /**
-     * Filter the query on the id column
-     *
-     * Example usage:
-     * <code>
-     * $query->filterById(1234); // WHERE id = 1234
-     * $query->filterById(array(12, 34)); // WHERE id IN (12, 34)
-     * $query->filterById(array('min' => 12)); // WHERE id > 12
-     * </code>
-     *
-     * @param     mixed $id The value to use as filter.
-     *              Use scalar values for equality.
-     *              Use array values for in_array() equivalent.
-     *              Use associative array('min' => $minValue, 'max' => $maxValue) for intervals.
-     * @param     string $comparison Operator to use for the column comparison, defaults to Criteria::EQUAL
-     *
-     * @return $this|ChildSpotifyAccountQuery The current query, for fluid interface
-     */
-    public function filterById($id = null, $comparison = null)
-    {
-        if (is_array($id)) {
-            $useMinMax = false;
-            if (isset($id['min'])) {
-                $this->addUsingAlias(SpotifyAccountTableMap::COL_ID, $id['min'], Criteria::GREATER_EQUAL);
-                $useMinMax = true;
-            }
-            if (isset($id['max'])) {
-                $this->addUsingAlias(SpotifyAccountTableMap::COL_ID, $id['max'], Criteria::LESS_EQUAL);
-                $useMinMax = true;
-            }
-            if ($useMinMax) {
-                return $this;
-            }
-            if (null === $comparison) {
-                $comparison = Criteria::IN;
-            }
-        }
-
-        return $this->addUsingAlias(SpotifyAccountTableMap::COL_ID, $id, $comparison);
+        return $this->addUsingAlias(SpotifyAccountTableMap::COL_USERNAME, $keys, Criteria::IN);
     }
 
     /**
@@ -598,7 +552,7 @@ abstract class SpotifyAccountQuery extends ModelCriteria
     public function prune($spotifyAccount = null)
     {
         if ($spotifyAccount) {
-            $this->addUsingAlias(SpotifyAccountTableMap::COL_ID, $spotifyAccount->getId(), Criteria::NOT_EQUAL);
+            $this->addUsingAlias(SpotifyAccountTableMap::COL_USERNAME, $spotifyAccount->getUsername(), Criteria::NOT_EQUAL);
         }
 
         return $this;

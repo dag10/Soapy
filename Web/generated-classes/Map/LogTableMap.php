@@ -153,7 +153,7 @@ class LogTableMap extends TableMap
     );
 
     /**
-     * Gets the list of values for all ENUM columns
+     * Gets the list of values for all ENUM and SET columns
      * @return array
      */
     public static function getValueSets()
@@ -162,7 +162,7 @@ class LogTableMap extends TableMap
     }
 
     /**
-     * Gets the list of values for an ENUM column
+     * Gets the list of values for an ENUM or SET column
      * @param string $colname
      * @return array list of possible values for the column
      */

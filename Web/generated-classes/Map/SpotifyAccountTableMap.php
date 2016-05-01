@@ -59,7 +59,7 @@ class SpotifyAccountTableMap extends TableMap
     /**
      * The total number of columns
      */
-    const NUM_COLUMNS = 7;
+    const NUM_COLUMNS = 6;
 
     /**
      * The number of lazy-loaded columns
@@ -69,12 +69,7 @@ class SpotifyAccountTableMap extends TableMap
     /**
      * The number of columns to hydrate (NUM_COLUMNS - NUM_LAZY_LOAD_COLUMNS)
      */
-    const NUM_HYDRATE_COLUMNS = 7;
-
-    /**
-     * the column name for the id field
-     */
-    const COL_ID = 'spotifyaccount.id';
+    const NUM_HYDRATE_COLUMNS = 6;
 
     /**
      * the column name for the user_id field
@@ -118,11 +113,11 @@ class SpotifyAccountTableMap extends TableMap
      * e.g. self::$fieldNames[self::TYPE_PHPNAME][0] = 'Id'
      */
     protected static $fieldNames = array (
-        self::TYPE_PHPNAME       => array('Id', 'UserId', 'Username', 'AccessToken', 'RefreshToken', 'Expiration', 'Avatar', ),
-        self::TYPE_CAMELNAME     => array('id', 'userId', 'username', 'accessToken', 'refreshToken', 'expiration', 'avatar', ),
-        self::TYPE_COLNAME       => array(SpotifyAccountTableMap::COL_ID, SpotifyAccountTableMap::COL_USER_ID, SpotifyAccountTableMap::COL_USERNAME, SpotifyAccountTableMap::COL_ACCESSTOKEN, SpotifyAccountTableMap::COL_REFRESHTOKEN, SpotifyAccountTableMap::COL_EXPIRATION, SpotifyAccountTableMap::COL_AVATAR, ),
-        self::TYPE_FIELDNAME     => array('id', 'user_id', 'username', 'accesstoken', 'refreshtoken', 'expiration', 'avatar', ),
-        self::TYPE_NUM           => array(0, 1, 2, 3, 4, 5, 6, )
+        self::TYPE_PHPNAME       => array('UserId', 'Username', 'AccessToken', 'RefreshToken', 'Expiration', 'Avatar', ),
+        self::TYPE_CAMELNAME     => array('userId', 'username', 'accessToken', 'refreshToken', 'expiration', 'avatar', ),
+        self::TYPE_COLNAME       => array(SpotifyAccountTableMap::COL_USER_ID, SpotifyAccountTableMap::COL_USERNAME, SpotifyAccountTableMap::COL_ACCESSTOKEN, SpotifyAccountTableMap::COL_REFRESHTOKEN, SpotifyAccountTableMap::COL_EXPIRATION, SpotifyAccountTableMap::COL_AVATAR, ),
+        self::TYPE_FIELDNAME     => array('user_id', 'username', 'accesstoken', 'refreshtoken', 'expiration', 'avatar', ),
+        self::TYPE_NUM           => array(0, 1, 2, 3, 4, 5, )
     );
 
     /**
@@ -132,11 +127,11 @@ class SpotifyAccountTableMap extends TableMap
      * e.g. self::$fieldKeys[self::TYPE_PHPNAME]['Id'] = 0
      */
     protected static $fieldKeys = array (
-        self::TYPE_PHPNAME       => array('Id' => 0, 'UserId' => 1, 'Username' => 2, 'AccessToken' => 3, 'RefreshToken' => 4, 'Expiration' => 5, 'Avatar' => 6, ),
-        self::TYPE_CAMELNAME     => array('id' => 0, 'userId' => 1, 'username' => 2, 'accessToken' => 3, 'refreshToken' => 4, 'expiration' => 5, 'avatar' => 6, ),
-        self::TYPE_COLNAME       => array(SpotifyAccountTableMap::COL_ID => 0, SpotifyAccountTableMap::COL_USER_ID => 1, SpotifyAccountTableMap::COL_USERNAME => 2, SpotifyAccountTableMap::COL_ACCESSTOKEN => 3, SpotifyAccountTableMap::COL_REFRESHTOKEN => 4, SpotifyAccountTableMap::COL_EXPIRATION => 5, SpotifyAccountTableMap::COL_AVATAR => 6, ),
-        self::TYPE_FIELDNAME     => array('id' => 0, 'user_id' => 1, 'username' => 2, 'accesstoken' => 3, 'refreshtoken' => 4, 'expiration' => 5, 'avatar' => 6, ),
-        self::TYPE_NUM           => array(0, 1, 2, 3, 4, 5, 6, )
+        self::TYPE_PHPNAME       => array('UserId' => 0, 'Username' => 1, 'AccessToken' => 2, 'RefreshToken' => 3, 'Expiration' => 4, 'Avatar' => 5, ),
+        self::TYPE_CAMELNAME     => array('userId' => 0, 'username' => 1, 'accessToken' => 2, 'refreshToken' => 3, 'expiration' => 4, 'avatar' => 5, ),
+        self::TYPE_COLNAME       => array(SpotifyAccountTableMap::COL_USER_ID => 0, SpotifyAccountTableMap::COL_USERNAME => 1, SpotifyAccountTableMap::COL_ACCESSTOKEN => 2, SpotifyAccountTableMap::COL_REFRESHTOKEN => 3, SpotifyAccountTableMap::COL_EXPIRATION => 4, SpotifyAccountTableMap::COL_AVATAR => 5, ),
+        self::TYPE_FIELDNAME     => array('user_id' => 0, 'username' => 1, 'accesstoken' => 2, 'refreshtoken' => 3, 'expiration' => 4, 'avatar' => 5, ),
+        self::TYPE_NUM           => array(0, 1, 2, 3, 4, 5, )
     );
 
     /**
@@ -154,11 +149,10 @@ class SpotifyAccountTableMap extends TableMap
         $this->setIdentifierQuoting(false);
         $this->setClassName('\\SpotifyAccount');
         $this->setPackage('');
-        $this->setUseIdGenerator(true);
+        $this->setUseIdGenerator(false);
         // columns
-        $this->addPrimaryKey('id', 'Id', 'INTEGER', true, null, null);
         $this->addForeignKey('user_id', 'UserId', 'INTEGER', 'user', 'id', true, null, null);
-        $this->addColumn('username', 'Username', 'VARCHAR', true, 128, null);
+        $this->addPrimaryKey('username', 'Username', 'VARCHAR', true, 128, null);
         $this->addColumn('accesstoken', 'AccessToken', 'LONGVARCHAR', true, null, null);
         $this->addColumn('refreshtoken', 'RefreshToken', 'LONGVARCHAR', true, null, null);
         $this->addColumn('expiration', 'Expiration', 'TIMESTAMP', true, null, null);
@@ -195,11 +189,11 @@ class SpotifyAccountTableMap extends TableMap
     public static function getPrimaryKeyHashFromRow($row, $offset = 0, $indexType = TableMap::TYPE_NUM)
     {
         // If the PK cannot be derived from the row, return NULL.
-        if ($row[TableMap::TYPE_NUM == $indexType ? 0 + $offset : static::translateFieldName('Id', TableMap::TYPE_PHPNAME, $indexType)] === null) {
+        if ($row[TableMap::TYPE_NUM == $indexType ? 1 + $offset : static::translateFieldName('Username', TableMap::TYPE_PHPNAME, $indexType)] === null) {
             return null;
         }
 
-        return null === $row[TableMap::TYPE_NUM == $indexType ? 0 + $offset : static::translateFieldName('Id', TableMap::TYPE_PHPNAME, $indexType)] || is_scalar($row[TableMap::TYPE_NUM == $indexType ? 0 + $offset : static::translateFieldName('Id', TableMap::TYPE_PHPNAME, $indexType)]) || is_callable([$row[TableMap::TYPE_NUM == $indexType ? 0 + $offset : static::translateFieldName('Id', TableMap::TYPE_PHPNAME, $indexType)], '__toString']) ? (string) $row[TableMap::TYPE_NUM == $indexType ? 0 + $offset : static::translateFieldName('Id', TableMap::TYPE_PHPNAME, $indexType)] : $row[TableMap::TYPE_NUM == $indexType ? 0 + $offset : static::translateFieldName('Id', TableMap::TYPE_PHPNAME, $indexType)];
+        return null === $row[TableMap::TYPE_NUM == $indexType ? 1 + $offset : static::translateFieldName('Username', TableMap::TYPE_PHPNAME, $indexType)] || is_scalar($row[TableMap::TYPE_NUM == $indexType ? 1 + $offset : static::translateFieldName('Username', TableMap::TYPE_PHPNAME, $indexType)]) || is_callable([$row[TableMap::TYPE_NUM == $indexType ? 1 + $offset : static::translateFieldName('Username', TableMap::TYPE_PHPNAME, $indexType)], '__toString']) ? (string) $row[TableMap::TYPE_NUM == $indexType ? 1 + $offset : static::translateFieldName('Username', TableMap::TYPE_PHPNAME, $indexType)] : $row[TableMap::TYPE_NUM == $indexType ? 1 + $offset : static::translateFieldName('Username', TableMap::TYPE_PHPNAME, $indexType)];
     }
 
     /**
@@ -216,10 +210,10 @@ class SpotifyAccountTableMap extends TableMap
      */
     public static function getPrimaryKeyFromRow($row, $offset = 0, $indexType = TableMap::TYPE_NUM)
     {
-        return (int) $row[
+        return (string) $row[
             $indexType == TableMap::TYPE_NUM
-                ? 0 + $offset
-                : self::translateFieldName('Id', TableMap::TYPE_PHPNAME, $indexType)
+                ? 1 + $offset
+                : self::translateFieldName('Username', TableMap::TYPE_PHPNAME, $indexType)
         ];
     }
 
@@ -320,7 +314,6 @@ class SpotifyAccountTableMap extends TableMap
     public static function addSelectColumns(Criteria $criteria, $alias = null)
     {
         if (null === $alias) {
-            $criteria->addSelectColumn(SpotifyAccountTableMap::COL_ID);
             $criteria->addSelectColumn(SpotifyAccountTableMap::COL_USER_ID);
             $criteria->addSelectColumn(SpotifyAccountTableMap::COL_USERNAME);
             $criteria->addSelectColumn(SpotifyAccountTableMap::COL_ACCESSTOKEN);
@@ -328,7 +321,6 @@ class SpotifyAccountTableMap extends TableMap
             $criteria->addSelectColumn(SpotifyAccountTableMap::COL_EXPIRATION);
             $criteria->addSelectColumn(SpotifyAccountTableMap::COL_AVATAR);
         } else {
-            $criteria->addSelectColumn($alias . '.id');
             $criteria->addSelectColumn($alias . '.user_id');
             $criteria->addSelectColumn($alias . '.username');
             $criteria->addSelectColumn($alias . '.accesstoken');
@@ -386,7 +378,7 @@ class SpotifyAccountTableMap extends TableMap
             $criteria = $values->buildPkeyCriteria();
         } else { // it's a primary key, or an array of pks
             $criteria = new Criteria(SpotifyAccountTableMap::DATABASE_NAME);
-            $criteria->add(SpotifyAccountTableMap::COL_ID, (array) $values, Criteria::IN);
+            $criteria->add(SpotifyAccountTableMap::COL_USERNAME, (array) $values, Criteria::IN);
         }
 
         $query = SpotifyAccountQuery::create()->mergeWith($criteria);
@@ -432,10 +424,6 @@ class SpotifyAccountTableMap extends TableMap
             $criteria = clone $criteria; // rename for clarity
         } else {
             $criteria = $criteria->buildCriteria(); // build Criteria from SpotifyAccount object
-        }
-
-        if ($criteria->containsKey(SpotifyAccountTableMap::COL_ID) && $criteria->keyContainsValue(SpotifyAccountTableMap::COL_ID) ) {
-            throw new PropelException('Cannot insert a value for auto-increment primary key ('.SpotifyAccountTableMap::COL_ID.')');
         }
 
 

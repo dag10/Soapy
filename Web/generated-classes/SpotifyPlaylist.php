@@ -14,5 +14,13 @@ use Base\SpotifyPlaylist as BaseSpotifyPlaylist;
  */
 class SpotifyPlaylist extends BaseSpotifyPlaylist
 {
-
+  public function getOwnerUsername() {
+    $playlist_uri_expl = explode(':', $this->getUri());
+    return $playlist_uri_expl[2];
+  }
+  
+  public function getSpotifyId() {
+    $playlist_uri_expl = explode(':', $this->getUri());
+    return $playlist_uri_expl[4];
+  }
 }

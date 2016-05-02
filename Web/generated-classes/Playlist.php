@@ -15,20 +15,16 @@ use Base\Playlist as BasePlaylist;
 class Playlist extends BasePlaylist
 {
   public function getDataForJson() {
-    return [
+    $ret = [
       'soapyPlaylistId' => $this->getId(),
-      'spotifyPlaylistUri' => $this->getUri(),
       'lastPlayedSongUri' => $this->getLastPlayedSong(),
       ];
-  }
 
-  public function getOwnerUsername() {
-    $playlist_uri_expl = explode(':', $this->getUri());
-    return $playlist_uri_expl[2];
-  }
-  
-  public function getSpotifyId() {
-    $playlist_uri_expl = explode(':', $this->getUri());
-    return $playlist_uri_expl[4];
+    $spPlaylist = $this->getSpotifyPlaylist();
+    if ($spPlaylist) {
+      $ret['spotifyPlaylistUri'] = $spPlaylist->getUri();
+    }
+
+    return $ret;
   }
 }

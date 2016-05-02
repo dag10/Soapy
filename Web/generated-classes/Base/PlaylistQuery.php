@@ -21,12 +21,10 @@ use Propel\Runtime\Exception\PropelException;
  *
  *
  * @method     ChildPlaylistQuery orderById($order = Criteria::ASC) Order by the id column
- * @method     ChildPlaylistQuery orderByUri($order = Criteria::ASC) Order by the uri column
  * @method     ChildPlaylistQuery orderByLastPlayedSong($order = Criteria::ASC) Order by the lastplayedsong column
  * @method     ChildPlaylistQuery orderByOwnerId($order = Criteria::ASC) Order by the owner_id column
  *
  * @method     ChildPlaylistQuery groupById() Group by the id column
- * @method     ChildPlaylistQuery groupByUri() Group by the uri column
  * @method     ChildPlaylistQuery groupByLastPlayedSong() Group by the lastplayedsong column
  * @method     ChildPlaylistQuery groupByOwnerId() Group by the owner_id column
  *
@@ -74,7 +72,6 @@ use Propel\Runtime\Exception\PropelException;
  * @method     ChildPlaylist findOneOrCreate(ConnectionInterface $con = null) Return the first ChildPlaylist matching the query, or a new ChildPlaylist object populated from the query conditions when no match is found
  *
  * @method     ChildPlaylist findOneById(int $id) Return the first ChildPlaylist filtered by the id column
- * @method     ChildPlaylist findOneByUri(string $uri) Return the first ChildPlaylist filtered by the uri column
  * @method     ChildPlaylist findOneByLastPlayedSong(string $lastplayedsong) Return the first ChildPlaylist filtered by the lastplayedsong column
  * @method     ChildPlaylist findOneByOwnerId(int $owner_id) Return the first ChildPlaylist filtered by the owner_id column *
 
@@ -82,13 +79,11 @@ use Propel\Runtime\Exception\PropelException;
  * @method     ChildPlaylist requireOne(ConnectionInterface $con = null) Return the first ChildPlaylist matching the query and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
  *
  * @method     ChildPlaylist requireOneById(int $id) Return the first ChildPlaylist filtered by the id column and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
- * @method     ChildPlaylist requireOneByUri(string $uri) Return the first ChildPlaylist filtered by the uri column and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
  * @method     ChildPlaylist requireOneByLastPlayedSong(string $lastplayedsong) Return the first ChildPlaylist filtered by the lastplayedsong column and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
  * @method     ChildPlaylist requireOneByOwnerId(int $owner_id) Return the first ChildPlaylist filtered by the owner_id column and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
  *
  * @method     ChildPlaylist[]|ObjectCollection find(ConnectionInterface $con = null) Return ChildPlaylist objects based on current ModelCriteria
  * @method     ChildPlaylist[]|ObjectCollection findById(int $id) Return ChildPlaylist objects filtered by the id column
- * @method     ChildPlaylist[]|ObjectCollection findByUri(string $uri) Return ChildPlaylist objects filtered by the uri column
  * @method     ChildPlaylist[]|ObjectCollection findByLastPlayedSong(string $lastplayedsong) Return ChildPlaylist objects filtered by the lastplayedsong column
  * @method     ChildPlaylist[]|ObjectCollection findByOwnerId(int $owner_id) Return ChildPlaylist objects filtered by the owner_id column
  * @method     ChildPlaylist[]|\Propel\Runtime\Util\PropelModelPager paginate($page = 1, $maxPerPage = 10, ConnectionInterface $con = null) Issue a SELECT query based on the current ModelCriteria and uses a page and a maximum number of results per page to compute an offset and a limit
@@ -183,7 +178,7 @@ abstract class PlaylistQuery extends ModelCriteria
      */
     protected function findPkSimple($key, ConnectionInterface $con)
     {
-        $sql = 'SELECT id, uri, lastplayedsong, owner_id FROM playlist WHERE id = :p0';
+        $sql = 'SELECT id, lastplayedsong, owner_id FROM playlist WHERE id = :p0';
         try {
             $stmt = $con->prepare($sql);
             $stmt->bindValue(':p0', $key, PDO::PARAM_INT);
@@ -312,35 +307,6 @@ abstract class PlaylistQuery extends ModelCriteria
         }
 
         return $this->addUsingAlias(PlaylistTableMap::COL_ID, $id, $comparison);
-    }
-
-    /**
-     * Filter the query on the uri column
-     *
-     * Example usage:
-     * <code>
-     * $query->filterByUri('fooValue');   // WHERE uri = 'fooValue'
-     * $query->filterByUri('%fooValue%'); // WHERE uri LIKE '%fooValue%'
-     * </code>
-     *
-     * @param     string $uri The value to use as filter.
-     *              Accepts wildcards (* and % trigger a LIKE)
-     * @param     string $comparison Operator to use for the column comparison, defaults to Criteria::EQUAL
-     *
-     * @return $this|ChildPlaylistQuery The current query, for fluid interface
-     */
-    public function filterByUri($uri = null, $comparison = null)
-    {
-        if (null === $comparison) {
-            if (is_array($uri)) {
-                $comparison = Criteria::IN;
-            } elseif (preg_match('/[\%\*]/', $uri)) {
-                $uri = str_replace('*', '%', $uri);
-                $comparison = Criteria::LIKE;
-            }
-        }
-
-        return $this->addUsingAlias(PlaylistTableMap::COL_URI, $uri, $comparison);
     }
 
     /**

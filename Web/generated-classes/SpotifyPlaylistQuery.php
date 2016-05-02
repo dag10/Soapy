@@ -14,5 +14,19 @@ use Base\SpotifyPlaylistQuery as BaseSpotifyPlaylistQuery;
  */
 class SpotifyPlaylistQuery extends BaseSpotifyPlaylistQuery
 {
+  public static function GetOrCreateSpotifyPlaylist($user, $playlistUri) {
+    $ownerId = $user->getId();
 
+    $playlist = self::create()->filterByOwnerId($ownerId)->
+      filterByUri($playlistUri)->findOne();
+
+    if (!$playlist) {
+      $sp_playlist = new SpotifyPlaylist();
+      $sp_playlist->setOwnerId($ownerId);
+      $sp_playlist->setUri($playlistUri);
+      $sp_playlist->save();
+    }
+
+    return $playlist;
+  }
 }

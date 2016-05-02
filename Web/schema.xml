@@ -33,7 +33,6 @@
   </table>
   <table name="playlist">
     <column name="id" type="integer" required="true" primaryKey="true" autoIncrement="true" />
-    <column name="uri" type="longvarchar" required="true" />
     <column name="lastplayedsong" phpName="LastPlayedSong" type="longvarchar" required="false" />
     <column name="owner_id" type="integer" required="true" />
     <foreign-key foreignTable="user" phpName="Owner" refPhpName="PastPlaylist">

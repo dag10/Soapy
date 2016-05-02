@@ -64,7 +64,7 @@ function get_api($access_token) {
 }
 
 function wrap_spotify_playlist_data($user, $spotifyPlaylist) {
-  $playlist = \PlaylistQuery::GetOrCreatePlaylist(
+  $playlist = \SpotifyPlaylistQuery::GetOrCreateSpotifyPlaylist(
     $user, $spotifyPlaylist['uri']);
   $data = $playlist->getDataForJson();
   $data['spotifyPlaylist'] = $spotifyPlaylist;
@@ -86,8 +86,8 @@ function get_playlists($api, $user) {
 }
 
 function get_tracks_for_playlist($api, $playlist) {
-  $username = $playlist->getOwnerUsername();
-  $spotifyId = $playlist->getSpotifyId();
+  $username = $playlist->getSpotifyPlaylist()->getOwnerUsername();
+  $spotifyId = $playlist->getSpotifyPlaylist()->getSpotifyId();
   $songs = $api->getUserPlaylistTracks($username, $spotifyId);
   return $songs['items'];
 }

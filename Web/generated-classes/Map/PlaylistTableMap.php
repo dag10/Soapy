@@ -59,7 +59,7 @@ class PlaylistTableMap extends TableMap
     /**
      * The total number of columns
      */
-    const NUM_COLUMNS = 4;
+    const NUM_COLUMNS = 3;
 
     /**
      * The number of lazy-loaded columns
@@ -69,17 +69,12 @@ class PlaylistTableMap extends TableMap
     /**
      * The number of columns to hydrate (NUM_COLUMNS - NUM_LAZY_LOAD_COLUMNS)
      */
-    const NUM_HYDRATE_COLUMNS = 4;
+    const NUM_HYDRATE_COLUMNS = 3;
 
     /**
      * the column name for the id field
      */
     const COL_ID = 'playlist.id';
-
-    /**
-     * the column name for the uri field
-     */
-    const COL_URI = 'playlist.uri';
 
     /**
      * the column name for the lastplayedsong field
@@ -103,11 +98,11 @@ class PlaylistTableMap extends TableMap
      * e.g. self::$fieldNames[self::TYPE_PHPNAME][0] = 'Id'
      */
     protected static $fieldNames = array (
-        self::TYPE_PHPNAME       => array('Id', 'Uri', 'LastPlayedSong', 'OwnerId', ),
-        self::TYPE_CAMELNAME     => array('id', 'uri', 'lastPlayedSong', 'ownerId', ),
-        self::TYPE_COLNAME       => array(PlaylistTableMap::COL_ID, PlaylistTableMap::COL_URI, PlaylistTableMap::COL_LASTPLAYEDSONG, PlaylistTableMap::COL_OWNER_ID, ),
-        self::TYPE_FIELDNAME     => array('id', 'uri', 'lastplayedsong', 'owner_id', ),
-        self::TYPE_NUM           => array(0, 1, 2, 3, )
+        self::TYPE_PHPNAME       => array('Id', 'LastPlayedSong', 'OwnerId', ),
+        self::TYPE_CAMELNAME     => array('id', 'lastPlayedSong', 'ownerId', ),
+        self::TYPE_COLNAME       => array(PlaylistTableMap::COL_ID, PlaylistTableMap::COL_LASTPLAYEDSONG, PlaylistTableMap::COL_OWNER_ID, ),
+        self::TYPE_FIELDNAME     => array('id', 'lastplayedsong', 'owner_id', ),
+        self::TYPE_NUM           => array(0, 1, 2, )
     );
 
     /**
@@ -117,11 +112,11 @@ class PlaylistTableMap extends TableMap
      * e.g. self::$fieldKeys[self::TYPE_PHPNAME]['Id'] = 0
      */
     protected static $fieldKeys = array (
-        self::TYPE_PHPNAME       => array('Id' => 0, 'Uri' => 1, 'LastPlayedSong' => 2, 'OwnerId' => 3, ),
-        self::TYPE_CAMELNAME     => array('id' => 0, 'uri' => 1, 'lastPlayedSong' => 2, 'ownerId' => 3, ),
-        self::TYPE_COLNAME       => array(PlaylistTableMap::COL_ID => 0, PlaylistTableMap::COL_URI => 1, PlaylistTableMap::COL_LASTPLAYEDSONG => 2, PlaylistTableMap::COL_OWNER_ID => 3, ),
-        self::TYPE_FIELDNAME     => array('id' => 0, 'uri' => 1, 'lastplayedsong' => 2, 'owner_id' => 3, ),
-        self::TYPE_NUM           => array(0, 1, 2, 3, )
+        self::TYPE_PHPNAME       => array('Id' => 0, 'LastPlayedSong' => 1, 'OwnerId' => 2, ),
+        self::TYPE_CAMELNAME     => array('id' => 0, 'lastPlayedSong' => 1, 'ownerId' => 2, ),
+        self::TYPE_COLNAME       => array(PlaylistTableMap::COL_ID => 0, PlaylistTableMap::COL_LASTPLAYEDSONG => 1, PlaylistTableMap::COL_OWNER_ID => 2, ),
+        self::TYPE_FIELDNAME     => array('id' => 0, 'lastplayedsong' => 1, 'owner_id' => 2, ),
+        self::TYPE_NUM           => array(0, 1, 2, )
     );
 
     /**
@@ -142,7 +137,6 @@ class PlaylistTableMap extends TableMap
         $this->setUseIdGenerator(true);
         // columns
         $this->addPrimaryKey('id', 'Id', 'INTEGER', true, null, null);
-        $this->addColumn('uri', 'Uri', 'LONGVARCHAR', true, null, null);
         $this->addColumn('lastplayedsong', 'LastPlayedSong', 'LONGVARCHAR', false, null, null);
         $this->addForeignKey('owner_id', 'OwnerId', 'INTEGER', 'user', 'id', true, null, null);
     } // initialize()
@@ -317,12 +311,10 @@ class PlaylistTableMap extends TableMap
     {
         if (null === $alias) {
             $criteria->addSelectColumn(PlaylistTableMap::COL_ID);
-            $criteria->addSelectColumn(PlaylistTableMap::COL_URI);
             $criteria->addSelectColumn(PlaylistTableMap::COL_LASTPLAYEDSONG);
             $criteria->addSelectColumn(PlaylistTableMap::COL_OWNER_ID);
         } else {
             $criteria->addSelectColumn($alias . '.id');
-            $criteria->addSelectColumn($alias . '.uri');
             $criteria->addSelectColumn($alias . '.lastplayedsong');
             $criteria->addSelectColumn($alias . '.owner_id');
         }

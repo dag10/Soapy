@@ -752,7 +752,7 @@ abstract class SpotifyPlaylist implements ActiveRecordInterface
         $result = array(
             $keys[0] => $this->getId(),
             $keys[1] => $this->getUri(),
-            $keys_playlist[1] => $this->getLastPlayedSong(),
+            $keys_playlist[1] => $this->getLastPlayedSongURI(),
             $keys_playlist[2] => $this->getOwnerId(),
 
         );

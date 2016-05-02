@@ -368,7 +368,7 @@ $app->post('/api/rfid/:rfid/song/playing', function($rfid) use ($app) {
     dieWithJsonError("User does not have a selected playlist.");
   }
 
-  $playlist->setLastPlayedSong($song_uri);
+  $playlist->setLastPlayedSongURI($song_uri);
   $playlist->save();
 
   dieWithJsonSuccess();

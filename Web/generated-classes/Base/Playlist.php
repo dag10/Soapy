@@ -74,11 +74,11 @@ abstract class Playlist implements ActiveRecordInterface
     protected $id;
 
     /**
-     * The value for the lastplayedsong field.
+     * The value for the lastplayedsonguri field.
      *
      * @var        string
      */
-    protected $lastplayedsong;
+    protected $lastplayedsonguri;
 
     /**
      * The value for the owner_id field.
@@ -353,13 +353,13 @@ abstract class Playlist implements ActiveRecordInterface
     }
 
     /**
-     * Get the [lastplayedsong] column value.
+     * Get the [lastplayedsonguri] column value.
      *
      * @return string
      */
-    public function getLastPlayedSong()
+    public function getLastPlayedSongURI()
     {
-        return $this->lastplayedsong;
+        return $this->lastplayedsonguri;
     }
 
     /**
@@ -393,24 +393,24 @@ abstract class Playlist implements ActiveRecordInterface
     } // setId()
 
     /**
-     * Set the value of [lastplayedsong] column.
+     * Set the value of [lastplayedsonguri] column.
      *
      * @param string $v new value
      * @return $this|\Playlist The current object (for fluent API support)
      */
-    public function setLastPlayedSong($v)
+    public function setLastPlayedSongURI($v)
     {
         if ($v !== null) {
             $v = (string) $v;
         }
 
-        if ($this->lastplayedsong !== $v) {
-            $this->lastplayedsong = $v;
-            $this->modifiedColumns[PlaylistTableMap::COL_LASTPLAYEDSONG] = true;
+        if ($this->lastplayedsonguri !== $v) {
+            $this->lastplayedsonguri = $v;
+            $this->modifiedColumns[PlaylistTableMap::COL_LASTPLAYEDSONGURI] = true;
         }
 
         return $this;
-    } // setLastPlayedSong()
+    } // setLastPlayedSongURI()
 
     /**
      * Set the value of [owner_id] column.
@@ -475,8 +475,8 @@ abstract class Playlist implements ActiveRecordInterface
             $col = $row[TableMap::TYPE_NUM == $indexType ? 0 + $startcol : PlaylistTableMap::translateFieldName('Id', TableMap::TYPE_PHPNAME, $indexType)];
             $this->id = (null !== $col) ? (int) $col : null;
 
-            $col = $row[TableMap::TYPE_NUM == $indexType ? 1 + $startcol : PlaylistTableMap::translateFieldName('LastPlayedSong', TableMap::TYPE_PHPNAME, $indexType)];
-            $this->lastplayedsong = (null !== $col) ? (string) $col : null;
+            $col = $row[TableMap::TYPE_NUM == $indexType ? 1 + $startcol : PlaylistTableMap::translateFieldName('LastPlayedSongURI', TableMap::TYPE_PHPNAME, $indexType)];
+            $this->lastplayedsonguri = (null !== $col) ? (string) $col : null;
 
             $col = $row[TableMap::TYPE_NUM == $indexType ? 2 + $startcol : PlaylistTableMap::translateFieldName('OwnerId', TableMap::TYPE_PHPNAME, $indexType)];
             $this->owner_id = (null !== $col) ? (int) $col : null;
@@ -732,8 +732,8 @@ abstract class Playlist implements ActiveRecordInterface
         if ($this->isColumnModified(PlaylistTableMap::COL_ID)) {
             $modifiedColumns[':p' . $index++]  = 'id';
         }
-        if ($this->isColumnModified(PlaylistTableMap::COL_LASTPLAYEDSONG)) {
-            $modifiedColumns[':p' . $index++]  = 'lastplayedsong';
+        if ($this->isColumnModified(PlaylistTableMap::COL_LASTPLAYEDSONGURI)) {
+            $modifiedColumns[':p' . $index++]  = 'lastplayedsonguri';
         }
         if ($this->isColumnModified(PlaylistTableMap::COL_OWNER_ID)) {
             $modifiedColumns[':p' . $index++]  = 'owner_id';
@@ -752,8 +752,8 @@ abstract class Playlist implements ActiveRecordInterface
                     case 'id':
                         $stmt->bindValue($identifier, $this->id, PDO::PARAM_INT);
                         break;
-                    case 'lastplayedsong':
-                        $stmt->bindValue($identifier, $this->lastplayedsong, PDO::PARAM_STR);
+                    case 'lastplayedsonguri':
+                        $stmt->bindValue($identifier, $this->lastplayedsonguri, PDO::PARAM_STR);
                         break;
                     case 'owner_id':
                         $stmt->bindValue($identifier, $this->owner_id, PDO::PARAM_INT);
@@ -824,7 +824,7 @@ abstract class Playlist implements ActiveRecordInterface
                 return $this->getId();
                 break;
             case 1:
-                return $this->getLastPlayedSong();
+                return $this->getLastPlayedSongURI();
                 break;
             case 2:
                 return $this->getOwnerId();
@@ -860,7 +860,7 @@ abstract class Playlist implements ActiveRecordInterface
         $keys = PlaylistTableMap::getFieldNames($keyType);
         $result = array(
             $keys[0] => $this->getId(),
-            $keys[1] => $this->getLastPlayedSong(),
+            $keys[1] => $this->getLastPlayedSongURI(),
             $keys[2] => $this->getOwnerId(),
         );
         $virtualColumns = $this->virtualColumns;
@@ -952,7 +952,7 @@ abstract class Playlist implements ActiveRecordInterface
                 $this->setId($value);
                 break;
             case 1:
-                $this->setLastPlayedSong($value);
+                $this->setLastPlayedSongURI($value);
                 break;
             case 2:
                 $this->setOwnerId($value);
@@ -987,7 +987,7 @@ abstract class Playlist implements ActiveRecordInterface
             $this->setId($arr[$keys[0]]);
         }
         if (array_key_exists($keys[1], $arr)) {
-            $this->setLastPlayedSong($arr[$keys[1]]);
+            $this->setLastPlayedSongURI($arr[$keys[1]]);
         }
         if (array_key_exists($keys[2], $arr)) {
             $this->setOwnerId($arr[$keys[2]]);
@@ -1036,8 +1036,8 @@ abstract class Playlist implements ActiveRecordInterface
         if ($this->isColumnModified(PlaylistTableMap::COL_ID)) {
             $criteria->add(PlaylistTableMap::COL_ID, $this->id);
         }
-        if ($this->isColumnModified(PlaylistTableMap::COL_LASTPLAYEDSONG)) {
-            $criteria->add(PlaylistTableMap::COL_LASTPLAYEDSONG, $this->lastplayedsong);
+        if ($this->isColumnModified(PlaylistTableMap::COL_LASTPLAYEDSONGURI)) {
+            $criteria->add(PlaylistTableMap::COL_LASTPLAYEDSONGURI, $this->lastplayedsonguri);
         }
         if ($this->isColumnModified(PlaylistTableMap::COL_OWNER_ID)) {
             $criteria->add(PlaylistTableMap::COL_OWNER_ID, $this->owner_id);
@@ -1128,7 +1128,7 @@ abstract class Playlist implements ActiveRecordInterface
      */
     public function copyInto($copyObj, $deepCopy = false, $makeNew = true)
     {
-        $copyObj->setLastPlayedSong($this->getLastPlayedSong());
+        $copyObj->setLastPlayedSongURI($this->getLastPlayedSongURI());
         $copyObj->setOwnerId($this->getOwnerId());
 
         if ($deepCopy) {
@@ -1516,7 +1516,7 @@ abstract class Playlist implements ActiveRecordInterface
             $this->aOwner->removePastPlaylist($this);
         }
         $this->id = null;
-        $this->lastplayedsong = null;
+        $this->lastplayedsonguri = null;
         $this->owner_id = null;
         $this->alreadyInSave = false;
         $this->clearAllReferences();

@@ -70,7 +70,7 @@ abstract class SpotifyPlaylistQuery extends ModelCriteria
     // delegate behavior
 
     protected $delegatedFields = [
-        'LastPlayedSong' => 'Playlist',
+        'LastPlayedSongURI' => 'Playlist',
         'OwnerId' => 'Playlist',
     ];
 
@@ -479,13 +479,13 @@ protected $entityNotFoundExceptionClass = '\\Propel\\Runtime\\Exception\\EntityN
 
     // delegate behavior
     /**
-    * Filter the query by lastplayedsong column
+    * Filter the query by lastplayedsonguri column
     *
     * Example usage:
     * <code>
-        * $query->filterByLastPlayedSong(1234); // WHERE lastplayedsong = 1234
-        * $query->filterByLastPlayedSong(array(12, 34)); // WHERE lastplayedsong IN (12, 34)
-        * $query->filterByLastPlayedSong(array('min' => 12)); // WHERE lastplayedsong > 12
+        * $query->filterByLastPlayedSongURI(1234); // WHERE lastplayedsonguri = 1234
+        * $query->filterByLastPlayedSongURI(array(12, 34)); // WHERE lastplayedsonguri IN (12, 34)
+        * $query->filterByLastPlayedSongURI(array('min' => 12)); // WHERE lastplayedsonguri > 12
         * </code>
     *
     * @param     mixed $value The value to use as filter.
@@ -496,9 +496,9 @@ protected $entityNotFoundExceptionClass = '\\Propel\\Runtime\\Exception\\EntityN
     *
     * @return $this|ChildSpotifyPlaylistQuery The current query, for fluid interface
     */
-    public function filterByLastPlayedSong($value = null, $comparison = null)
+    public function filterByLastPlayedSongURI($value = null, $comparison = null)
     {
-        return $this->usePlaylistQuery()->filterByLastPlayedSong($value, $comparison)->endUse();
+        return $this->usePlaylistQuery()->filterByLastPlayedSongURI($value, $comparison)->endUse();
     }
 
     /**
@@ -515,9 +515,9 @@ protected $entityNotFoundExceptionClass = '\\Propel\\Runtime\\Exception\\EntityN
     *
     * @return $this|ModelCriteria The current object, for fluid interface
     */
-    public function orderByLastPlayedSong($order = Criteria::ASC)
+    public function orderByLastPlayedSongURI($order = Criteria::ASC)
     {
-        return $this->usePlaylistQuery()->orderByLastPlayedSong($order)->endUse();
+        return $this->usePlaylistQuery()->orderByLastPlayedSongURI($order)->endUse();
     }
     /**
     * Filter the query by owner_id column

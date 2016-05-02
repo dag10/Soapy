@@ -4,20 +4,15 @@ namespace Base;
 
 use \Playlist as ChildPlaylist;
 use \PlaylistQuery as ChildPlaylistQuery;
-use \SpotifyPlaylist as ChildSpotifyPlaylist;
 use \SpotifyPlaylistQuery as ChildSpotifyPlaylistQuery;
-use \User as ChildUser;
-use \UserQuery as ChildUserQuery;
 use \Exception;
 use \PDO;
-use Map\PlaylistTableMap;
-use Map\UserTableMap;
+use Map\SpotifyPlaylistTableMap;
 use Propel\Runtime\Propel;
 use Propel\Runtime\ActiveQuery\Criteria;
 use Propel\Runtime\ActiveQuery\ModelCriteria;
 use Propel\Runtime\ActiveRecord\ActiveRecordInterface;
 use Propel\Runtime\Collection\Collection;
-use Propel\Runtime\Collection\ObjectCollection;
 use Propel\Runtime\Connection\ConnectionInterface;
 use Propel\Runtime\Exception\BadMethodCallException;
 use Propel\Runtime\Exception\LogicException;
@@ -26,18 +21,18 @@ use Propel\Runtime\Map\TableMap;
 use Propel\Runtime\Parser\AbstractParser;
 
 /**
- * Base class that represents a row from the 'playlist' table.
+ * Base class that represents a row from the 'spotifyplaylist' table.
  *
  *
  *
 * @package    propel.generator..Base
 */
-abstract class Playlist implements ActiveRecordInterface
+abstract class SpotifyPlaylist implements ActiveRecordInterface
 {
     /**
      * TableMap class name
      */
-    const TABLE_MAP = '\\Map\\PlaylistTableMap';
+    const TABLE_MAP = '\\Map\\SpotifyPlaylistTableMap';
 
 
     /**
@@ -81,34 +76,9 @@ abstract class Playlist implements ActiveRecordInterface
     protected $uri;
 
     /**
-     * The value for the lastplayedsong field.
-     *
-     * @var        string
+     * @var        ChildPlaylist
      */
-    protected $lastplayedsong;
-
-    /**
-     * The value for the owner_id field.
-     *
-     * @var        int
-     */
-    protected $owner_id;
-
-    /**
-     * @var        ChildUser
-     */
-    protected $aOwner;
-
-    /**
-     * @var        ObjectCollection|ChildUser[] Collection to store aggregation of ChildUser objects.
-     */
-    protected $collUsersRelatedByPlaylistId;
-    protected $collUsersRelatedByPlaylistIdPartial;
-
-    /**
-     * @var        ChildSpotifyPlaylist one-to-one related ChildSpotifyPlaylist object
-     */
-    protected $singleSpotifyPlaylist;
+    protected $aPlaylist;
 
     /**
      * Flag to prevent endless save loop, if this object is referenced
@@ -119,13 +89,7 @@ abstract class Playlist implements ActiveRecordInterface
     protected $alreadyInSave = false;
 
     /**
-     * An array of objects scheduled for deletion.
-     * @var ObjectCollection|ChildUser[]
-     */
-    protected $usersRelatedByPlaylistIdScheduledForDeletion = null;
-
-    /**
-     * Initializes internal state of Base\Playlist object.
+     * Initializes internal state of Base\SpotifyPlaylist object.
      */
     public function __construct()
     {
@@ -220,9 +184,9 @@ abstract class Playlist implements ActiveRecordInterface
     }
 
     /**
-     * Compares this with another <code>Playlist</code> instance.  If
-     * <code>obj</code> is an instance of <code>Playlist</code>, delegates to
-     * <code>equals(Playlist)</code>.  Otherwise, returns <code>false</code>.
+     * Compares this with another <code>SpotifyPlaylist</code> instance.  If
+     * <code>obj</code> is an instance of <code>SpotifyPlaylist</code>, delegates to
+     * <code>equals(SpotifyPlaylist)</code>.  Otherwise, returns <code>false</code>.
      *
      * @param  mixed   $obj The object to compare to.
      * @return boolean Whether equal to the object specified.
@@ -288,7 +252,7 @@ abstract class Playlist implements ActiveRecordInterface
      * @param string $name  The virtual column name
      * @param mixed  $value The value to give to the virtual column
      *
-     * @return $this|Playlist The current object, for fluid interface
+     * @return $this|SpotifyPlaylist The current object, for fluid interface
      */
     public function setVirtualColumn($name, $value)
     {
@@ -370,30 +334,10 @@ abstract class Playlist implements ActiveRecordInterface
     }
 
     /**
-     * Get the [lastplayedsong] column value.
-     *
-     * @return string
-     */
-    public function getLastPlayedSong()
-    {
-        return $this->lastplayedsong;
-    }
-
-    /**
-     * Get the [owner_id] column value.
-     *
-     * @return int
-     */
-    public function getOwnerId()
-    {
-        return $this->owner_id;
-    }
-
-    /**
      * Set the value of [id] column.
      *
      * @param int $v new value
-     * @return $this|\Playlist The current object (for fluent API support)
+     * @return $this|\SpotifyPlaylist The current object (for fluent API support)
      */
     public function setId($v)
     {
@@ -403,7 +347,11 @@ abstract class Playlist implements ActiveRecordInterface
 
         if ($this->id !== $v) {
             $this->id = $v;
-            $this->modifiedColumns[PlaylistTableMap::COL_ID] = true;
+            $this->modifiedColumns[SpotifyPlaylistTableMap::COL_ID] = true;
+        }
+
+        if ($this->aPlaylist !== null && $this->aPlaylist->getId() !== $v) {
+            $this->aPlaylist = null;
         }
 
         return $this;
@@ -413,7 +361,7 @@ abstract class Playlist implements ActiveRecordInterface
      * Set the value of [uri] column.
      *
      * @param string $v new value
-     * @return $this|\Playlist The current object (for fluent API support)
+     * @return $this|\SpotifyPlaylist The current object (for fluent API support)
      */
     public function setUri($v)
     {
@@ -423,55 +371,11 @@ abstract class Playlist implements ActiveRecordInterface
 
         if ($this->uri !== $v) {
             $this->uri = $v;
-            $this->modifiedColumns[PlaylistTableMap::COL_URI] = true;
+            $this->modifiedColumns[SpotifyPlaylistTableMap::COL_URI] = true;
         }
 
         return $this;
     } // setUri()
-
-    /**
-     * Set the value of [lastplayedsong] column.
-     *
-     * @param string $v new value
-     * @return $this|\Playlist The current object (for fluent API support)
-     */
-    public function setLastPlayedSong($v)
-    {
-        if ($v !== null) {
-            $v = (string) $v;
-        }
-
-        if ($this->lastplayedsong !== $v) {
-            $this->lastplayedsong = $v;
-            $this->modifiedColumns[PlaylistTableMap::COL_LASTPLAYEDSONG] = true;
-        }
-
-        return $this;
-    } // setLastPlayedSong()
-
-    /**
-     * Set the value of [owner_id] column.
-     *
-     * @param int $v new value
-     * @return $this|\Playlist The current object (for fluent API support)
-     */
-    public function setOwnerId($v)
-    {
-        if ($v !== null) {
-            $v = (int) $v;
-        }
-
-        if ($this->owner_id !== $v) {
-            $this->owner_id = $v;
-            $this->modifiedColumns[PlaylistTableMap::COL_OWNER_ID] = true;
-        }
-
-        if ($this->aOwner !== null && $this->aOwner->getId() !== $v) {
-            $this->aOwner = null;
-        }
-
-        return $this;
-    } // setOwnerId()
 
     /**
      * Indicates whether the columns in this object are only set to default values.
@@ -509,17 +413,11 @@ abstract class Playlist implements ActiveRecordInterface
     {
         try {
 
-            $col = $row[TableMap::TYPE_NUM == $indexType ? 0 + $startcol : PlaylistTableMap::translateFieldName('Id', TableMap::TYPE_PHPNAME, $indexType)];
+            $col = $row[TableMap::TYPE_NUM == $indexType ? 0 + $startcol : SpotifyPlaylistTableMap::translateFieldName('Id', TableMap::TYPE_PHPNAME, $indexType)];
             $this->id = (null !== $col) ? (int) $col : null;
 
-            $col = $row[TableMap::TYPE_NUM == $indexType ? 1 + $startcol : PlaylistTableMap::translateFieldName('Uri', TableMap::TYPE_PHPNAME, $indexType)];
+            $col = $row[TableMap::TYPE_NUM == $indexType ? 1 + $startcol : SpotifyPlaylistTableMap::translateFieldName('Uri', TableMap::TYPE_PHPNAME, $indexType)];
             $this->uri = (null !== $col) ? (string) $col : null;
-
-            $col = $row[TableMap::TYPE_NUM == $indexType ? 2 + $startcol : PlaylistTableMap::translateFieldName('LastPlayedSong', TableMap::TYPE_PHPNAME, $indexType)];
-            $this->lastplayedsong = (null !== $col) ? (string) $col : null;
-
-            $col = $row[TableMap::TYPE_NUM == $indexType ? 3 + $startcol : PlaylistTableMap::translateFieldName('OwnerId', TableMap::TYPE_PHPNAME, $indexType)];
-            $this->owner_id = (null !== $col) ? (int) $col : null;
             $this->resetModified();
 
             $this->setNew(false);
@@ -528,10 +426,10 @@ abstract class Playlist implements ActiveRecordInterface
                 $this->ensureConsistency();
             }
 
-            return $startcol + 4; // 4 = PlaylistTableMap::NUM_HYDRATE_COLUMNS.
+            return $startcol + 2; // 2 = SpotifyPlaylistTableMap::NUM_HYDRATE_COLUMNS.
 
         } catch (Exception $e) {
-            throw new PropelException(sprintf('Error populating %s object', '\\Playlist'), 0, $e);
+            throw new PropelException(sprintf('Error populating %s object', '\\SpotifyPlaylist'), 0, $e);
         }
     }
 
@@ -550,8 +448,8 @@ abstract class Playlist implements ActiveRecordInterface
      */
     public function ensureConsistency()
     {
-        if ($this->aOwner !== null && $this->owner_id !== $this->aOwner->getId()) {
-            $this->aOwner = null;
+        if ($this->aPlaylist !== null && $this->id !== $this->aPlaylist->getId()) {
+            $this->aPlaylist = null;
         }
     } // ensureConsistency
 
@@ -576,13 +474,13 @@ abstract class Playlist implements ActiveRecordInterface
         }
 
         if ($con === null) {
-            $con = Propel::getServiceContainer()->getReadConnection(PlaylistTableMap::DATABASE_NAME);
+            $con = Propel::getServiceContainer()->getReadConnection(SpotifyPlaylistTableMap::DATABASE_NAME);
         }
 
         // We don't need to alter the object instance pool; we're just modifying this instance
         // already in the pool.
 
-        $dataFetcher = ChildPlaylistQuery::create(null, $this->buildPkeyCriteria())->setFormatter(ModelCriteria::FORMAT_STATEMENT)->find($con);
+        $dataFetcher = ChildSpotifyPlaylistQuery::create(null, $this->buildPkeyCriteria())->setFormatter(ModelCriteria::FORMAT_STATEMENT)->find($con);
         $row = $dataFetcher->fetch();
         $dataFetcher->close();
         if (!$row) {
@@ -592,11 +490,7 @@ abstract class Playlist implements ActiveRecordInterface
 
         if ($deep) {  // also de-associate any related objects?
 
-            $this->aOwner = null;
-            $this->collUsersRelatedByPlaylistId = null;
-
-            $this->singleSpotifyPlaylist = null;
-
+            $this->aPlaylist = null;
         } // if (deep)
     }
 
@@ -606,8 +500,8 @@ abstract class Playlist implements ActiveRecordInterface
      * @param      ConnectionInterface $con
      * @return void
      * @throws PropelException
-     * @see Playlist::setDeleted()
-     * @see Playlist::isDeleted()
+     * @see SpotifyPlaylist::setDeleted()
+     * @see SpotifyPlaylist::isDeleted()
      */
     public function delete(ConnectionInterface $con = null)
     {
@@ -616,11 +510,11 @@ abstract class Playlist implements ActiveRecordInterface
         }
 
         if ($con === null) {
-            $con = Propel::getServiceContainer()->getWriteConnection(PlaylistTableMap::DATABASE_NAME);
+            $con = Propel::getServiceContainer()->getWriteConnection(SpotifyPlaylistTableMap::DATABASE_NAME);
         }
 
         $con->transaction(function () use ($con) {
-            $deleteQuery = ChildPlaylistQuery::create()
+            $deleteQuery = ChildSpotifyPlaylistQuery::create()
                 ->filterByPrimaryKey($this->getPrimaryKey());
             $ret = $this->preDelete($con);
             if ($ret) {
@@ -651,7 +545,7 @@ abstract class Playlist implements ActiveRecordInterface
         }
 
         if ($con === null) {
-            $con = Propel::getServiceContainer()->getWriteConnection(PlaylistTableMap::DATABASE_NAME);
+            $con = Propel::getServiceContainer()->getWriteConnection(SpotifyPlaylistTableMap::DATABASE_NAME);
         }
 
         return $con->transaction(function () use ($con) {
@@ -670,7 +564,7 @@ abstract class Playlist implements ActiveRecordInterface
                     $this->postUpdate($con);
                 }
                 $this->postSave($con);
-                PlaylistTableMap::addInstanceToPool($this);
+                SpotifyPlaylistTableMap::addInstanceToPool($this);
             } else {
                 $affectedRows = 0;
             }
@@ -701,11 +595,11 @@ abstract class Playlist implements ActiveRecordInterface
             // method.  This object relates to these object(s) by a
             // foreign key reference.
 
-            if ($this->aOwner !== null) {
-                if ($this->aOwner->isModified() || $this->aOwner->isNew()) {
-                    $affectedRows += $this->aOwner->save($con);
+            if ($this->aPlaylist !== null) {
+                if ($this->aPlaylist->isModified() || $this->aPlaylist->isNew()) {
+                    $affectedRows += $this->aPlaylist->save($con);
                 }
-                $this->setOwner($this->aOwner);
+                $this->setPlaylist($this->aPlaylist);
             }
 
             if ($this->isNew() || $this->isModified()) {
@@ -717,30 +611,6 @@ abstract class Playlist implements ActiveRecordInterface
                     $affectedRows += $this->doUpdate($con);
                 }
                 $this->resetModified();
-            }
-
-            if ($this->usersRelatedByPlaylistIdScheduledForDeletion !== null) {
-                if (!$this->usersRelatedByPlaylistIdScheduledForDeletion->isEmpty()) {
-                    foreach ($this->usersRelatedByPlaylistIdScheduledForDeletion as $userRelatedByPlaylistId) {
-                        // need to save related object because we set the relation to null
-                        $userRelatedByPlaylistId->save($con);
-                    }
-                    $this->usersRelatedByPlaylistIdScheduledForDeletion = null;
-                }
-            }
-
-            if ($this->collUsersRelatedByPlaylistId !== null) {
-                foreach ($this->collUsersRelatedByPlaylistId as $referrerFK) {
-                    if (!$referrerFK->isDeleted() && ($referrerFK->isNew() || $referrerFK->isModified())) {
-                        $affectedRows += $referrerFK->save($con);
-                    }
-                }
-            }
-
-            if ($this->singleSpotifyPlaylist !== null) {
-                if (!$this->singleSpotifyPlaylist->isDeleted() && ($this->singleSpotifyPlaylist->isNew() || $this->singleSpotifyPlaylist->isModified())) {
-                    $affectedRows += $this->singleSpotifyPlaylist->save($con);
-                }
             }
 
             $this->alreadyInSave = false;
@@ -763,27 +633,17 @@ abstract class Playlist implements ActiveRecordInterface
         $modifiedColumns = array();
         $index = 0;
 
-        $this->modifiedColumns[PlaylistTableMap::COL_ID] = true;
-        if (null !== $this->id) {
-            throw new PropelException('Cannot insert a value for auto-increment primary key (' . PlaylistTableMap::COL_ID . ')');
-        }
 
          // check the columns in natural order for more readable SQL queries
-        if ($this->isColumnModified(PlaylistTableMap::COL_ID)) {
+        if ($this->isColumnModified(SpotifyPlaylistTableMap::COL_ID)) {
             $modifiedColumns[':p' . $index++]  = 'id';
         }
-        if ($this->isColumnModified(PlaylistTableMap::COL_URI)) {
+        if ($this->isColumnModified(SpotifyPlaylistTableMap::COL_URI)) {
             $modifiedColumns[':p' . $index++]  = 'uri';
-        }
-        if ($this->isColumnModified(PlaylistTableMap::COL_LASTPLAYEDSONG)) {
-            $modifiedColumns[':p' . $index++]  = 'lastplayedsong';
-        }
-        if ($this->isColumnModified(PlaylistTableMap::COL_OWNER_ID)) {
-            $modifiedColumns[':p' . $index++]  = 'owner_id';
         }
 
         $sql = sprintf(
-            'INSERT INTO playlist (%s) VALUES (%s)',
+            'INSERT INTO spotifyplaylist (%s) VALUES (%s)',
             implode(', ', $modifiedColumns),
             implode(', ', array_keys($modifiedColumns))
         );
@@ -798,12 +658,6 @@ abstract class Playlist implements ActiveRecordInterface
                     case 'uri':
                         $stmt->bindValue($identifier, $this->uri, PDO::PARAM_STR);
                         break;
-                    case 'lastplayedsong':
-                        $stmt->bindValue($identifier, $this->lastplayedsong, PDO::PARAM_STR);
-                        break;
-                    case 'owner_id':
-                        $stmt->bindValue($identifier, $this->owner_id, PDO::PARAM_INT);
-                        break;
                 }
             }
             $stmt->execute();
@@ -811,13 +665,6 @@ abstract class Playlist implements ActiveRecordInterface
             Propel::log($e->getMessage(), Propel::LOG_ERR);
             throw new PropelException(sprintf('Unable to execute INSERT statement [%s]', $sql), 0, $e);
         }
-
-        try {
-            $pk = $con->lastInsertId();
-        } catch (Exception $e) {
-            throw new PropelException('Unable to get autoincrement id.', 0, $e);
-        }
-        $this->setId($pk);
 
         $this->setNew(false);
     }
@@ -850,7 +697,7 @@ abstract class Playlist implements ActiveRecordInterface
      */
     public function getByName($name, $type = TableMap::TYPE_PHPNAME)
     {
-        $pos = PlaylistTableMap::translateFieldName($name, $type, TableMap::TYPE_NUM);
+        $pos = SpotifyPlaylistTableMap::translateFieldName($name, $type, TableMap::TYPE_NUM);
         $field = $this->getByPosition($pos);
 
         return $field;
@@ -871,12 +718,6 @@ abstract class Playlist implements ActiveRecordInterface
                 break;
             case 1:
                 return $this->getUri();
-                break;
-            case 2:
-                return $this->getLastPlayedSong();
-                break;
-            case 3:
-                return $this->getOwnerId();
                 break;
             default:
                 return null;
@@ -902,16 +743,18 @@ abstract class Playlist implements ActiveRecordInterface
     public function toArray($keyType = TableMap::TYPE_PHPNAME, $includeLazyLoadColumns = true, $alreadyDumpedObjects = array(), $includeForeignObjects = false)
     {
 
-        if (isset($alreadyDumpedObjects['Playlist'][$this->hashCode()])) {
+        if (isset($alreadyDumpedObjects['SpotifyPlaylist'][$this->hashCode()])) {
             return '*RECURSION*';
         }
-        $alreadyDumpedObjects['Playlist'][$this->hashCode()] = true;
-        $keys = PlaylistTableMap::getFieldNames($keyType);
+        $alreadyDumpedObjects['SpotifyPlaylist'][$this->hashCode()] = true;
+        $keys = SpotifyPlaylistTableMap::getFieldNames($keyType);
+        $keys_playlist = \Map\PlaylistTableMap::getFieldNames($keyType);
         $result = array(
             $keys[0] => $this->getId(),
             $keys[1] => $this->getUri(),
-            $keys[2] => $this->getLastPlayedSong(),
-            $keys[3] => $this->getOwnerId(),
+            $keys_playlist[2] => $this->getLastPlayedSong(),
+            $keys_playlist[3] => $this->getOwnerId(),
+
         );
         $virtualColumns = $this->virtualColumns;
         foreach ($virtualColumns as $key => $virtualColumn) {
@@ -919,50 +762,20 @@ abstract class Playlist implements ActiveRecordInterface
         }
 
         if ($includeForeignObjects) {
-            if (null !== $this->aOwner) {
+            if (null !== $this->aPlaylist) {
 
                 switch ($keyType) {
                     case TableMap::TYPE_CAMELNAME:
-                        $key = 'user';
+                        $key = 'playlist';
                         break;
                     case TableMap::TYPE_FIELDNAME:
-                        $key = 'user';
+                        $key = 'playlist';
                         break;
                     default:
-                        $key = 'User';
+                        $key = 'Playlist';
                 }
 
-                $result[$key] = $this->aOwner->toArray($keyType, $includeLazyLoadColumns,  $alreadyDumpedObjects, true);
-            }
-            if (null !== $this->collUsersRelatedByPlaylistId) {
-
-                switch ($keyType) {
-                    case TableMap::TYPE_CAMELNAME:
-                        $key = 'users';
-                        break;
-                    case TableMap::TYPE_FIELDNAME:
-                        $key = 'users';
-                        break;
-                    default:
-                        $key = 'Users';
-                }
-
-                $result[$key] = $this->collUsersRelatedByPlaylistId->toArray(null, false, $keyType, $includeLazyLoadColumns, $alreadyDumpedObjects);
-            }
-            if (null !== $this->singleSpotifyPlaylist) {
-
-                switch ($keyType) {
-                    case TableMap::TYPE_CAMELNAME:
-                        $key = 'spotifyPlaylist';
-                        break;
-                    case TableMap::TYPE_FIELDNAME:
-                        $key = 'spotifyplaylist';
-                        break;
-                    default:
-                        $key = 'SpotifyPlaylist';
-                }
-
-                $result[$key] = $this->singleSpotifyPlaylist->toArray($keyType, $includeLazyLoadColumns, $alreadyDumpedObjects, true);
+                $result[$key] = $this->aPlaylist->toArray($keyType, $includeLazyLoadColumns,  $alreadyDumpedObjects, true);
             }
         }
 
@@ -978,11 +791,11 @@ abstract class Playlist implements ActiveRecordInterface
      *                one of the class type constants TableMap::TYPE_PHPNAME, TableMap::TYPE_CAMELNAME
      *                TableMap::TYPE_COLNAME, TableMap::TYPE_FIELDNAME, TableMap::TYPE_NUM.
      *                Defaults to TableMap::TYPE_PHPNAME.
-     * @return $this|\Playlist
+     * @return $this|\SpotifyPlaylist
      */
     public function setByName($name, $value, $type = TableMap::TYPE_PHPNAME)
     {
-        $pos = PlaylistTableMap::translateFieldName($name, $type, TableMap::TYPE_NUM);
+        $pos = SpotifyPlaylistTableMap::translateFieldName($name, $type, TableMap::TYPE_NUM);
 
         return $this->setByPosition($pos, $value);
     }
@@ -993,7 +806,7 @@ abstract class Playlist implements ActiveRecordInterface
      *
      * @param  int $pos position in xml schema
      * @param  mixed $value field value
-     * @return $this|\Playlist
+     * @return $this|\SpotifyPlaylist
      */
     public function setByPosition($pos, $value)
     {
@@ -1003,12 +816,6 @@ abstract class Playlist implements ActiveRecordInterface
                 break;
             case 1:
                 $this->setUri($value);
-                break;
-            case 2:
-                $this->setLastPlayedSong($value);
-                break;
-            case 3:
-                $this->setOwnerId($value);
                 break;
         } // switch()
 
@@ -1034,19 +841,13 @@ abstract class Playlist implements ActiveRecordInterface
      */
     public function fromArray($arr, $keyType = TableMap::TYPE_PHPNAME)
     {
-        $keys = PlaylistTableMap::getFieldNames($keyType);
+        $keys = SpotifyPlaylistTableMap::getFieldNames($keyType);
 
         if (array_key_exists($keys[0], $arr)) {
             $this->setId($arr[$keys[0]]);
         }
         if (array_key_exists($keys[1], $arr)) {
             $this->setUri($arr[$keys[1]]);
-        }
-        if (array_key_exists($keys[2], $arr)) {
-            $this->setLastPlayedSong($arr[$keys[2]]);
-        }
-        if (array_key_exists($keys[3], $arr)) {
-            $this->setOwnerId($arr[$keys[3]]);
         }
     }
 
@@ -1067,7 +868,7 @@ abstract class Playlist implements ActiveRecordInterface
      * @param string $data The source data to import from
      * @param string $keyType The type of keys the array uses.
      *
-     * @return $this|\Playlist The current object, for fluid interface
+     * @return $this|\SpotifyPlaylist The current object, for fluid interface
      */
     public function importFrom($parser, $data, $keyType = TableMap::TYPE_PHPNAME)
     {
@@ -1087,19 +888,13 @@ abstract class Playlist implements ActiveRecordInterface
      */
     public function buildCriteria()
     {
-        $criteria = new Criteria(PlaylistTableMap::DATABASE_NAME);
+        $criteria = new Criteria(SpotifyPlaylistTableMap::DATABASE_NAME);
 
-        if ($this->isColumnModified(PlaylistTableMap::COL_ID)) {
-            $criteria->add(PlaylistTableMap::COL_ID, $this->id);
+        if ($this->isColumnModified(SpotifyPlaylistTableMap::COL_ID)) {
+            $criteria->add(SpotifyPlaylistTableMap::COL_ID, $this->id);
         }
-        if ($this->isColumnModified(PlaylistTableMap::COL_URI)) {
-            $criteria->add(PlaylistTableMap::COL_URI, $this->uri);
-        }
-        if ($this->isColumnModified(PlaylistTableMap::COL_LASTPLAYEDSONG)) {
-            $criteria->add(PlaylistTableMap::COL_LASTPLAYEDSONG, $this->lastplayedsong);
-        }
-        if ($this->isColumnModified(PlaylistTableMap::COL_OWNER_ID)) {
-            $criteria->add(PlaylistTableMap::COL_OWNER_ID, $this->owner_id);
+        if ($this->isColumnModified(SpotifyPlaylistTableMap::COL_URI)) {
+            $criteria->add(SpotifyPlaylistTableMap::COL_URI, $this->uri);
         }
 
         return $criteria;
@@ -1117,8 +912,8 @@ abstract class Playlist implements ActiveRecordInterface
      */
     public function buildPkeyCriteria()
     {
-        $criteria = ChildPlaylistQuery::create();
-        $criteria->add(PlaylistTableMap::COL_ID, $this->id);
+        $criteria = ChildSpotifyPlaylistQuery::create();
+        $criteria->add(SpotifyPlaylistTableMap::COL_ID, $this->id);
 
         return $criteria;
     }
@@ -1133,8 +928,15 @@ abstract class Playlist implements ActiveRecordInterface
     {
         $validPk = null !== $this->getId();
 
-        $validPrimaryKeyFKs = 0;
+        $validPrimaryKeyFKs = 1;
         $primaryKeyFKs = [];
+
+        //relation spotifyplaylist_fk_e00ee3 to table playlist
+        if ($this->aPlaylist && $hash = spl_object_hash($this->aPlaylist)) {
+            $primaryKeyFKs[] = $hash;
+        } else {
+            $validPrimaryKeyFKs = false;
+        }
 
         if ($validPk) {
             return crc32(json_encode($this->getPrimaryKey(), JSON_UNESCAPED_UNICODE));
@@ -1180,38 +982,17 @@ abstract class Playlist implements ActiveRecordInterface
      * If desired, this method can also make copies of all associated (fkey referrers)
      * objects.
      *
-     * @param      object $copyObj An object of \Playlist (or compatible) type.
+     * @param      object $copyObj An object of \SpotifyPlaylist (or compatible) type.
      * @param      boolean $deepCopy Whether to also copy all rows that refer (by fkey) to the current row.
      * @param      boolean $makeNew Whether to reset autoincrement PKs and make the object new.
      * @throws PropelException
      */
     public function copyInto($copyObj, $deepCopy = false, $makeNew = true)
     {
+        $copyObj->setId($this->getId());
         $copyObj->setUri($this->getUri());
-        $copyObj->setLastPlayedSong($this->getLastPlayedSong());
-        $copyObj->setOwnerId($this->getOwnerId());
-
-        if ($deepCopy) {
-            // important: temporarily setNew(false) because this affects the behavior of
-            // the getter/setter methods for fkey referrer objects.
-            $copyObj->setNew(false);
-
-            foreach ($this->getUsersRelatedByPlaylistId() as $relObj) {
-                if ($relObj !== $this) {  // ensure that we don't try to copy a reference to ourselves
-                    $copyObj->addUserRelatedByPlaylistId($relObj->copy($deepCopy));
-                }
-            }
-
-            $relObj = $this->getSpotifyPlaylist();
-            if ($relObj) {
-                $copyObj->setSpotifyPlaylist($relObj->copy($deepCopy));
-            }
-
-        } // if ($deepCopy)
-
         if ($makeNew) {
             $copyObj->setNew(true);
-            $copyObj->setId(NULL); // this is a auto-increment column, so set to default value
         }
     }
 
@@ -1224,7 +1005,7 @@ abstract class Playlist implements ActiveRecordInterface
      * objects.
      *
      * @param  boolean $deepCopy Whether to also copy all rows that refer (by fkey) to the current row.
-     * @return \Playlist Clone of current object.
+     * @return \SpotifyPlaylist Clone of current object.
      * @throws PropelException
      */
     public function copy($deepCopy = false)
@@ -1238,26 +1019,25 @@ abstract class Playlist implements ActiveRecordInterface
     }
 
     /**
-     * Declares an association between this object and a ChildUser object.
+     * Declares an association between this object and a ChildPlaylist object.
      *
-     * @param  ChildUser $v
-     * @return $this|\Playlist The current object (for fluent API support)
+     * @param  ChildPlaylist $v
+     * @return $this|\SpotifyPlaylist The current object (for fluent API support)
      * @throws PropelException
      */
-    public function setOwner(ChildUser $v = null)
+    public function setPlaylist(ChildPlaylist $v = null)
     {
         if ($v === null) {
-            $this->setOwnerId(NULL);
+            $this->setId(NULL);
         } else {
-            $this->setOwnerId($v->getId());
+            $this->setId($v->getId());
         }
 
-        $this->aOwner = $v;
+        $this->aPlaylist = $v;
 
-        // Add binding for other direction of this n:n relationship.
-        // If this object has already been added to the ChildUser object, it will not be re-added.
+        // Add binding for other direction of this 1:1 relationship.
         if ($v !== null) {
-            $v->addPastPlaylist($this);
+            $v->setSpotifyPlaylist($this);
         }
 
 
@@ -1266,303 +1046,21 @@ abstract class Playlist implements ActiveRecordInterface
 
 
     /**
-     * Get the associated ChildUser object
+     * Get the associated ChildPlaylist object
      *
      * @param  ConnectionInterface $con Optional Connection object.
-     * @return ChildUser The associated ChildUser object.
+     * @return ChildPlaylist The associated ChildPlaylist object.
      * @throws PropelException
      */
-    public function getOwner(ConnectionInterface $con = null)
+    public function getPlaylist(ConnectionInterface $con = null)
     {
-        if ($this->aOwner === null && ($this->owner_id !== null)) {
-            $this->aOwner = ChildUserQuery::create()->findPk($this->owner_id, $con);
-            /* The following can be used additionally to
-                guarantee the related object contains a reference
-                to this object.  This level of coupling may, however, be
-                undesirable since it could result in an only partially populated collection
-                in the referenced object.
-                $this->aOwner->addPastPlaylists($this);
-             */
+        if ($this->aPlaylist === null && ($this->id !== null)) {
+            $this->aPlaylist = ChildPlaylistQuery::create()->findPk($this->id, $con);
+            // Because this foreign key represents a one-to-one relationship, we will create a bi-directional association.
+            $this->aPlaylist->setSpotifyPlaylist($this);
         }
 
-        return $this->aOwner;
-    }
-
-
-    /**
-     * Initializes a collection based on the name of a relation.
-     * Avoids crafting an 'init[$relationName]s' method name
-     * that wouldn't work when StandardEnglishPluralizer is used.
-     *
-     * @param      string $relationName The name of the relation to initialize
-     * @return void
-     */
-    public function initRelation($relationName)
-    {
-        if ('UserRelatedByPlaylistId' == $relationName) {
-            return $this->initUsersRelatedByPlaylistId();
-        }
-    }
-
-    /**
-     * Clears out the collUsersRelatedByPlaylistId collection
-     *
-     * This does not modify the database; however, it will remove any associated objects, causing
-     * them to be refetched by subsequent calls to accessor method.
-     *
-     * @return void
-     * @see        addUsersRelatedByPlaylistId()
-     */
-    public function clearUsersRelatedByPlaylistId()
-    {
-        $this->collUsersRelatedByPlaylistId = null; // important to set this to NULL since that means it is uninitialized
-    }
-
-    /**
-     * Reset is the collUsersRelatedByPlaylistId collection loaded partially.
-     */
-    public function resetPartialUsersRelatedByPlaylistId($v = true)
-    {
-        $this->collUsersRelatedByPlaylistIdPartial = $v;
-    }
-
-    /**
-     * Initializes the collUsersRelatedByPlaylistId collection.
-     *
-     * By default this just sets the collUsersRelatedByPlaylistId collection to an empty array (like clearcollUsersRelatedByPlaylistId());
-     * however, you may wish to override this method in your stub class to provide setting appropriate
-     * to your application -- for example, setting the initial array to the values stored in database.
-     *
-     * @param      boolean $overrideExisting If set to true, the method call initializes
-     *                                        the collection even if it is not empty
-     *
-     * @return void
-     */
-    public function initUsersRelatedByPlaylistId($overrideExisting = true)
-    {
-        if (null !== $this->collUsersRelatedByPlaylistId && !$overrideExisting) {
-            return;
-        }
-
-        $collectionClassName = UserTableMap::getTableMap()->getCollectionClassName();
-
-        $this->collUsersRelatedByPlaylistId = new $collectionClassName;
-        $this->collUsersRelatedByPlaylistId->setModel('\User');
-    }
-
-    /**
-     * Gets an array of ChildUser objects which contain a foreign key that references this object.
-     *
-     * If the $criteria is not null, it is used to always fetch the results from the database.
-     * Otherwise the results are fetched from the database the first time, then cached.
-     * Next time the same method is called without $criteria, the cached collection is returned.
-     * If this ChildPlaylist is new, it will return
-     * an empty collection or the current collection; the criteria is ignored on a new object.
-     *
-     * @param      Criteria $criteria optional Criteria object to narrow the query
-     * @param      ConnectionInterface $con optional connection object
-     * @return ObjectCollection|ChildUser[] List of ChildUser objects
-     * @throws PropelException
-     */
-    public function getUsersRelatedByPlaylistId(Criteria $criteria = null, ConnectionInterface $con = null)
-    {
-        $partial = $this->collUsersRelatedByPlaylistIdPartial && !$this->isNew();
-        if (null === $this->collUsersRelatedByPlaylistId || null !== $criteria  || $partial) {
-            if ($this->isNew() && null === $this->collUsersRelatedByPlaylistId) {
-                // return empty collection
-                $this->initUsersRelatedByPlaylistId();
-            } else {
-                $collUsersRelatedByPlaylistId = ChildUserQuery::create(null, $criteria)
-                    ->filterByPlaylist($this)
-                    ->find($con);
-
-                if (null !== $criteria) {
-                    if (false !== $this->collUsersRelatedByPlaylistIdPartial && count($collUsersRelatedByPlaylistId)) {
-                        $this->initUsersRelatedByPlaylistId(false);
-
-                        foreach ($collUsersRelatedByPlaylistId as $obj) {
-                            if (false == $this->collUsersRelatedByPlaylistId->contains($obj)) {
-                                $this->collUsersRelatedByPlaylistId->append($obj);
-                            }
-                        }
-
-                        $this->collUsersRelatedByPlaylistIdPartial = true;
-                    }
-
-                    return $collUsersRelatedByPlaylistId;
-                }
-
-                if ($partial && $this->collUsersRelatedByPlaylistId) {
-                    foreach ($this->collUsersRelatedByPlaylistId as $obj) {
-                        if ($obj->isNew()) {
-                            $collUsersRelatedByPlaylistId[] = $obj;
-                        }
-                    }
-                }
-
-                $this->collUsersRelatedByPlaylistId = $collUsersRelatedByPlaylistId;
-                $this->collUsersRelatedByPlaylistIdPartial = false;
-            }
-        }
-
-        return $this->collUsersRelatedByPlaylistId;
-    }
-
-    /**
-     * Sets a collection of ChildUser objects related by a one-to-many relationship
-     * to the current object.
-     * It will also schedule objects for deletion based on a diff between old objects (aka persisted)
-     * and new objects from the given Propel collection.
-     *
-     * @param      Collection $usersRelatedByPlaylistId A Propel collection.
-     * @param      ConnectionInterface $con Optional connection object
-     * @return $this|ChildPlaylist The current object (for fluent API support)
-     */
-    public function setUsersRelatedByPlaylistId(Collection $usersRelatedByPlaylistId, ConnectionInterface $con = null)
-    {
-        /** @var ChildUser[] $usersRelatedByPlaylistIdToDelete */
-        $usersRelatedByPlaylistIdToDelete = $this->getUsersRelatedByPlaylistId(new Criteria(), $con)->diff($usersRelatedByPlaylistId);
-
-
-        $this->usersRelatedByPlaylistIdScheduledForDeletion = $usersRelatedByPlaylistIdToDelete;
-
-        foreach ($usersRelatedByPlaylistIdToDelete as $userRelatedByPlaylistIdRemoved) {
-            $userRelatedByPlaylistIdRemoved->setPlaylist(null);
-        }
-
-        $this->collUsersRelatedByPlaylistId = null;
-        foreach ($usersRelatedByPlaylistId as $userRelatedByPlaylistId) {
-            $this->addUserRelatedByPlaylistId($userRelatedByPlaylistId);
-        }
-
-        $this->collUsersRelatedByPlaylistId = $usersRelatedByPlaylistId;
-        $this->collUsersRelatedByPlaylistIdPartial = false;
-
-        return $this;
-    }
-
-    /**
-     * Returns the number of related User objects.
-     *
-     * @param      Criteria $criteria
-     * @param      boolean $distinct
-     * @param      ConnectionInterface $con
-     * @return int             Count of related User objects.
-     * @throws PropelException
-     */
-    public function countUsersRelatedByPlaylistId(Criteria $criteria = null, $distinct = false, ConnectionInterface $con = null)
-    {
-        $partial = $this->collUsersRelatedByPlaylistIdPartial && !$this->isNew();
-        if (null === $this->collUsersRelatedByPlaylistId || null !== $criteria || $partial) {
-            if ($this->isNew() && null === $this->collUsersRelatedByPlaylistId) {
-                return 0;
-            }
-
-            if ($partial && !$criteria) {
-                return count($this->getUsersRelatedByPlaylistId());
-            }
-
-            $query = ChildUserQuery::create(null, $criteria);
-            if ($distinct) {
-                $query->distinct();
-            }
-
-            return $query
-                ->filterByPlaylist($this)
-                ->count($con);
-        }
-
-        return count($this->collUsersRelatedByPlaylistId);
-    }
-
-    /**
-     * Method called to associate a ChildUser object to this object
-     * through the ChildUser foreign key attribute.
-     *
-     * @param  ChildUser $l ChildUser
-     * @return $this|\Playlist The current object (for fluent API support)
-     */
-    public function addUserRelatedByPlaylistId(ChildUser $l)
-    {
-        if ($this->collUsersRelatedByPlaylistId === null) {
-            $this->initUsersRelatedByPlaylistId();
-            $this->collUsersRelatedByPlaylistIdPartial = true;
-        }
-
-        if (!$this->collUsersRelatedByPlaylistId->contains($l)) {
-            $this->doAddUserRelatedByPlaylistId($l);
-
-            if ($this->usersRelatedByPlaylistIdScheduledForDeletion and $this->usersRelatedByPlaylistIdScheduledForDeletion->contains($l)) {
-                $this->usersRelatedByPlaylistIdScheduledForDeletion->remove($this->usersRelatedByPlaylistIdScheduledForDeletion->search($l));
-            }
-        }
-
-        return $this;
-    }
-
-    /**
-     * @param ChildUser $userRelatedByPlaylistId The ChildUser object to add.
-     */
-    protected function doAddUserRelatedByPlaylistId(ChildUser $userRelatedByPlaylistId)
-    {
-        $this->collUsersRelatedByPlaylistId[]= $userRelatedByPlaylistId;
-        $userRelatedByPlaylistId->setPlaylist($this);
-    }
-
-    /**
-     * @param  ChildUser $userRelatedByPlaylistId The ChildUser object to remove.
-     * @return $this|ChildPlaylist The current object (for fluent API support)
-     */
-    public function removeUserRelatedByPlaylistId(ChildUser $userRelatedByPlaylistId)
-    {
-        if ($this->getUsersRelatedByPlaylistId()->contains($userRelatedByPlaylistId)) {
-            $pos = $this->collUsersRelatedByPlaylistId->search($userRelatedByPlaylistId);
-            $this->collUsersRelatedByPlaylistId->remove($pos);
-            if (null === $this->usersRelatedByPlaylistIdScheduledForDeletion) {
-                $this->usersRelatedByPlaylistIdScheduledForDeletion = clone $this->collUsersRelatedByPlaylistId;
-                $this->usersRelatedByPlaylistIdScheduledForDeletion->clear();
-            }
-            $this->usersRelatedByPlaylistIdScheduledForDeletion[]= $userRelatedByPlaylistId;
-            $userRelatedByPlaylistId->setPlaylist(null);
-        }
-
-        return $this;
-    }
-
-    /**
-     * Gets a single ChildSpotifyPlaylist object, which is related to this object by a one-to-one relationship.
-     *
-     * @param  ConnectionInterface $con optional connection object
-     * @return ChildSpotifyPlaylist
-     * @throws PropelException
-     */
-    public function getSpotifyPlaylist(ConnectionInterface $con = null)
-    {
-
-        if ($this->singleSpotifyPlaylist === null && !$this->isNew()) {
-            $this->singleSpotifyPlaylist = ChildSpotifyPlaylistQuery::create()->findPk($this->getPrimaryKey(), $con);
-        }
-
-        return $this->singleSpotifyPlaylist;
-    }
-
-    /**
-     * Sets a single ChildSpotifyPlaylist object as related to this object by a one-to-one relationship.
-     *
-     * @param  ChildSpotifyPlaylist $v ChildSpotifyPlaylist
-     * @return $this|\Playlist The current object (for fluent API support)
-     * @throws PropelException
-     */
-    public function setSpotifyPlaylist(ChildSpotifyPlaylist $v = null)
-    {
-        $this->singleSpotifyPlaylist = $v;
-
-        // Make sure that that the passed-in ChildSpotifyPlaylist isn't already associated with this object
-        if ($v !== null && $v->getPlaylist(null, false) === null) {
-            $v->setPlaylist($this);
-        }
-
-        return $this;
+        return $this->aPlaylist;
     }
 
     /**
@@ -1572,13 +1070,11 @@ abstract class Playlist implements ActiveRecordInterface
      */
     public function clear()
     {
-        if (null !== $this->aOwner) {
-            $this->aOwner->removePastPlaylist($this);
+        if (null !== $this->aPlaylist) {
+            $this->aPlaylist->removeSpotifyPlaylist($this);
         }
         $this->id = null;
         $this->uri = null;
-        $this->lastplayedsong = null;
-        $this->owner_id = null;
         $this->alreadyInSave = false;
         $this->clearAllReferences();
         $this->resetModified();
@@ -1597,19 +1093,9 @@ abstract class Playlist implements ActiveRecordInterface
     public function clearAllReferences($deep = false)
     {
         if ($deep) {
-            if ($this->collUsersRelatedByPlaylistId) {
-                foreach ($this->collUsersRelatedByPlaylistId as $o) {
-                    $o->clearAllReferences($deep);
-                }
-            }
-            if ($this->singleSpotifyPlaylist) {
-                $this->singleSpotifyPlaylist->clearAllReferences($deep);
-            }
         } // if ($deep)
 
-        $this->collUsersRelatedByPlaylistId = null;
-        $this->singleSpotifyPlaylist = null;
-        $this->aOwner = null;
+        $this->aPlaylist = null;
     }
 
     /**
@@ -1619,7 +1105,7 @@ abstract class Playlist implements ActiveRecordInterface
      */
     public function __toString()
     {
-        return (string) $this->exportTo(PlaylistTableMap::DEFAULT_STRING_FORMAT);
+        return (string) $this->exportTo(SpotifyPlaylistTableMap::DEFAULT_STRING_FORMAT);
     }
 
     /**
@@ -1700,7 +1186,7 @@ abstract class Playlist implements ActiveRecordInterface
 
 
     /**
-     * Derived method to catches calls to undefined methods.
+     * Catches calls to undefined methods.
      *
      * Provides magic import/export method support (fromXML()/toXML(), fromYAML()/toYAML(), etc.).
      * Allows to define default __call() behavior if you overwrite __call()
@@ -1711,6 +1197,34 @@ abstract class Playlist implements ActiveRecordInterface
      * @return array|string
      */
     public function __call($name, $params)
+    {
+
+    // delegate behavior
+
+    if (is_callable(array('\Playlist', $name))) {
+        $delegate = $this->getPlaylist();
+        if (!$delegate) {
+            $delegate = new ChildPlaylist();
+            $this->setPlaylist($delegate);
+        }
+
+        return call_user_func_array(array($delegate, $name), $params);
+    }
+        return $this->__parentCall($name, $params);
+    }
+
+    /**
+     * Derived method to catches calls to undefined methods.
+     *
+     * Provides magic import/export method support (fromXML()/toXML(), fromYAML()/toYAML(), etc.).
+     * Allows to define default __call() behavior if you overwrite __call()
+     *
+     * @param string $name
+     * @param mixed  $params
+     *
+     * @return array|string
+     */
+    public function __parentCall($name, $params)
     {
         if (0 === strpos($name, 'get')) {
             $virtualColumn = substr($name, 3);

@@ -2,8 +2,8 @@
 
 namespace Map;
 
-use \Playlist;
-use \PlaylistQuery;
+use \SpotifyPlaylist;
+use \SpotifyPlaylistQuery;
 use Propel\Runtime\Propel;
 use Propel\Runtime\ActiveQuery\Criteria;
 use Propel\Runtime\ActiveQuery\InstancePoolTrait;
@@ -16,7 +16,7 @@ use Propel\Runtime\Map\TableMapTrait;
 
 
 /**
- * This class defines the structure of the 'playlist' table.
+ * This class defines the structure of the 'spotifyplaylist' table.
  *
  *
  *
@@ -26,7 +26,7 @@ use Propel\Runtime\Map\TableMapTrait;
  * (i.e. if it's a text column type).
  *
  */
-class PlaylistTableMap extends TableMap
+class SpotifyPlaylistTableMap extends TableMap
 {
     use InstancePoolTrait;
     use TableMapTrait;
@@ -34,7 +34,7 @@ class PlaylistTableMap extends TableMap
     /**
      * The (dot-path) name of this class
      */
-    const CLASS_NAME = '.Map.PlaylistTableMap';
+    const CLASS_NAME = '.Map.SpotifyPlaylistTableMap';
 
     /**
      * The default database name for this class
@@ -44,22 +44,22 @@ class PlaylistTableMap extends TableMap
     /**
      * The table name for this class
      */
-    const TABLE_NAME = 'playlist';
+    const TABLE_NAME = 'spotifyplaylist';
 
     /**
      * The related Propel class for this table
      */
-    const OM_CLASS = '\\Playlist';
+    const OM_CLASS = '\\SpotifyPlaylist';
 
     /**
      * A class that can be returned by this tableMap
      */
-    const CLASS_DEFAULT = 'Playlist';
+    const CLASS_DEFAULT = 'SpotifyPlaylist';
 
     /**
      * The total number of columns
      */
-    const NUM_COLUMNS = 4;
+    const NUM_COLUMNS = 2;
 
     /**
      * The number of lazy-loaded columns
@@ -69,27 +69,17 @@ class PlaylistTableMap extends TableMap
     /**
      * The number of columns to hydrate (NUM_COLUMNS - NUM_LAZY_LOAD_COLUMNS)
      */
-    const NUM_HYDRATE_COLUMNS = 4;
+    const NUM_HYDRATE_COLUMNS = 2;
 
     /**
      * the column name for the id field
      */
-    const COL_ID = 'playlist.id';
+    const COL_ID = 'spotifyplaylist.id';
 
     /**
      * the column name for the uri field
      */
-    const COL_URI = 'playlist.uri';
-
-    /**
-     * the column name for the lastplayedsong field
-     */
-    const COL_LASTPLAYEDSONG = 'playlist.lastplayedsong';
-
-    /**
-     * the column name for the owner_id field
-     */
-    const COL_OWNER_ID = 'playlist.owner_id';
+    const COL_URI = 'spotifyplaylist.uri';
 
     /**
      * The default string format for model objects of the related table
@@ -103,11 +93,11 @@ class PlaylistTableMap extends TableMap
      * e.g. self::$fieldNames[self::TYPE_PHPNAME][0] = 'Id'
      */
     protected static $fieldNames = array (
-        self::TYPE_PHPNAME       => array('Id', 'Uri', 'LastPlayedSong', 'OwnerId', ),
-        self::TYPE_CAMELNAME     => array('id', 'uri', 'lastPlayedSong', 'ownerId', ),
-        self::TYPE_COLNAME       => array(PlaylistTableMap::COL_ID, PlaylistTableMap::COL_URI, PlaylistTableMap::COL_LASTPLAYEDSONG, PlaylistTableMap::COL_OWNER_ID, ),
-        self::TYPE_FIELDNAME     => array('id', 'uri', 'lastplayedsong', 'owner_id', ),
-        self::TYPE_NUM           => array(0, 1, 2, 3, )
+        self::TYPE_PHPNAME       => array('Id', 'Uri', ),
+        self::TYPE_CAMELNAME     => array('id', 'uri', ),
+        self::TYPE_COLNAME       => array(SpotifyPlaylistTableMap::COL_ID, SpotifyPlaylistTableMap::COL_URI, ),
+        self::TYPE_FIELDNAME     => array('id', 'uri', ),
+        self::TYPE_NUM           => array(0, 1, )
     );
 
     /**
@@ -117,11 +107,11 @@ class PlaylistTableMap extends TableMap
      * e.g. self::$fieldKeys[self::TYPE_PHPNAME]['Id'] = 0
      */
     protected static $fieldKeys = array (
-        self::TYPE_PHPNAME       => array('Id' => 0, 'Uri' => 1, 'LastPlayedSong' => 2, 'OwnerId' => 3, ),
-        self::TYPE_CAMELNAME     => array('id' => 0, 'uri' => 1, 'lastPlayedSong' => 2, 'ownerId' => 3, ),
-        self::TYPE_COLNAME       => array(PlaylistTableMap::COL_ID => 0, PlaylistTableMap::COL_URI => 1, PlaylistTableMap::COL_LASTPLAYEDSONG => 2, PlaylistTableMap::COL_OWNER_ID => 3, ),
-        self::TYPE_FIELDNAME     => array('id' => 0, 'uri' => 1, 'lastplayedsong' => 2, 'owner_id' => 3, ),
-        self::TYPE_NUM           => array(0, 1, 2, 3, )
+        self::TYPE_PHPNAME       => array('Id' => 0, 'Uri' => 1, ),
+        self::TYPE_CAMELNAME     => array('id' => 0, 'uri' => 1, ),
+        self::TYPE_COLNAME       => array(SpotifyPlaylistTableMap::COL_ID => 0, SpotifyPlaylistTableMap::COL_URI => 1, ),
+        self::TYPE_FIELDNAME     => array('id' => 0, 'uri' => 1, ),
+        self::TYPE_NUM           => array(0, 1, )
     );
 
     /**
@@ -134,17 +124,15 @@ class PlaylistTableMap extends TableMap
     public function initialize()
     {
         // attributes
-        $this->setName('playlist');
-        $this->setPhpName('Playlist');
+        $this->setName('spotifyplaylist');
+        $this->setPhpName('SpotifyPlaylist');
         $this->setIdentifierQuoting(false);
-        $this->setClassName('\\Playlist');
+        $this->setClassName('\\SpotifyPlaylist');
         $this->setPackage('');
-        $this->setUseIdGenerator(true);
+        $this->setUseIdGenerator(false);
         // columns
-        $this->addPrimaryKey('id', 'Id', 'INTEGER', true, null, null);
+        $this->addForeignPrimaryKey('id', 'Id', 'INTEGER' , 'playlist', 'id', true, null, null);
         $this->addColumn('uri', 'Uri', 'LONGVARCHAR', true, null, null);
-        $this->addColumn('lastplayedsong', 'LastPlayedSong', 'LONGVARCHAR', false, null, null);
-        $this->addForeignKey('owner_id', 'OwnerId', 'INTEGER', 'user', 'id', true, null, null);
     } // initialize()
 
     /**
@@ -152,21 +140,7 @@ class PlaylistTableMap extends TableMap
      */
     public function buildRelations()
     {
-        $this->addRelation('Owner', '\\User', RelationMap::MANY_TO_ONE, array (
-  0 =>
-  array (
-    0 => ':owner_id',
-    1 => ':id',
-  ),
-), null, null, null, false);
-        $this->addRelation('UserRelatedByPlaylistId', '\\User', RelationMap::ONE_TO_MANY, array (
-  0 =>
-  array (
-    0 => ':playlist_id',
-    1 => ':id',
-  ),
-), null, null, 'UsersRelatedByPlaylistId', false);
-        $this->addRelation('SpotifyPlaylist', '\\SpotifyPlaylist', RelationMap::ONE_TO_ONE, array (
+        $this->addRelation('Playlist', '\\Playlist', RelationMap::MANY_TO_ONE, array (
   0 =>
   array (
     0 => ':id',
@@ -174,6 +148,19 @@ class PlaylistTableMap extends TableMap
   ),
 ), null, null, null, false);
     } // buildRelations()
+
+    /**
+     *
+     * Gets the list of behaviors registered for this table
+     *
+     * @return array Associative array (name => parameters) of behaviors
+     */
+    public function getBehaviors()
+    {
+        return array(
+            'delegate' => array('to' => 'playlist', ),
+        );
+    } // getBehaviors()
 
     /**
      * Retrieves a string version of the primary key from the DB resultset row that can be used to uniquely identify a row in this table.
@@ -232,7 +219,7 @@ class PlaylistTableMap extends TableMap
      */
     public static function getOMClass($withPrefix = true)
     {
-        return $withPrefix ? PlaylistTableMap::CLASS_DEFAULT : PlaylistTableMap::OM_CLASS;
+        return $withPrefix ? SpotifyPlaylistTableMap::CLASS_DEFAULT : SpotifyPlaylistTableMap::OM_CLASS;
     }
 
     /**
@@ -246,22 +233,22 @@ class PlaylistTableMap extends TableMap
      *
      * @throws PropelException Any exceptions caught during processing will be
      *                         rethrown wrapped into a PropelException.
-     * @return array           (Playlist object, last column rank)
+     * @return array           (SpotifyPlaylist object, last column rank)
      */
     public static function populateObject($row, $offset = 0, $indexType = TableMap::TYPE_NUM)
     {
-        $key = PlaylistTableMap::getPrimaryKeyHashFromRow($row, $offset, $indexType);
-        if (null !== ($obj = PlaylistTableMap::getInstanceFromPool($key))) {
+        $key = SpotifyPlaylistTableMap::getPrimaryKeyHashFromRow($row, $offset, $indexType);
+        if (null !== ($obj = SpotifyPlaylistTableMap::getInstanceFromPool($key))) {
             // We no longer rehydrate the object, since this can cause data loss.
             // See http://www.propelorm.org/ticket/509
             // $obj->hydrate($row, $offset, true); // rehydrate
-            $col = $offset + PlaylistTableMap::NUM_HYDRATE_COLUMNS;
+            $col = $offset + SpotifyPlaylistTableMap::NUM_HYDRATE_COLUMNS;
         } else {
-            $cls = PlaylistTableMap::OM_CLASS;
-            /** @var Playlist $obj */
+            $cls = SpotifyPlaylistTableMap::OM_CLASS;
+            /** @var SpotifyPlaylist $obj */
             $obj = new $cls();
             $col = $obj->hydrate($row, $offset, false, $indexType);
-            PlaylistTableMap::addInstanceToPool($obj, $key);
+            SpotifyPlaylistTableMap::addInstanceToPool($obj, $key);
         }
 
         return array($obj, $col);
@@ -284,18 +271,18 @@ class PlaylistTableMap extends TableMap
         $cls = static::getOMClass(false);
         // populate the object(s)
         while ($row = $dataFetcher->fetch()) {
-            $key = PlaylistTableMap::getPrimaryKeyHashFromRow($row, 0, $dataFetcher->getIndexType());
-            if (null !== ($obj = PlaylistTableMap::getInstanceFromPool($key))) {
+            $key = SpotifyPlaylistTableMap::getPrimaryKeyHashFromRow($row, 0, $dataFetcher->getIndexType());
+            if (null !== ($obj = SpotifyPlaylistTableMap::getInstanceFromPool($key))) {
                 // We no longer rehydrate the object, since this can cause data loss.
                 // See http://www.propelorm.org/ticket/509
                 // $obj->hydrate($row, 0, true); // rehydrate
                 $results[] = $obj;
             } else {
-                /** @var Playlist $obj */
+                /** @var SpotifyPlaylist $obj */
                 $obj = new $cls();
                 $obj->hydrate($row);
                 $results[] = $obj;
-                PlaylistTableMap::addInstanceToPool($obj, $key);
+                SpotifyPlaylistTableMap::addInstanceToPool($obj, $key);
             } // if key exists
         }
 
@@ -316,15 +303,11 @@ class PlaylistTableMap extends TableMap
     public static function addSelectColumns(Criteria $criteria, $alias = null)
     {
         if (null === $alias) {
-            $criteria->addSelectColumn(PlaylistTableMap::COL_ID);
-            $criteria->addSelectColumn(PlaylistTableMap::COL_URI);
-            $criteria->addSelectColumn(PlaylistTableMap::COL_LASTPLAYEDSONG);
-            $criteria->addSelectColumn(PlaylistTableMap::COL_OWNER_ID);
+            $criteria->addSelectColumn(SpotifyPlaylistTableMap::COL_ID);
+            $criteria->addSelectColumn(SpotifyPlaylistTableMap::COL_URI);
         } else {
             $criteria->addSelectColumn($alias . '.id');
             $criteria->addSelectColumn($alias . '.uri');
-            $criteria->addSelectColumn($alias . '.lastplayedsong');
-            $criteria->addSelectColumn($alias . '.owner_id');
         }
     }
 
@@ -337,7 +320,7 @@ class PlaylistTableMap extends TableMap
      */
     public static function getTableMap()
     {
-        return Propel::getServiceContainer()->getDatabaseMap(PlaylistTableMap::DATABASE_NAME)->getTable(PlaylistTableMap::TABLE_NAME);
+        return Propel::getServiceContainer()->getDatabaseMap(SpotifyPlaylistTableMap::DATABASE_NAME)->getTable(SpotifyPlaylistTableMap::TABLE_NAME);
     }
 
     /**
@@ -345,16 +328,16 @@ class PlaylistTableMap extends TableMap
      */
     public static function buildTableMap()
     {
-        $dbMap = Propel::getServiceContainer()->getDatabaseMap(PlaylistTableMap::DATABASE_NAME);
-        if (!$dbMap->hasTable(PlaylistTableMap::TABLE_NAME)) {
-            $dbMap->addTableObject(new PlaylistTableMap());
+        $dbMap = Propel::getServiceContainer()->getDatabaseMap(SpotifyPlaylistTableMap::DATABASE_NAME);
+        if (!$dbMap->hasTable(SpotifyPlaylistTableMap::TABLE_NAME)) {
+            $dbMap->addTableObject(new SpotifyPlaylistTableMap());
         }
     }
 
     /**
-     * Performs a DELETE on the database, given a Playlist or Criteria object OR a primary key value.
+     * Performs a DELETE on the database, given a SpotifyPlaylist or Criteria object OR a primary key value.
      *
-     * @param mixed               $values Criteria or Playlist object or primary key or array of primary keys
+     * @param mixed               $values Criteria or SpotifyPlaylist object or primary key or array of primary keys
      *              which is used to create the DELETE statement
      * @param  ConnectionInterface $con the connection to use
      * @return int             The number of affected rows (if supported by underlying database driver).  This includes CASCADE-related rows
@@ -365,27 +348,27 @@ class PlaylistTableMap extends TableMap
      public static function doDelete($values, ConnectionInterface $con = null)
      {
         if (null === $con) {
-            $con = Propel::getServiceContainer()->getWriteConnection(PlaylistTableMap::DATABASE_NAME);
+            $con = Propel::getServiceContainer()->getWriteConnection(SpotifyPlaylistTableMap::DATABASE_NAME);
         }
 
         if ($values instanceof Criteria) {
             // rename for clarity
             $criteria = $values;
-        } elseif ($values instanceof \Playlist) { // it's a model object
+        } elseif ($values instanceof \SpotifyPlaylist) { // it's a model object
             // create criteria based on pk values
             $criteria = $values->buildPkeyCriteria();
         } else { // it's a primary key, or an array of pks
-            $criteria = new Criteria(PlaylistTableMap::DATABASE_NAME);
-            $criteria->add(PlaylistTableMap::COL_ID, (array) $values, Criteria::IN);
+            $criteria = new Criteria(SpotifyPlaylistTableMap::DATABASE_NAME);
+            $criteria->add(SpotifyPlaylistTableMap::COL_ID, (array) $values, Criteria::IN);
         }
 
-        $query = PlaylistQuery::create()->mergeWith($criteria);
+        $query = SpotifyPlaylistQuery::create()->mergeWith($criteria);
 
         if ($values instanceof Criteria) {
-            PlaylistTableMap::clearInstancePool();
+            SpotifyPlaylistTableMap::clearInstancePool();
         } elseif (!is_object($values)) { // it's a primary key, or an array of pks
             foreach ((array) $values as $singleval) {
-                PlaylistTableMap::removeInstanceFromPool($singleval);
+                SpotifyPlaylistTableMap::removeInstanceFromPool($singleval);
             }
         }
 
@@ -393,20 +376,20 @@ class PlaylistTableMap extends TableMap
     }
 
     /**
-     * Deletes all rows from the playlist table.
+     * Deletes all rows from the spotifyplaylist table.
      *
      * @param ConnectionInterface $con the connection to use
      * @return int The number of affected rows (if supported by underlying database driver).
      */
     public static function doDeleteAll(ConnectionInterface $con = null)
     {
-        return PlaylistQuery::create()->doDeleteAll($con);
+        return SpotifyPlaylistQuery::create()->doDeleteAll($con);
     }
 
     /**
-     * Performs an INSERT on the database, given a Playlist or Criteria object.
+     * Performs an INSERT on the database, given a SpotifyPlaylist or Criteria object.
      *
-     * @param mixed               $criteria Criteria or Playlist object containing data that is used to create the INSERT statement.
+     * @param mixed               $criteria Criteria or SpotifyPlaylist object containing data that is used to create the INSERT statement.
      * @param ConnectionInterface $con the ConnectionInterface connection to use
      * @return mixed           The new primary key.
      * @throws PropelException Any exceptions caught during processing will be
@@ -415,22 +398,18 @@ class PlaylistTableMap extends TableMap
     public static function doInsert($criteria, ConnectionInterface $con = null)
     {
         if (null === $con) {
-            $con = Propel::getServiceContainer()->getWriteConnection(PlaylistTableMap::DATABASE_NAME);
+            $con = Propel::getServiceContainer()->getWriteConnection(SpotifyPlaylistTableMap::DATABASE_NAME);
         }
 
         if ($criteria instanceof Criteria) {
             $criteria = clone $criteria; // rename for clarity
         } else {
-            $criteria = $criteria->buildCriteria(); // build Criteria from Playlist object
-        }
-
-        if ($criteria->containsKey(PlaylistTableMap::COL_ID) && $criteria->keyContainsValue(PlaylistTableMap::COL_ID) ) {
-            throw new PropelException('Cannot insert a value for auto-increment primary key ('.PlaylistTableMap::COL_ID.')');
+            $criteria = $criteria->buildCriteria(); // build Criteria from SpotifyPlaylist object
         }
 
 
         // Set the correct dbName
-        $query = PlaylistQuery::create()->mergeWith($criteria);
+        $query = SpotifyPlaylistQuery::create()->mergeWith($criteria);
 
         // use transaction because $criteria could contain info
         // for more than one table (I guess, conceivably)
@@ -439,7 +418,7 @@ class PlaylistTableMap extends TableMap
         });
     }
 
-} // PlaylistTableMap
+} // SpotifyPlaylistTableMap
 // This is the static code needed to register the TableMap for this table with the main Propel class.
 //
-PlaylistTableMap::buildTableMap();
+SpotifyPlaylistTableMap::buildTableMap();

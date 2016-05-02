@@ -40,5 +40,15 @@
       <reference local="owner_id" foreign="id" />
     </foreign-key>
   </table>
+  <table name="spotifyplaylist" phpName="SpotifyPlaylist">
+    <column name="id" type="integer" required="true" primaryKey="true" />
+    <foreign-key foreignTable="playlist">
+      <reference local="id" foreign="id" />
+    </foreign-key>
+    <behavior name="delegate">
+      <parameter name="to" value="playlist" />
+    </behavior>
+    <column name="uri" type="longvarchar" required="true" />
+  </table>
 </database>
 

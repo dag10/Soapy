@@ -58,7 +58,17 @@ use Propel\Runtime\Exception\PropelException;
  * @method     ChildPlaylistQuery rightJoinWithUserRelatedByPlaylistId() Adds a RIGHT JOIN clause and with to the query using the UserRelatedByPlaylistId relation
  * @method     ChildPlaylistQuery innerJoinWithUserRelatedByPlaylistId() Adds a INNER JOIN clause and with to the query using the UserRelatedByPlaylistId relation
  *
- * @method     \UserQuery endUse() Finalizes a secondary criteria and merges it with its primary Criteria
+ * @method     ChildPlaylistQuery leftJoinSpotifyPlaylist($relationAlias = null) Adds a LEFT JOIN clause to the query using the SpotifyPlaylist relation
+ * @method     ChildPlaylistQuery rightJoinSpotifyPlaylist($relationAlias = null) Adds a RIGHT JOIN clause to the query using the SpotifyPlaylist relation
+ * @method     ChildPlaylistQuery innerJoinSpotifyPlaylist($relationAlias = null) Adds a INNER JOIN clause to the query using the SpotifyPlaylist relation
+ *
+ * @method     ChildPlaylistQuery joinWithSpotifyPlaylist($joinType = Criteria::INNER_JOIN) Adds a join clause and with to the query using the SpotifyPlaylist relation
+ *
+ * @method     ChildPlaylistQuery leftJoinWithSpotifyPlaylist() Adds a LEFT JOIN clause and with to the query using the SpotifyPlaylist relation
+ * @method     ChildPlaylistQuery rightJoinWithSpotifyPlaylist() Adds a RIGHT JOIN clause and with to the query using the SpotifyPlaylist relation
+ * @method     ChildPlaylistQuery innerJoinWithSpotifyPlaylist() Adds a INNER JOIN clause and with to the query using the SpotifyPlaylist relation
+ *
+ * @method     \UserQuery|\SpotifyPlaylistQuery endUse() Finalizes a secondary criteria and merges it with its primary Criteria
  *
  * @method     ChildPlaylist findOne(ConnectionInterface $con = null) Return the first ChildPlaylist matching the query
  * @method     ChildPlaylist findOneOrCreate(ConnectionInterface $con = null) Return the first ChildPlaylist matching the query, or a new ChildPlaylist object populated from the query conditions when no match is found
@@ -553,6 +563,79 @@ abstract class PlaylistQuery extends ModelCriteria
         return $this
             ->joinUserRelatedByPlaylistId($relationAlias, $joinType)
             ->useQuery($relationAlias ? $relationAlias : 'UserRelatedByPlaylistId', '\UserQuery');
+    }
+
+    /**
+     * Filter the query by a related \SpotifyPlaylist object
+     *
+     * @param \SpotifyPlaylist|ObjectCollection $spotifyPlaylist the related object to use as filter
+     * @param string $comparison Operator to use for the column comparison, defaults to Criteria::EQUAL
+     *
+     * @return ChildPlaylistQuery The current query, for fluid interface
+     */
+    public function filterBySpotifyPlaylist($spotifyPlaylist, $comparison = null)
+    {
+        if ($spotifyPlaylist instanceof \SpotifyPlaylist) {
+            return $this
+                ->addUsingAlias(PlaylistTableMap::COL_ID, $spotifyPlaylist->getId(), $comparison);
+        } elseif ($spotifyPlaylist instanceof ObjectCollection) {
+            return $this
+                ->useSpotifyPlaylistQuery()
+                ->filterByPrimaryKeys($spotifyPlaylist->getPrimaryKeys())
+                ->endUse();
+        } else {
+            throw new PropelException('filterBySpotifyPlaylist() only accepts arguments of type \SpotifyPlaylist or Collection');
+        }
+    }
+
+    /**
+     * Adds a JOIN clause to the query using the SpotifyPlaylist relation
+     *
+     * @param     string $relationAlias optional alias for the relation
+     * @param     string $joinType Accepted values are null, 'left join', 'right join', 'inner join'
+     *
+     * @return $this|ChildPlaylistQuery The current query, for fluid interface
+     */
+    public function joinSpotifyPlaylist($relationAlias = null, $joinType = Criteria::INNER_JOIN)
+    {
+        $tableMap = $this->getTableMap();
+        $relationMap = $tableMap->getRelation('SpotifyPlaylist');
+
+        // create a ModelJoin object for this join
+        $join = new ModelJoin();
+        $join->setJoinType($joinType);
+        $join->setRelationMap($relationMap, $this->useAliasInSQL ? $this->getModelAlias() : null, $relationAlias);
+        if ($previousJoin = $this->getPreviousJoin()) {
+            $join->setPreviousJoin($previousJoin);
+        }
+
+        // add the ModelJoin to the current object
+        if ($relationAlias) {
+            $this->addAlias($relationAlias, $relationMap->getRightTable()->getName());
+            $this->addJoinObject($join, $relationAlias);
+        } else {
+            $this->addJoinObject($join, 'SpotifyPlaylist');
+        }
+
+        return $this;
+    }
+
+    /**
+     * Use the SpotifyPlaylist relation SpotifyPlaylist object
+     *
+     * @see useQuery()
+     *
+     * @param     string $relationAlias optional alias for the relation,
+     *                                   to be used as main alias in the secondary query
+     * @param     string $joinType Accepted values are null, 'left join', 'right join', 'inner join'
+     *
+     * @return \SpotifyPlaylistQuery A secondary query class using the current class as primary query
+     */
+    public function useSpotifyPlaylistQuery($relationAlias = null, $joinType = Criteria::INNER_JOIN)
+    {
+        return $this
+            ->joinSpotifyPlaylist($relationAlias, $joinType)
+            ->useQuery($relationAlias ? $relationAlias : 'SpotifyPlaylist', '\SpotifyPlaylistQuery');
     }
 
     /**

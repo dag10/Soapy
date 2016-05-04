@@ -147,7 +147,7 @@ class UserTableMap extends TableMap
     );
 
     /**
-     * Gets the list of values for all ENUM and SET columns
+     * Gets the list of values for all ENUM columns
      * @return array
      */
     public static function getValueSets()
@@ -156,7 +156,7 @@ class UserTableMap extends TableMap
     }
 
     /**
-     * Gets the list of values for an ENUM or SET column
+     * Gets the list of values for an ENUM column
      * @param string $colname
      * @return array list of possible values for the column
      */

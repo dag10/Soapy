@@ -66,15 +66,7 @@ use Propel\Runtime\Exception\PropelException;
  */
 abstract class SpotifyPlaylistQuery extends ModelCriteria
 {
-
-    // delegate behavior
-
-    protected $delegatedFields = [
-        'LastPlayedSongURI' => 'Playlist',
-        'OwnerId' => 'Playlist',
-    ];
-
-protected $entityNotFoundExceptionClass = '\\Propel\\Runtime\\Exception\\EntityNotFoundException';
+    protected $entityNotFoundExceptionClass = '\\Propel\\Runtime\\Exception\\EntityNotFoundException';
 
     /**
      * Initializes internal state of \Base\SpotifyPlaylistQuery object.
@@ -478,88 +470,6 @@ protected $entityNotFoundExceptionClass = '\\Propel\\Runtime\\Exception\\EntityN
     }
 
     // delegate behavior
-    /**
-    * Filter the query by lastplayedsonguri column
-    *
-    * Example usage:
-    * <code>
-        * $query->filterByLastPlayedSongURI(1234); // WHERE lastplayedsonguri = 1234
-        * $query->filterByLastPlayedSongURI(array(12, 34)); // WHERE lastplayedsonguri IN (12, 34)
-        * $query->filterByLastPlayedSongURI(array('min' => 12)); // WHERE lastplayedsonguri > 12
-        * </code>
-    *
-    * @param     mixed $value The value to use as filter.
-    *              Use scalar values for equality.
-    *              Use array values for in_array() equivalent.
-    *              Use associative array('min' => $minValue, 'max' => $maxValue) for intervals.
-    * @param     string $comparison Operator to use for the column comparison, defaults to Criteria::EQUAL
-    *
-    * @return $this|ChildSpotifyPlaylistQuery The current query, for fluid interface
-    */
-    public function filterByLastPlayedSongURI($value = null, $comparison = null)
-    {
-        return $this->usePlaylistQuery()->filterByLastPlayedSongURI($value, $comparison)->endUse();
-    }
-
-    /**
-    * Adds an ORDER BY clause to the query
-    * Usability layer on top of Criteria::addAscendingOrderByColumn() and Criteria::addDescendingOrderByColumn()
-    * Infers $column and $order from $columnName and some optional arguments
-    * Examples:
-    *   $c->orderBy('Book.CreatedAt')
-    *    => $c->addAscendingOrderByColumn(BookTableMap::CREATED_AT)
-    *   $c->orderBy('Book.CategoryId', 'desc')
-    *    => $c->addDescendingOrderByColumn(BookTableMap::CATEGORY_ID)
-    *
-    * @param string $order      The sorting order. Criteria::ASC by default, also accepts Criteria::DESC
-    *
-    * @return $this|ModelCriteria The current object, for fluid interface
-    */
-    public function orderByLastPlayedSongURI($order = Criteria::ASC)
-    {
-        return $this->usePlaylistQuery()->orderByLastPlayedSongURI($order)->endUse();
-    }
-    /**
-    * Filter the query by owner_id column
-    *
-    * Example usage:
-    * <code>
-        * $query->filterByOwnerId(1234); // WHERE owner_id = 1234
-        * $query->filterByOwnerId(array(12, 34)); // WHERE owner_id IN (12, 34)
-        * $query->filterByOwnerId(array('min' => 12)); // WHERE owner_id > 12
-        * </code>
-    *
-    * @param     mixed $value The value to use as filter.
-    *              Use scalar values for equality.
-    *              Use array values for in_array() equivalent.
-    *              Use associative array('min' => $minValue, 'max' => $maxValue) for intervals.
-    * @param     string $comparison Operator to use for the column comparison, defaults to Criteria::EQUAL
-    *
-    * @return $this|ChildSpotifyPlaylistQuery The current query, for fluid interface
-    */
-    public function filterByOwnerId($value = null, $comparison = null)
-    {
-        return $this->usePlaylistQuery()->filterByOwnerId($value, $comparison)->endUse();
-    }
-
-    /**
-    * Adds an ORDER BY clause to the query
-    * Usability layer on top of Criteria::addAscendingOrderByColumn() and Criteria::addDescendingOrderByColumn()
-    * Infers $column and $order from $columnName and some optional arguments
-    * Examples:
-    *   $c->orderBy('Book.CreatedAt')
-    *    => $c->addAscendingOrderByColumn(BookTableMap::CREATED_AT)
-    *   $c->orderBy('Book.CategoryId', 'desc')
-    *    => $c->addDescendingOrderByColumn(BookTableMap::CATEGORY_ID)
-    *
-    * @param string $order      The sorting order. Criteria::ASC by default, also accepts Criteria::DESC
-    *
-    * @return $this|ModelCriteria The current object, for fluid interface
-    */
-    public function orderByOwnerId($order = Criteria::ASC)
-    {
-        return $this->usePlaylistQuery()->orderByOwnerId($order)->endUse();
-    }
 
     /**
      * Adds a condition on a column based on a column phpName and a value

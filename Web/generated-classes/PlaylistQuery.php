@@ -14,4 +14,8 @@ use Base\PlaylistQuery as BasePlaylistQuery;
  */
 class PlaylistQuery extends BasePlaylistQuery
 {
+  // Always try to preload the corresponding SpotifyPlaylist subclass.
+  public static function create($modelAlias = NULL, Propel\Runtime\ActiveQuery\Criteria $criteria = NULL) {
+    return BasePlaylistQuery::create($modelAlias, $criteria)->leftJoinWithSpotifyPlaylist();
+  }
 }

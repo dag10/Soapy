@@ -59,7 +59,7 @@ class PlaylistTableMap extends TableMap
     /**
      * The total number of columns
      */
-    const NUM_COLUMNS = 3;
+    const NUM_COLUMNS = 1;
 
     /**
      * The number of lazy-loaded columns
@@ -69,22 +69,12 @@ class PlaylistTableMap extends TableMap
     /**
      * The number of columns to hydrate (NUM_COLUMNS - NUM_LAZY_LOAD_COLUMNS)
      */
-    const NUM_HYDRATE_COLUMNS = 3;
+    const NUM_HYDRATE_COLUMNS = 1;
 
     /**
      * the column name for the id field
      */
     const COL_ID = 'playlist.id';
-
-    /**
-     * the column name for the lastplayedsonguri field
-     */
-    const COL_LASTPLAYEDSONGURI = 'playlist.lastplayedsonguri';
-
-    /**
-     * the column name for the owner_id field
-     */
-    const COL_OWNER_ID = 'playlist.owner_id';
 
     /**
      * The default string format for model objects of the related table
@@ -98,11 +88,11 @@ class PlaylistTableMap extends TableMap
      * e.g. self::$fieldNames[self::TYPE_PHPNAME][0] = 'Id'
      */
     protected static $fieldNames = array (
-        self::TYPE_PHPNAME       => array('Id', 'LastPlayedSongURI', 'OwnerId', ),
-        self::TYPE_CAMELNAME     => array('id', 'lastPlayedSongURI', 'ownerId', ),
-        self::TYPE_COLNAME       => array(PlaylistTableMap::COL_ID, PlaylistTableMap::COL_LASTPLAYEDSONGURI, PlaylistTableMap::COL_OWNER_ID, ),
-        self::TYPE_FIELDNAME     => array('id', 'lastplayedsonguri', 'owner_id', ),
-        self::TYPE_NUM           => array(0, 1, 2, )
+        self::TYPE_PHPNAME       => array('Id', ),
+        self::TYPE_CAMELNAME     => array('id', ),
+        self::TYPE_COLNAME       => array(PlaylistTableMap::COL_ID, ),
+        self::TYPE_FIELDNAME     => array('id', ),
+        self::TYPE_NUM           => array(0, )
     );
 
     /**
@@ -112,11 +102,11 @@ class PlaylistTableMap extends TableMap
      * e.g. self::$fieldKeys[self::TYPE_PHPNAME]['Id'] = 0
      */
     protected static $fieldKeys = array (
-        self::TYPE_PHPNAME       => array('Id' => 0, 'LastPlayedSongURI' => 1, 'OwnerId' => 2, ),
-        self::TYPE_CAMELNAME     => array('id' => 0, 'lastPlayedSongURI' => 1, 'ownerId' => 2, ),
-        self::TYPE_COLNAME       => array(PlaylistTableMap::COL_ID => 0, PlaylistTableMap::COL_LASTPLAYEDSONGURI => 1, PlaylistTableMap::COL_OWNER_ID => 2, ),
-        self::TYPE_FIELDNAME     => array('id' => 0, 'lastplayedsonguri' => 1, 'owner_id' => 2, ),
-        self::TYPE_NUM           => array(0, 1, 2, )
+        self::TYPE_PHPNAME       => array('Id' => 0, ),
+        self::TYPE_CAMELNAME     => array('id' => 0, ),
+        self::TYPE_COLNAME       => array(PlaylistTableMap::COL_ID => 0, ),
+        self::TYPE_FIELDNAME     => array('id' => 0, ),
+        self::TYPE_NUM           => array(0, )
     );
 
     /**
@@ -137,8 +127,6 @@ class PlaylistTableMap extends TableMap
         $this->setUseIdGenerator(true);
         // columns
         $this->addPrimaryKey('id', 'Id', 'INTEGER', true, null, null);
-        $this->addColumn('lastplayedsonguri', 'LastPlayedSongURI', 'LONGVARCHAR', false, null, null);
-        $this->addForeignKey('owner_id', 'OwnerId', 'INTEGER', 'user', 'id', true, null, null);
     } // initialize()
 
     /**
@@ -146,20 +134,20 @@ class PlaylistTableMap extends TableMap
      */
     public function buildRelations()
     {
-        $this->addRelation('Owner', '\\User', RelationMap::MANY_TO_ONE, array (
-  0 =>
-  array (
-    0 => ':owner_id',
-    1 => ':id',
-  ),
-), null, null, null, false);
-        $this->addRelation('UserRelatedByPlaylistId', '\\User', RelationMap::ONE_TO_MANY, array (
+        $this->addRelation('Listener', '\\User', RelationMap::ONE_TO_MANY, array (
   0 =>
   array (
     0 => ':playlist_id',
     1 => ':id',
   ),
-), null, null, 'UsersRelatedByPlaylistId', false);
+), null, null, 'Listeners', false);
+        $this->addRelation('Playlist', '\\ListensTo', RelationMap::ONE_TO_MANY, array (
+  0 =>
+  array (
+    0 => ':playlist_id',
+    1 => ':id',
+  ),
+), null, null, 'Playlists', false);
         $this->addRelation('SpotifyPlaylist', '\\SpotifyPlaylist', RelationMap::ONE_TO_ONE, array (
   0 =>
   array (
@@ -167,6 +155,7 @@ class PlaylistTableMap extends TableMap
     1 => ':id',
   ),
 ), null, null, null, false);
+        $this->addRelation('User', '\\User', RelationMap::MANY_TO_MANY, array(), null, null, 'Users');
     } // buildRelations()
 
     /**
@@ -311,12 +300,8 @@ class PlaylistTableMap extends TableMap
     {
         if (null === $alias) {
             $criteria->addSelectColumn(PlaylistTableMap::COL_ID);
-            $criteria->addSelectColumn(PlaylistTableMap::COL_LASTPLAYEDSONGURI);
-            $criteria->addSelectColumn(PlaylistTableMap::COL_OWNER_ID);
         } else {
             $criteria->addSelectColumn($alias . '.id');
-            $criteria->addSelectColumn($alias . '.lastplayedsonguri');
-            $criteria->addSelectColumn($alias . '.owner_id');
         }
     }
 

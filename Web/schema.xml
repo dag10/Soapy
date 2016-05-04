@@ -6,7 +6,7 @@
     <column name="firstname" phpName="FirstName" type="longvarchar" required="true" />
     <column name="lastname" phpName="LastName" type="longvarchar" required="true" />
     <column name="playlist_id" type="integer" required="false" />
-    <foreign-key foreignTable="playlist" phpName="Playlist">
+    <foreign-key foreignTable="playlist" phpName="SelectedPlaylist" refPhpName="Listener">
       <reference local="playlist_id" foreign="id" />
     </foreign-key>
     <column name="playbackmode" phpName="PlaybackMode" type="enum" required="true" valueSet="LINEAR,SHUFFLE" defaultValue="LINEAR" />
@@ -33,10 +33,16 @@
   </table>
   <table name="playlist">
     <column name="id" type="integer" required="true" primaryKey="true" autoIncrement="true" />
+  </table>
+  <table name="listensto" phpName="ListensTo" isCrossRef="true">
+    <column name="user_id" type="integer" required="true" primaryKey="true" />
+    <column name="playlist_id" type="integer" required="true" primaryKey="true" />
     <column name="lastplayedsonguri" phpName="LastPlayedSongURI" type="longvarchar" required="false" />
-    <column name="owner_id" type="integer" required="true" />
-    <foreign-key foreignTable="user" phpName="Owner" refPhpName="PastPlaylist">
-      <reference local="owner_id" foreign="id" />
+    <foreign-key foreignTable="user" phpName="User" refPhpName="User">
+      <reference local="user_id" foreign="id" />
+    </foreign-key>
+    <foreign-key foreignTable="playlist" phpName="Playlist" refPhpName="Playlist">
+      <reference local="playlist_id" foreign="id" />
     </foreign-key>
   </table>
   <table name="spotifyplaylist" phpName="SpotifyPlaylist">
@@ -48,6 +54,9 @@
       <parameter name="to" value="playlist" />
     </behavior>
     <column name="uri" type="longvarchar" required="true" />
+    <unique>
+      <unique-column name="uri" size="80" />
+    </unique>
   </table>
 </database>
 

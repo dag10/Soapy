@@ -65,8 +65,9 @@ function get_api($access_token) {
 
 function wrap_spotify_playlist_data($user, $spotifyPlaylist) {
   $playlist = \SpotifyPlaylistQuery::GetOrCreateSpotifyPlaylist(
-    $user, $spotifyPlaylist['uri']);
-  $data = $playlist->getDataForJson();
+    $spotifyPlaylist['uri']);
+  $listening = \ListensToQuery::GetOrCreateListensTo($user, $playlist);
+  $data = $listening->getDataForJson();
   $data['spotifyPlaylist'] = $spotifyPlaylist;
   return $data;
 }

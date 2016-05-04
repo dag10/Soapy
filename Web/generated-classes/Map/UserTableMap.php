@@ -201,7 +201,7 @@ class UserTableMap extends TableMap
      */
     public function buildRelations()
     {
-        $this->addRelation('Playlist', '\\Playlist', RelationMap::MANY_TO_ONE, array (
+        $this->addRelation('SelectedPlaylist', '\\Playlist', RelationMap::MANY_TO_ONE, array (
   0 =>
   array (
     0 => ':playlist_id',
@@ -215,13 +215,14 @@ class UserTableMap extends TableMap
     1 => ':id',
   ),
 ), null, null, 'SpotifyAccounts', false);
-        $this->addRelation('PastPlaylist', '\\Playlist', RelationMap::ONE_TO_MANY, array (
+        $this->addRelation('User', '\\ListensTo', RelationMap::ONE_TO_MANY, array (
   0 =>
   array (
-    0 => ':owner_id',
+    0 => ':user_id',
     1 => ':id',
   ),
-), null, null, 'PastPlaylists', false);
+), null, null, 'Users', false);
+        $this->addRelation('Playlist', '\\Playlist', RelationMap::MANY_TO_MANY, array(), null, null, 'Playlists');
     } // buildRelations()
 
     /**

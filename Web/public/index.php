@@ -263,7 +263,7 @@ function apiRawGetPlaylists($ctx) {
       $json_data['user']['playlists'] = $playlists;
     }
 
-    $playlist = $ctx['user']->getPlaylist();
+    $playlist = $ctx['user']->getSelectedPlaylist();
     if ($playlist) {
       $json_data['user']['selectedPlaylist'] = $playlist->getDataForJson();
     }
@@ -292,29 +292,43 @@ $app->get('/api/rfid/:rfid/playlists/?', function($rfid) use ($app) {
   apiHandlerGetPlaylists($ctx);
 });
 
-// Dual API for fetching songs for a user from their selected playlist.
+// Dual API for fetching songs for a user from a specific playlist, or their
+// selected playlist.
 function apiHandlerGetPlaylist($ctx, $playlistId) {
-  if ($playlistId == "selected") {
-    $playlist = $ctx['user']->getPlaylist();
-    if (!$playlist) {
-      dieWithJsonError("User has not selected a playlist.");
+  $selected_playlist = $ctx['user']->getSelectedPlaylist();
+  if ($selected_playlist == null) {
+    $selected_playlist_data = null;
+  } else {
+    $listening = $selected_playlist->getListeningForUser($ctx['user']);
+    if ($listening == null) {
+      dieWithJsonError("You don't have access to your selected playlist.");
     }
+    $selected_playlist_data = $listening->getDataForJson();
+  }
+
+  if ($playlistId == "selected") {
+    $playlist = &$selected_playlist;
+    $playlist_data = &$selected_playlist_data;
   } else {
     $playlist = PlaylistQuery::create()->findPk($playlistId);
-    if (!$playlist) {
-      dieWithJsonError("Playlist not found.");
+    $listening = $playlist->getListeningForUser($ctx['user']);
+    if ($listening == null) {
+      dieWithJsonError("You don't have access to this playlist.");
     }
-    if ($playlist->getOwnerId() != $ctx['user']->getId()) {
-      dieWithJsonError("This is not your playlist.");
+    $playlist_data = $listening->getDataForJson();
+  }
+
+  if (!$playlist) {
+    if ($playlistId == "selected") {
+      dieWithJsonError("User has not selected a playlist.");
+    } else {
+      dieWithJsonError("Playlist not found.");
     }
   }
 
   $json_data = [
     'user' => $ctx['user']->getDataForJson(),
     ];
-
-  $json_data['user']['selectedPlaylist'] = $ctx['user']->getPlaylist()->
-    getDataForJson();
 
   try {
     $tracklist =
@@ -323,17 +337,19 @@ function apiHandlerGetPlaylist($ctx, $playlistId) {
     dieWithJsonError("Error getting tracks: " . $e->getMessage());
   }
 
-  if ($playlistId == "selected") {
-    $json_data['user']['selectedPlaylist']['tracklist'] = $tracklist;
-  } else {
-    $json_data['playlist'] = $playlist->getDataForJson();
-    $json_data['playlist']['tracklist'] = $tracklist;
+  $playlist_data['tracklist'] = $tracklist;
+
+  $json_data['user']['selectedPlaylist'] = $selected_playlist_data;
+
+  if ($playlistId != "selected") {
+    $json_data['playlist'] = $playlist_data;
   }
 
   dieWithJson($json_data);
 }
 
-// Device API for fetching songs for a user from their selected playlist.
+// Device API for fetching songs for a user from a specific playlist, or their
+// selected playlist.
 $app->get(
     '/api/rfid/:rfid/playlist/:playlistId',
     function($rfid, $playlistId) use ($app) {
@@ -344,7 +360,8 @@ $app->get(
   apiHandlerGetPlaylist($ctx, $playlistId);
 });
 
-// Web API for fetching songs for a user from their selected playlist.
+// Web API for fetching songs for a user from a specific playlist, or their
+// selected playlist.
 $app->get('/api/me/playlist/:playlistId', function($playlistId) use ($app) {
 
   $ctx = start_view_context($app, ['require_spotify' => true]);
@@ -362,14 +379,18 @@ $app->post('/api/rfid/:rfid/song/playing', function($rfid) use ($app) {
     dieWithJsonError("No song URI was given.");
   }
 
-  $playlist = $ctx['user']->getPlaylist();
-
+  $playlist = $ctx['user']->getSelectedPlaylist();
   if (!$playlist) {
     dieWithJsonError("User does not have a selected playlist.");
   }
 
-  $playlist->setLastPlayedSong($song_uri);
-  $playlist->save();
+  $listening = $playlist->getListeningForUser($ctx['user']);
+  if (!$listening) {
+    dieWithJsonError("User does not have access to selected playlist.");
+  }
+
+  $listening->setLastPlayedSongURI($song_uri);
+  $listening->save();
 
   dieWithJsonSuccess();
 });

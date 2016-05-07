@@ -21,14 +21,8 @@ use Propel\Runtime\Exception\PropelException;
  *
  *
  * @method     ChildPlaylistQuery orderById($order = Criteria::ASC) Order by the id column
- * @method     ChildPlaylistQuery orderByUri($order = Criteria::ASC) Order by the uri column
- * @method     ChildPlaylistQuery orderByLastPlayedSong($order = Criteria::ASC) Order by the lastplayedsong column
- * @method     ChildPlaylistQuery orderByOwnerId($order = Criteria::ASC) Order by the owner_id column
  *
  * @method     ChildPlaylistQuery groupById() Group by the id column
- * @method     ChildPlaylistQuery groupByUri() Group by the uri column
- * @method     ChildPlaylistQuery groupByLastPlayedSong() Group by the lastplayedsong column
- * @method     ChildPlaylistQuery groupByOwnerId() Group by the owner_id column
  *
  * @method     ChildPlaylistQuery leftJoin($relation) Adds a LEFT JOIN clause to the query
  * @method     ChildPlaylistQuery rightJoin($relation) Adds a RIGHT JOIN clause to the query
@@ -38,49 +32,50 @@ use Propel\Runtime\Exception\PropelException;
  * @method     ChildPlaylistQuery rightJoinWith($relation) Adds a RIGHT JOIN clause and with to the query
  * @method     ChildPlaylistQuery innerJoinWith($relation) Adds a INNER JOIN clause and with to the query
  *
- * @method     ChildPlaylistQuery leftJoinOwner($relationAlias = null) Adds a LEFT JOIN clause to the query using the Owner relation
- * @method     ChildPlaylistQuery rightJoinOwner($relationAlias = null) Adds a RIGHT JOIN clause to the query using the Owner relation
- * @method     ChildPlaylistQuery innerJoinOwner($relationAlias = null) Adds a INNER JOIN clause to the query using the Owner relation
+ * @method     ChildPlaylistQuery leftJoinListener($relationAlias = null) Adds a LEFT JOIN clause to the query using the Listener relation
+ * @method     ChildPlaylistQuery rightJoinListener($relationAlias = null) Adds a RIGHT JOIN clause to the query using the Listener relation
+ * @method     ChildPlaylistQuery innerJoinListener($relationAlias = null) Adds a INNER JOIN clause to the query using the Listener relation
  *
- * @method     ChildPlaylistQuery joinWithOwner($joinType = Criteria::INNER_JOIN) Adds a join clause and with to the query using the Owner relation
+ * @method     ChildPlaylistQuery joinWithListener($joinType = Criteria::INNER_JOIN) Adds a join clause and with to the query using the Listener relation
  *
- * @method     ChildPlaylistQuery leftJoinWithOwner() Adds a LEFT JOIN clause and with to the query using the Owner relation
- * @method     ChildPlaylistQuery rightJoinWithOwner() Adds a RIGHT JOIN clause and with to the query using the Owner relation
- * @method     ChildPlaylistQuery innerJoinWithOwner() Adds a INNER JOIN clause and with to the query using the Owner relation
+ * @method     ChildPlaylistQuery leftJoinWithListener() Adds a LEFT JOIN clause and with to the query using the Listener relation
+ * @method     ChildPlaylistQuery rightJoinWithListener() Adds a RIGHT JOIN clause and with to the query using the Listener relation
+ * @method     ChildPlaylistQuery innerJoinWithListener() Adds a INNER JOIN clause and with to the query using the Listener relation
  *
- * @method     ChildPlaylistQuery leftJoinUserRelatedByPlaylistId($relationAlias = null) Adds a LEFT JOIN clause to the query using the UserRelatedByPlaylistId relation
- * @method     ChildPlaylistQuery rightJoinUserRelatedByPlaylistId($relationAlias = null) Adds a RIGHT JOIN clause to the query using the UserRelatedByPlaylistId relation
- * @method     ChildPlaylistQuery innerJoinUserRelatedByPlaylistId($relationAlias = null) Adds a INNER JOIN clause to the query using the UserRelatedByPlaylistId relation
+ * @method     ChildPlaylistQuery leftJoinPlaylist($relationAlias = null) Adds a LEFT JOIN clause to the query using the Playlist relation
+ * @method     ChildPlaylistQuery rightJoinPlaylist($relationAlias = null) Adds a RIGHT JOIN clause to the query using the Playlist relation
+ * @method     ChildPlaylistQuery innerJoinPlaylist($relationAlias = null) Adds a INNER JOIN clause to the query using the Playlist relation
  *
- * @method     ChildPlaylistQuery joinWithUserRelatedByPlaylistId($joinType = Criteria::INNER_JOIN) Adds a join clause and with to the query using the UserRelatedByPlaylistId relation
+ * @method     ChildPlaylistQuery joinWithPlaylist($joinType = Criteria::INNER_JOIN) Adds a join clause and with to the query using the Playlist relation
  *
- * @method     ChildPlaylistQuery leftJoinWithUserRelatedByPlaylistId() Adds a LEFT JOIN clause and with to the query using the UserRelatedByPlaylistId relation
- * @method     ChildPlaylistQuery rightJoinWithUserRelatedByPlaylistId() Adds a RIGHT JOIN clause and with to the query using the UserRelatedByPlaylistId relation
- * @method     ChildPlaylistQuery innerJoinWithUserRelatedByPlaylistId() Adds a INNER JOIN clause and with to the query using the UserRelatedByPlaylistId relation
+ * @method     ChildPlaylistQuery leftJoinWithPlaylist() Adds a LEFT JOIN clause and with to the query using the Playlist relation
+ * @method     ChildPlaylistQuery rightJoinWithPlaylist() Adds a RIGHT JOIN clause and with to the query using the Playlist relation
+ * @method     ChildPlaylistQuery innerJoinWithPlaylist() Adds a INNER JOIN clause and with to the query using the Playlist relation
  *
- * @method     \UserQuery endUse() Finalizes a secondary criteria and merges it with its primary Criteria
+ * @method     ChildPlaylistQuery leftJoinSpotifyPlaylist($relationAlias = null) Adds a LEFT JOIN clause to the query using the SpotifyPlaylist relation
+ * @method     ChildPlaylistQuery rightJoinSpotifyPlaylist($relationAlias = null) Adds a RIGHT JOIN clause to the query using the SpotifyPlaylist relation
+ * @method     ChildPlaylistQuery innerJoinSpotifyPlaylist($relationAlias = null) Adds a INNER JOIN clause to the query using the SpotifyPlaylist relation
+ *
+ * @method     ChildPlaylistQuery joinWithSpotifyPlaylist($joinType = Criteria::INNER_JOIN) Adds a join clause and with to the query using the SpotifyPlaylist relation
+ *
+ * @method     ChildPlaylistQuery leftJoinWithSpotifyPlaylist() Adds a LEFT JOIN clause and with to the query using the SpotifyPlaylist relation
+ * @method     ChildPlaylistQuery rightJoinWithSpotifyPlaylist() Adds a RIGHT JOIN clause and with to the query using the SpotifyPlaylist relation
+ * @method     ChildPlaylistQuery innerJoinWithSpotifyPlaylist() Adds a INNER JOIN clause and with to the query using the SpotifyPlaylist relation
+ *
+ * @method     \UserQuery|\ListensToQuery|\SpotifyPlaylistQuery endUse() Finalizes a secondary criteria and merges it with its primary Criteria
  *
  * @method     ChildPlaylist findOne(ConnectionInterface $con = null) Return the first ChildPlaylist matching the query
  * @method     ChildPlaylist findOneOrCreate(ConnectionInterface $con = null) Return the first ChildPlaylist matching the query, or a new ChildPlaylist object populated from the query conditions when no match is found
  *
- * @method     ChildPlaylist findOneById(int $id) Return the first ChildPlaylist filtered by the id column
- * @method     ChildPlaylist findOneByUri(string $uri) Return the first ChildPlaylist filtered by the uri column
- * @method     ChildPlaylist findOneByLastPlayedSong(string $lastplayedsong) Return the first ChildPlaylist filtered by the lastplayedsong column
- * @method     ChildPlaylist findOneByOwnerId(int $owner_id) Return the first ChildPlaylist filtered by the owner_id column *
+ * @method     ChildPlaylist findOneById(int $id) Return the first ChildPlaylist filtered by the id column *
 
  * @method     ChildPlaylist requirePk($key, ConnectionInterface $con = null) Return the ChildPlaylist by primary key and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
  * @method     ChildPlaylist requireOne(ConnectionInterface $con = null) Return the first ChildPlaylist matching the query and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
  *
  * @method     ChildPlaylist requireOneById(int $id) Return the first ChildPlaylist filtered by the id column and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
- * @method     ChildPlaylist requireOneByUri(string $uri) Return the first ChildPlaylist filtered by the uri column and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
- * @method     ChildPlaylist requireOneByLastPlayedSong(string $lastplayedsong) Return the first ChildPlaylist filtered by the lastplayedsong column and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
- * @method     ChildPlaylist requireOneByOwnerId(int $owner_id) Return the first ChildPlaylist filtered by the owner_id column and throws \Propel\Runtime\Exception\EntityNotFoundException when not found
  *
  * @method     ChildPlaylist[]|ObjectCollection find(ConnectionInterface $con = null) Return ChildPlaylist objects based on current ModelCriteria
  * @method     ChildPlaylist[]|ObjectCollection findById(int $id) Return ChildPlaylist objects filtered by the id column
- * @method     ChildPlaylist[]|ObjectCollection findByUri(string $uri) Return ChildPlaylist objects filtered by the uri column
- * @method     ChildPlaylist[]|ObjectCollection findByLastPlayedSong(string $lastplayedsong) Return ChildPlaylist objects filtered by the lastplayedsong column
- * @method     ChildPlaylist[]|ObjectCollection findByOwnerId(int $owner_id) Return ChildPlaylist objects filtered by the owner_id column
  * @method     ChildPlaylist[]|\Propel\Runtime\Util\PropelModelPager paginate($page = 1, $maxPerPage = 10, ConnectionInterface $con = null) Issue a SELECT query based on the current ModelCriteria and uses a page and a maximum number of results per page to compute an offset and a limit
  *
  */
@@ -173,7 +168,7 @@ abstract class PlaylistQuery extends ModelCriteria
      */
     protected function findPkSimple($key, ConnectionInterface $con)
     {
-        $sql = 'SELECT id, uri, lastplayedsong, owner_id FROM playlist WHERE id = :p0';
+        $sql = 'SELECT id FROM playlist WHERE id = :p0';
         try {
             $stmt = $con->prepare($sql);
             $stmt->bindValue(':p0', $key, PDO::PARAM_INT);
@@ -305,184 +300,6 @@ abstract class PlaylistQuery extends ModelCriteria
     }
 
     /**
-     * Filter the query on the uri column
-     *
-     * Example usage:
-     * <code>
-     * $query->filterByUri('fooValue');   // WHERE uri = 'fooValue'
-     * $query->filterByUri('%fooValue%'); // WHERE uri LIKE '%fooValue%'
-     * </code>
-     *
-     * @param     string $uri The value to use as filter.
-     *              Accepts wildcards (* and % trigger a LIKE)
-     * @param     string $comparison Operator to use for the column comparison, defaults to Criteria::EQUAL
-     *
-     * @return $this|ChildPlaylistQuery The current query, for fluid interface
-     */
-    public function filterByUri($uri = null, $comparison = null)
-    {
-        if (null === $comparison) {
-            if (is_array($uri)) {
-                $comparison = Criteria::IN;
-            } elseif (preg_match('/[\%\*]/', $uri)) {
-                $uri = str_replace('*', '%', $uri);
-                $comparison = Criteria::LIKE;
-            }
-        }
-
-        return $this->addUsingAlias(PlaylistTableMap::COL_URI, $uri, $comparison);
-    }
-
-    /**
-     * Filter the query on the lastplayedsong column
-     *
-     * Example usage:
-     * <code>
-     * $query->filterByLastPlayedSong('fooValue');   // WHERE lastplayedsong = 'fooValue'
-     * $query->filterByLastPlayedSong('%fooValue%'); // WHERE lastplayedsong LIKE '%fooValue%'
-     * </code>
-     *
-     * @param     string $lastPlayedSong The value to use as filter.
-     *              Accepts wildcards (* and % trigger a LIKE)
-     * @param     string $comparison Operator to use for the column comparison, defaults to Criteria::EQUAL
-     *
-     * @return $this|ChildPlaylistQuery The current query, for fluid interface
-     */
-    public function filterByLastPlayedSong($lastPlayedSong = null, $comparison = null)
-    {
-        if (null === $comparison) {
-            if (is_array($lastPlayedSong)) {
-                $comparison = Criteria::IN;
-            } elseif (preg_match('/[\%\*]/', $lastPlayedSong)) {
-                $lastPlayedSong = str_replace('*', '%', $lastPlayedSong);
-                $comparison = Criteria::LIKE;
-            }
-        }
-
-        return $this->addUsingAlias(PlaylistTableMap::COL_LASTPLAYEDSONG, $lastPlayedSong, $comparison);
-    }
-
-    /**
-     * Filter the query on the owner_id column
-     *
-     * Example usage:
-     * <code>
-     * $query->filterByOwnerId(1234); // WHERE owner_id = 1234
-     * $query->filterByOwnerId(array(12, 34)); // WHERE owner_id IN (12, 34)
-     * $query->filterByOwnerId(array('min' => 12)); // WHERE owner_id > 12
-     * </code>
-     *
-     * @see       filterByOwner()
-     *
-     * @param     mixed $ownerId The value to use as filter.
-     *              Use scalar values for equality.
-     *              Use array values for in_array() equivalent.
-     *              Use associative array('min' => $minValue, 'max' => $maxValue) for intervals.
-     * @param     string $comparison Operator to use for the column comparison, defaults to Criteria::EQUAL
-     *
-     * @return $this|ChildPlaylistQuery The current query, for fluid interface
-     */
-    public function filterByOwnerId($ownerId = null, $comparison = null)
-    {
-        if (is_array($ownerId)) {
-            $useMinMax = false;
-            if (isset($ownerId['min'])) {
-                $this->addUsingAlias(PlaylistTableMap::COL_OWNER_ID, $ownerId['min'], Criteria::GREATER_EQUAL);
-                $useMinMax = true;
-            }
-            if (isset($ownerId['max'])) {
-                $this->addUsingAlias(PlaylistTableMap::COL_OWNER_ID, $ownerId['max'], Criteria::LESS_EQUAL);
-                $useMinMax = true;
-            }
-            if ($useMinMax) {
-                return $this;
-            }
-            if (null === $comparison) {
-                $comparison = Criteria::IN;
-            }
-        }
-
-        return $this->addUsingAlias(PlaylistTableMap::COL_OWNER_ID, $ownerId, $comparison);
-    }
-
-    /**
-     * Filter the query by a related \User object
-     *
-     * @param \User|ObjectCollection $user The related object(s) to use as filter
-     * @param string $comparison Operator to use for the column comparison, defaults to Criteria::EQUAL
-     *
-     * @throws \Propel\Runtime\Exception\PropelException
-     *
-     * @return ChildPlaylistQuery The current query, for fluid interface
-     */
-    public function filterByOwner($user, $comparison = null)
-    {
-        if ($user instanceof \User) {
-            return $this
-                ->addUsingAlias(PlaylistTableMap::COL_OWNER_ID, $user->getId(), $comparison);
-        } elseif ($user instanceof ObjectCollection) {
-            if (null === $comparison) {
-                $comparison = Criteria::IN;
-            }
-
-            return $this
-                ->addUsingAlias(PlaylistTableMap::COL_OWNER_ID, $user->toKeyValue('PrimaryKey', 'Id'), $comparison);
-        } else {
-            throw new PropelException('filterByOwner() only accepts arguments of type \User or Collection');
-        }
-    }
-
-    /**
-     * Adds a JOIN clause to the query using the Owner relation
-     *
-     * @param     string $relationAlias optional alias for the relation
-     * @param     string $joinType Accepted values are null, 'left join', 'right join', 'inner join'
-     *
-     * @return $this|ChildPlaylistQuery The current query, for fluid interface
-     */
-    public function joinOwner($relationAlias = null, $joinType = Criteria::INNER_JOIN)
-    {
-        $tableMap = $this->getTableMap();
-        $relationMap = $tableMap->getRelation('Owner');
-
-        // create a ModelJoin object for this join
-        $join = new ModelJoin();
-        $join->setJoinType($joinType);
-        $join->setRelationMap($relationMap, $this->useAliasInSQL ? $this->getModelAlias() : null, $relationAlias);
-        if ($previousJoin = $this->getPreviousJoin()) {
-            $join->setPreviousJoin($previousJoin);
-        }
-
-        // add the ModelJoin to the current object
-        if ($relationAlias) {
-            $this->addAlias($relationAlias, $relationMap->getRightTable()->getName());
-            $this->addJoinObject($join, $relationAlias);
-        } else {
-            $this->addJoinObject($join, 'Owner');
-        }
-
-        return $this;
-    }
-
-    /**
-     * Use the Owner relation User object
-     *
-     * @see useQuery()
-     *
-     * @param     string $relationAlias optional alias for the relation,
-     *                                   to be used as main alias in the secondary query
-     * @param     string $joinType Accepted values are null, 'left join', 'right join', 'inner join'
-     *
-     * @return \UserQuery A secondary query class using the current class as primary query
-     */
-    public function useOwnerQuery($relationAlias = null, $joinType = Criteria::INNER_JOIN)
-    {
-        return $this
-            ->joinOwner($relationAlias, $joinType)
-            ->useQuery($relationAlias ? $relationAlias : 'Owner', '\UserQuery');
-    }
-
-    /**
      * Filter the query by a related \User object
      *
      * @param \User|ObjectCollection $user the related object to use as filter
@@ -490,33 +307,33 @@ abstract class PlaylistQuery extends ModelCriteria
      *
      * @return ChildPlaylistQuery The current query, for fluid interface
      */
-    public function filterByUserRelatedByPlaylistId($user, $comparison = null)
+    public function filterByListener($user, $comparison = null)
     {
         if ($user instanceof \User) {
             return $this
                 ->addUsingAlias(PlaylistTableMap::COL_ID, $user->getPlaylistId(), $comparison);
         } elseif ($user instanceof ObjectCollection) {
             return $this
-                ->useUserRelatedByPlaylistIdQuery()
+                ->useListenerQuery()
                 ->filterByPrimaryKeys($user->getPrimaryKeys())
                 ->endUse();
         } else {
-            throw new PropelException('filterByUserRelatedByPlaylistId() only accepts arguments of type \User or Collection');
+            throw new PropelException('filterByListener() only accepts arguments of type \User or Collection');
         }
     }
 
     /**
-     * Adds a JOIN clause to the query using the UserRelatedByPlaylistId relation
+     * Adds a JOIN clause to the query using the Listener relation
      *
      * @param     string $relationAlias optional alias for the relation
      * @param     string $joinType Accepted values are null, 'left join', 'right join', 'inner join'
      *
      * @return $this|ChildPlaylistQuery The current query, for fluid interface
      */
-    public function joinUserRelatedByPlaylistId($relationAlias = null, $joinType = Criteria::LEFT_JOIN)
+    public function joinListener($relationAlias = null, $joinType = Criteria::LEFT_JOIN)
     {
         $tableMap = $this->getTableMap();
-        $relationMap = $tableMap->getRelation('UserRelatedByPlaylistId');
+        $relationMap = $tableMap->getRelation('Listener');
 
         // create a ModelJoin object for this join
         $join = new ModelJoin();
@@ -531,14 +348,14 @@ abstract class PlaylistQuery extends ModelCriteria
             $this->addAlias($relationAlias, $relationMap->getRightTable()->getName());
             $this->addJoinObject($join, $relationAlias);
         } else {
-            $this->addJoinObject($join, 'UserRelatedByPlaylistId');
+            $this->addJoinObject($join, 'Listener');
         }
 
         return $this;
     }
 
     /**
-     * Use the UserRelatedByPlaylistId relation User object
+     * Use the Listener relation User object
      *
      * @see useQuery()
      *
@@ -548,11 +365,174 @@ abstract class PlaylistQuery extends ModelCriteria
      *
      * @return \UserQuery A secondary query class using the current class as primary query
      */
-    public function useUserRelatedByPlaylistIdQuery($relationAlias = null, $joinType = Criteria::LEFT_JOIN)
+    public function useListenerQuery($relationAlias = null, $joinType = Criteria::LEFT_JOIN)
     {
         return $this
-            ->joinUserRelatedByPlaylistId($relationAlias, $joinType)
-            ->useQuery($relationAlias ? $relationAlias : 'UserRelatedByPlaylistId', '\UserQuery');
+            ->joinListener($relationAlias, $joinType)
+            ->useQuery($relationAlias ? $relationAlias : 'Listener', '\UserQuery');
+    }
+
+    /**
+     * Filter the query by a related \ListensTo object
+     *
+     * @param \ListensTo|ObjectCollection $listensTo the related object to use as filter
+     * @param string $comparison Operator to use for the column comparison, defaults to Criteria::EQUAL
+     *
+     * @return ChildPlaylistQuery The current query, for fluid interface
+     */
+    public function filterByPlaylist($listensTo, $comparison = null)
+    {
+        if ($listensTo instanceof \ListensTo) {
+            return $this
+                ->addUsingAlias(PlaylistTableMap::COL_ID, $listensTo->getPlaylistId(), $comparison);
+        } elseif ($listensTo instanceof ObjectCollection) {
+            return $this
+                ->usePlaylistQuery()
+                ->filterByPrimaryKeys($listensTo->getPrimaryKeys())
+                ->endUse();
+        } else {
+            throw new PropelException('filterByPlaylist() only accepts arguments of type \ListensTo or Collection');
+        }
+    }
+
+    /**
+     * Adds a JOIN clause to the query using the Playlist relation
+     *
+     * @param     string $relationAlias optional alias for the relation
+     * @param     string $joinType Accepted values are null, 'left join', 'right join', 'inner join'
+     *
+     * @return $this|ChildPlaylistQuery The current query, for fluid interface
+     */
+    public function joinPlaylist($relationAlias = null, $joinType = Criteria::INNER_JOIN)
+    {
+        $tableMap = $this->getTableMap();
+        $relationMap = $tableMap->getRelation('Playlist');
+
+        // create a ModelJoin object for this join
+        $join = new ModelJoin();
+        $join->setJoinType($joinType);
+        $join->setRelationMap($relationMap, $this->useAliasInSQL ? $this->getModelAlias() : null, $relationAlias);
+        if ($previousJoin = $this->getPreviousJoin()) {
+            $join->setPreviousJoin($previousJoin);
+        }
+
+        // add the ModelJoin to the current object
+        if ($relationAlias) {
+            $this->addAlias($relationAlias, $relationMap->getRightTable()->getName());
+            $this->addJoinObject($join, $relationAlias);
+        } else {
+            $this->addJoinObject($join, 'Playlist');
+        }
+
+        return $this;
+    }
+
+    /**
+     * Use the Playlist relation ListensTo object
+     *
+     * @see useQuery()
+     *
+     * @param     string $relationAlias optional alias for the relation,
+     *                                   to be used as main alias in the secondary query
+     * @param     string $joinType Accepted values are null, 'left join', 'right join', 'inner join'
+     *
+     * @return \ListensToQuery A secondary query class using the current class as primary query
+     */
+    public function usePlaylistQuery($relationAlias = null, $joinType = Criteria::INNER_JOIN)
+    {
+        return $this
+            ->joinPlaylist($relationAlias, $joinType)
+            ->useQuery($relationAlias ? $relationAlias : 'Playlist', '\ListensToQuery');
+    }
+
+    /**
+     * Filter the query by a related \SpotifyPlaylist object
+     *
+     * @param \SpotifyPlaylist|ObjectCollection $spotifyPlaylist the related object to use as filter
+     * @param string $comparison Operator to use for the column comparison, defaults to Criteria::EQUAL
+     *
+     * @return ChildPlaylistQuery The current query, for fluid interface
+     */
+    public function filterBySpotifyPlaylist($spotifyPlaylist, $comparison = null)
+    {
+        if ($spotifyPlaylist instanceof \SpotifyPlaylist) {
+            return $this
+                ->addUsingAlias(PlaylistTableMap::COL_ID, $spotifyPlaylist->getId(), $comparison);
+        } elseif ($spotifyPlaylist instanceof ObjectCollection) {
+            return $this
+                ->useSpotifyPlaylistQuery()
+                ->filterByPrimaryKeys($spotifyPlaylist->getPrimaryKeys())
+                ->endUse();
+        } else {
+            throw new PropelException('filterBySpotifyPlaylist() only accepts arguments of type \SpotifyPlaylist or Collection');
+        }
+    }
+
+    /**
+     * Adds a JOIN clause to the query using the SpotifyPlaylist relation
+     *
+     * @param     string $relationAlias optional alias for the relation
+     * @param     string $joinType Accepted values are null, 'left join', 'right join', 'inner join'
+     *
+     * @return $this|ChildPlaylistQuery The current query, for fluid interface
+     */
+    public function joinSpotifyPlaylist($relationAlias = null, $joinType = Criteria::INNER_JOIN)
+    {
+        $tableMap = $this->getTableMap();
+        $relationMap = $tableMap->getRelation('SpotifyPlaylist');
+
+        // create a ModelJoin object for this join
+        $join = new ModelJoin();
+        $join->setJoinType($joinType);
+        $join->setRelationMap($relationMap, $this->useAliasInSQL ? $this->getModelAlias() : null, $relationAlias);
+        if ($previousJoin = $this->getPreviousJoin()) {
+            $join->setPreviousJoin($previousJoin);
+        }
+
+        // add the ModelJoin to the current object
+        if ($relationAlias) {
+            $this->addAlias($relationAlias, $relationMap->getRightTable()->getName());
+            $this->addJoinObject($join, $relationAlias);
+        } else {
+            $this->addJoinObject($join, 'SpotifyPlaylist');
+        }
+
+        return $this;
+    }
+
+    /**
+     * Use the SpotifyPlaylist relation SpotifyPlaylist object
+     *
+     * @see useQuery()
+     *
+     * @param     string $relationAlias optional alias for the relation,
+     *                                   to be used as main alias in the secondary query
+     * @param     string $joinType Accepted values are null, 'left join', 'right join', 'inner join'
+     *
+     * @return \SpotifyPlaylistQuery A secondary query class using the current class as primary query
+     */
+    public function useSpotifyPlaylistQuery($relationAlias = null, $joinType = Criteria::INNER_JOIN)
+    {
+        return $this
+            ->joinSpotifyPlaylist($relationAlias, $joinType)
+            ->useQuery($relationAlias ? $relationAlias : 'SpotifyPlaylist', '\SpotifyPlaylistQuery');
+    }
+
+    /**
+     * Filter the query by a related User object
+     * using the listensto table as cross reference
+     *
+     * @param User $user the related object to use as filter
+     * @param string $comparison Operator to use for the column comparison, defaults to Criteria::EQUAL
+     *
+     * @return ChildPlaylistQuery The current query, for fluid interface
+     */
+    public function filterByUser($user, $comparison = Criteria::EQUAL)
+    {
+        return $this
+            ->usePlaylistQuery()
+            ->filterByUser($user, $comparison)
+            ->endUse();
     }
 
     /**

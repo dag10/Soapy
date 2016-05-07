@@ -15,20 +15,34 @@ use Base\Playlist as BasePlaylist;
 class Playlist extends BasePlaylist
 {
   public function getDataForJson() {
-    return [
+    $ret = [
       'soapyPlaylistId' => $this->getId(),
-      'spotifyPlaylistUri' => $this->getUri(),
-      'lastPlayedSongUri' => $this->getLastPlayedSong(),
       ];
+
+    $spPlaylist = $this->getSpotifyPlaylist();
+    if ($spPlaylist) {
+      $ret['spotifyPlaylistUri'] = $spPlaylist->getUri();
+    }
+
+    return $ret;
   }
 
-  public function getOwnerUsername() {
-    $playlist_uri_expl = explode(':', $this->getUri());
-    return $playlist_uri_expl[2];
+  public function getConcretePlaylist() {
+    $spotifyPlaylist = $this->getSpotifyPlaylist();
+
+    if ($spotifyPlaylist == null) {
+      throw new Exception(
+        'No child class for Playlist ' + $this->id + ' found.');
+    }
+
+    return $spotifyPlaylist;
   }
-  
-  public function getSpotifyId() {
-    $playlist_uri_expl = explode(':', $this->getUri());
-    return $playlist_uri_expl[4];
+
+  // Gets a ListensTo entity for a given User entity.
+  public function getListeningForUser($user) {
+    return ListensToQuery::create()
+      ->filterByUser($user)
+      ->filterByPlaylist($this)
+      ->findOne();
   }
 }

@@ -32,12 +32,14 @@ class User extends BaseUser
     return $data;
   }
 
+  // Clears the user's playist selection.
   public function clearSelectedPlaylist() {
-    $this->setPlaylistId(null);
+    $this->setSelectedPlaylist(null);
     $this->save();
     return;
   }
 
+  // Selects a given playlist by Playlist ID, or clears it if null.
   public function setSelectedPlaylistById($id) {
     // For clearing a playlist selection
     if (!$id) {
@@ -49,48 +51,26 @@ class User extends BaseUser
     $playlist = PlaylistQuery::create()->findPk($id);
     if (!$playlist) {
       throw new Exception('Playlist not found: ' . $id);
-    } else if ($playlist->getOwner() != $this) {
-      throw new Exception('You don\'t own playlist ' . $id . '.');
     }
 
-    $this->setPlaylistId($id);
-    $this->save();
-  }
-
-  public function setPlaylistUri($uri) {
-    if (!$uri) {
-      $this->setPlaylistId(null);
-      $this->save();
-      return;
-    }
-
-    $playlist = PlaylistQuery::create()->filterByUri($uri)->filterByOwnerId(
-      $this->getId())->findOne();
-
-    if (!$playlist) {
-      $playlist = new Playlist();
-      $playlist->setOwnerId($this->getId());
-      $playlist->setUri($uri);
-      $playlist->save();
+    // Make sure this playlist is an option for this user
+    if ($playlist->getListeningForUser($this) == null) {
+      throw new Exception('You don\'t have access to playlist ' . $id . '.');
     }
 
     $this->setPlaylistId($playlist->getId());
     $this->save();
   }
 
-  public function getPlaylistUri() {
-    $playlist = $this->getPlaylist();
-
-    if (!$playlist) {
-      return null;
-    }
-
-    return $playlist->getUri();
-  }
-
+  // Gets the user's SpotifyAccount entity, or null.
   public function getSpotifyAccount() {
     $accounts = $this->getSpotifyAccounts();
     if ($accounts->isEmpty()) return null;
     return $accounts->getFirst();
+  }
+
+  // Returns a query for all ListensTo relationships preloaded with Playlist.
+  public function getListeningsQuery() {
+    return ListensToQuery::create()->filterByUser($this)->with('Playlist');
   }
 }

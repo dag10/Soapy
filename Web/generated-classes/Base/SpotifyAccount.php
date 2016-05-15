@@ -881,14 +881,12 @@ abstract class SpotifyAccount implements ActiveRecordInterface
             implode(', ', $modifiedColumns),
             implode(', ', array_keys($modifiedColumns))
         );
-        //var_dump($modifiedColumns); exit; // TODO TMP
 
         try {
             $stmt = $con->prepare($sql);
             foreach ($modifiedColumns as $identifier => $columnName) {
                 switch ($columnName) {
                     case 'id':
-            //echo "BLAH[$columnName][$identifier]"; exit; // TODO TMP
                         $stmt->bindValue($identifier, $this->id, PDO::PARAM_INT);
                         break;
                     case 'user_id':

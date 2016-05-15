@@ -22,7 +22,7 @@ class ListensToQuery extends BaseListensToQuery
 
     if (!$listensTo) {
       $listensTo = new ListensTo();
-      $listensTo->setUser($user);
+      $listensTo->setUserId($user->getId());
       $listensTo->setPlaylistId($playlist->getId());
       $listensTo->save();
     }

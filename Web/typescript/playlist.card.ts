@@ -80,6 +80,14 @@ export class PlaylistCardComponent implements AfterViewInit {
     return !this.selectedPlaylist;
   }
 
+  public cancel() {
+    if (this.formerlySelectedPlaylist) {
+      return this.selectPlaylist(this.formerlySelectedPlaylist);
+    }
+
+    return false;
+  }
+
   public selectPlaylist(playlist: Playlist) {
     if (this.expanded || playlist === null) {
       this.playlistSelected.emit(playlist);

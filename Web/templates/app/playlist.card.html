@@ -3,6 +3,14 @@
 
 <a
   href="#"
+  (click)="cancel()"
+  class="cancel-btn"
+  [class.hidden]="formerlySelectedPlaylist === null">
+  Cancel
+</a>
+
+<a
+  href="#"
   (click)="selectPlaylist(null)"
   class="change-btn">
   Choose a different playlist

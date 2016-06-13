@@ -98,7 +98,6 @@ gulp.task('less', ['clean:less'], function() {
 gulp.task('copy:css', ['clean:css', 'less'], function() {
   return gulp
     .src([
-      'node_modules/material-design-lite/material.min.css',
       'less/compiled/soapy.css',
     ])
     .pipe(minifyCss())

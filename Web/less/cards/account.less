@@ -4,17 +4,15 @@ account-card {
   .card();
 
   &.paired {
+    @card-height: 86px;
+    @text-left-margin: @card-height + @card-padding;
+
     & > :not(.paired) {
       display: none;
     }
 
-    @image-top-width: 65px;
-    @image-bottom-width: 115px;
-    @image-height: 75px;
-    @slant-angle: atan((@image-bottom-width - @image-top-width) / @image-height);
-
     padding: 0;
-    height: @image-height;
+    height: @card-height;
     position: relative;
 
     & > a {
@@ -25,41 +23,33 @@ account-card {
       padding: 0;
       overflow: hidden;
       position: relative;
-      height: @image-height;
+      height: @card-height;
 
       h1 {
         margin: 13px auto 7px 0;
-        position: relative;
-        left: -13px;
+        position: absolute;
+        left: @text-left-margin;
       }
 
       .line-2 {
         .card-copy;
 
         display: block;
-        position: relative;
-        left: 6px;
+        position: absolute;
+        left: @text-left-margin;
+        top: 40px;
       }
 
       .image {
         background-color: darken(@card-bg-color, 5%);
-        width: @image-bottom-width;
-        height: @image-height;
+        width: @card-height;
+        height: @card-height;
         border-top-left-radius: @card-border-radius;
         border-bottom-left-radius: @card-border-radius;
         float: left;
         position: relative;
         overflow: hidden;
-
-        .image-slant {
-          background-color: @card-bg-color;
-          transform: skewX(@slant-angle);
-          width: cos(@slant-angle) * @image-height;
-          height: @image-height;
-          position: absolute;
-          top: 0;
-          left: @image-top-width + (sin(@slant-angle) * @image-height / 2) + 3px;
-        }
+        background-size: cover;
       }
     }
   }

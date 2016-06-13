@@ -224,8 +224,6 @@ gulp.task('copy:libs', function() {
 
     'node_modules/jquery/dist/*',
 
-    'node_modules/smartcrop/smartcrop.js',
-
     'node_modules/material-design-lite/material.min.js',
   ])
   .pipe(gulp.dest(libOut));

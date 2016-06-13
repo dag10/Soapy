@@ -144,7 +144,7 @@ playlist-card:not(.collapsed) {
 
 playlist-card.collapsed {
   @collapsed-card-height: 86px;
-  @text-left-margin: 100px;
+  @text-left-margin: @collapsed-card-height + @card-padding;
 
   height: @collapsed-card-height;
   overflow: hidden;

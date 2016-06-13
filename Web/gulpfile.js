@@ -98,6 +98,7 @@ gulp.task('less', ['clean:less'], function() {
 gulp.task('copy:css', ['clean:css', 'less'], function() {
   return gulp
     .src([
+      'node_modules/material-design-lite/material.min.css',
       'less/compiled/soapy.css',
     ])
     .pipe(minifyCss())
@@ -224,6 +225,8 @@ gulp.task('copy:libs', function() {
     'node_modules/jquery/dist/*',
 
     'node_modules/smartcrop/smartcrop.js',
+
+    'node_modules/material-design-lite/material.min.js',
   ])
   .pipe(gulp.dest(libOut));
 });

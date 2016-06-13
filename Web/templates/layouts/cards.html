@@ -7,6 +7,7 @@
     <title>{% block title %}Soapy{% endblock %}</title>
 
     {% block stylesheets %}
+      <link href="{{ base_url }}/css/material.min.css" rel="stylesheet">
       <link href="{{ base_url }}/css/soapy.css" rel="stylesheet">
       <link href="//fonts.googleapis.com/css?family=Open+Sans:400,300,600,700,800" rel="stylesheet" type="text/css">
     {% endblock %}
@@ -39,6 +40,8 @@
     <script src="{{ base_url }}/lib/angular2.dev.js"></script>
     <script src="{{ base_url }}/lib/http.dev.js"></script>
     <script src="{{ base_url }}/lib/jquery.min.js"></script>
+
+    <script src="{{ base_url }}/lib/material.min.js"></script>
 
     <script src="{{ base_url }}/app/soapy.js"></script>
 

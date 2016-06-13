@@ -4,7 +4,7 @@
 <a
   href="#"
   (click)="cancel()"
-  class="cancel-btn"
+  class="mdl-button mdl-js-button mdl-js-ripple-effect cancel-btn"
   [class.hidden]="formerlySelectedPlaylist === null">
   Cancel
 </a>
@@ -12,7 +12,7 @@
 <a
   href="#"
   (click)="selectPlaylist(null)"
-  class="change-btn">
+  class="mdl-button mdl-js-button mdl-js-ripple-effect change-btn">
   Choose a different playlist
 </a>
 
@@ -21,7 +21,11 @@
     *ngFor="#playlist of playlists"
     [class.selected]='playlist == formerlySelectedPlaylist'
     >
-    <a href="#" (click)="selectPlaylist(playlist)">
+    <a
+      class="mdl-js-button mdl-js-ripple-effect"
+      href="#"
+      (click)="selectPlaylist(playlist)"
+      >
       <div class="image-container">
         <div
           class="image"

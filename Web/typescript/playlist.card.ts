@@ -5,6 +5,7 @@ import {
   Output,
   ElementRef,
   AfterViewInit,
+  AfterViewChecked,
   ChangeDetectorRef} from 'angular2/core';
 
 import {Playlist} from './soapy.interfaces';
@@ -21,7 +22,7 @@ declare var jQuery: JQueryStatic;
     '[class.hidden]': '!playlists',
   },
 })
-export class PlaylistCardComponent implements AfterViewInit {
+export class PlaylistCardComponent implements AfterViewInit, AfterViewChecked {
   @Output() playlistSelected: EventEmitter<Playlist> = new EventEmitter();
 
   private $el: JQuery;
@@ -32,6 +33,11 @@ export class PlaylistCardComponent implements AfterViewInit {
   constructor(private el: ElementRef,
               private _changeDetector: ChangeDetectorRef) {
     this.$el = jQuery(this.el.nativeElement);
+  }
+
+  public ngAfterViewChecked() {
+    // Adds ripple effects to list items.
+    (<any>window).componentHandler.upgradeElements(this.el.nativeElement);
   }
 
   public ngAfterViewInit() {

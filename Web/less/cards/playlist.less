@@ -14,6 +14,11 @@ playlist-card {
     text-align: center;
   }
 
+  .cancel-btn,
+  .change-btn {
+    .card-action-button;
+  }
+
   ul {
     margin: -@card-padding;
     margin-top: 0px;
@@ -128,14 +133,12 @@ playlist-card:not(.collapsed) {
     display: none;
   }
 
-  .cancel-btn {
-    position: absolute;
-    top: @card-padding;
-    right: @card-padding;
-  }
-
   ul li {
     transition: background-color 0.18s;
+
+    .mdl-ripple {
+      background: fade(black, 20);
+    }
   }
 }
 
@@ -147,7 +150,7 @@ playlist-card.collapsed {
   overflow: hidden;
 
   .expanded-title,
-  .cancel-button {
+  .cancel-btn {
     display: none;
   }
 
@@ -161,12 +164,6 @@ playlist-card.collapsed {
     left: @text-left-margin;
   }
 
-  .change-btn {
-    position: absolute;
-    top: @card-padding;
-    right: @card-padding;
-  }
-
   li.selected {
     z-index: 1;
     position: absolute;
@@ -175,6 +172,10 @@ playlist-card.collapsed {
     top: 0;
     height: @collapsed-card-height;
     background-color: @card-bg-color;
+
+    .mdl-ripple {
+      opacity: 0;
+    }
 
     a {
       cursor: default;

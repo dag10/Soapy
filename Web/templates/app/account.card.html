@@ -1,7 +1,9 @@
 <div class="card-content paired">
   <div class="image" [ngStyle]="style"></div>
   <h1>Your Spotify account is paired.</h1>
-  <span *ngIf="numPlaylists !== null" class="line-2">{{ numPlaylists }} playlist<span *ngIf="numPlaylists != 1">s</span></span>
+  <span *ngIf="numPlaylists !== null" class="line-2">
+    {{ numPlaylists }} playlist<span *ngIf="numPlaylists != 1">s</span> found
+  </span>
 </div>
 
 <a

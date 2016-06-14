@@ -84,6 +84,10 @@ export class SoapyAppComponent implements OnInit {
     return false;
   }
 
+  public get accountIsPaired(): boolean {
+    return (this.user !== null && this.user.paired);
+  }
+
   public unpair() {
     this._soapyService
       .unpair()

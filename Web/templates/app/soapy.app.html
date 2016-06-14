@@ -1,6 +1,8 @@
 <error-card [errors]="errors"></error-card>
 
-<about-card></about-card>
+<about-card
+  [class.hidden]="accountIsPaired"
+  ></about-card>
 
 <account-card
   [user]="user"

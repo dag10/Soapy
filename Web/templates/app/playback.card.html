@@ -2,14 +2,21 @@
 
 <spinner></spinner>
 
-<a
-  class="shuffle-btn"
-  href="#"
-  (click)="toggleShuffle()"
+<label
+  class="mdl-button mdl-js-button mdl-js-ripple-effect shuffle-checkbox-label"
+  for="shuffle-checkbox"
   >
-  <span *ngIf="playback?.shuffle">Shuffle: ON</span>
-  <span *ngIf="!playback?.shuffle">Shuffle: OFF</span>
-</a>
+  <label class="mdl-checkbox mdl-js-checkbox">
+    <input
+      type="checkbox"
+      id="shuffle-checkbox"
+      class="mdl-checkbox__input shuffle-checkbox"
+      [checked]="playback?.shuffle"
+      (change)="toggleShuffle()"
+      >
+    <span class="mdl-checkbox__label">Shuffle</span>
+  </label>
+</label>
 
 <div class="tracks">
   Tracklist not yet implemented.

@@ -105,10 +105,13 @@
   }
 }
 
-.mdl-button {
+.mdl-button,
+.mdl-checkbox {
   color: @brand-primary;
   text-transform: none;
   font-family: @font-family-base;
+  font-weight: normal;
+  font-size: @control-font-size;
 
   &:hover {
     text-decoration: none;
@@ -117,6 +120,39 @@
   .mdl-ripple {
     background: fade(black, 30);
 
+  }
+}
+
+.mdl-checkbox {
+  @fill-color: fade(@brand-primary, 80%);
+  @outline-color: @fill-color;
+
+  .mdl-checkbox__label {
+    font-size: @control-font-size;
+  }
+
+  &, &.is-checked {
+    .mdl-checkbox__box-outline {
+      border-color: @outline-color;
+    }
+  }
+
+  &.is-checked {
+    .mdl-checkbox__tick-outline {
+      background-color: @fill-color;
+    }
+  }
+}
+
+.button-checkbox {
+  cursor: pointer;
+
+  label {
+    cursor: pointer;
+  }
+
+  .mdl-checkbox__label {
+    top: -6px;
   }
 }
 

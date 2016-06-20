@@ -10,19 +10,18 @@ import {
 import {Playback, Playlist} from './soapy.interfaces';
 import {SpinnerComponent} from './spinner';
 import {StaticData} from './StaticData';
+import {SoapyService} from './soapy.service';
 
 declare var jQuery: JQueryStatic;
 
 
 @Component({
+  providers: [SoapyService],
   directives: [
     SpinnerComponent,
   ],
   selector: 'playback-card',
   template: StaticData.templates.PlaybackCard,
-  host: {
-    '[class.loading]': '!loaded',
-  },
 })
 export class PlaybackCardComponent implements AfterViewInit {
   @Output() playbackUpdated: EventEmitter<Playback> = new EventEmitter();
@@ -31,7 +30,8 @@ export class PlaybackCardComponent implements AfterViewInit {
   private _selectedPlaylist: Playlist = null;
   private _playback: Playback = null;
 
-  constructor(private el: ElementRef,
+  constructor(private _soapyService: SoapyService,
+              private el: ElementRef,
               private _changeDetector: ChangeDetectorRef) {
     this.$el = jQuery(this.el.nativeElement);
   }
@@ -56,6 +56,13 @@ export class PlaybackCardComponent implements AfterViewInit {
       this.hide();
     } else {
       this.show();
+
+      this._soapyService
+        .fetchPlaylistWithTracklist(this._selectedPlaylist.id)
+        .subscribe((fetchedPlaylist: Playlist) => {
+          this._selectedPlaylist = fetchedPlaylist;
+          this._changeDetector.detectChanges();
+        });
     }
 
     this._changeDetector.detectChanges();
@@ -76,7 +83,9 @@ export class PlaybackCardComponent implements AfterViewInit {
   }
 
   public get loaded(): boolean {
-    return (this.playback !== null);
+    return (this.playback !== null
+            && this.selectedPlaylist !== null
+            && !!this.selectedPlaylist.tracklist);
   }
 
   public toggleShuffle() {

@@ -1,6 +1,6 @@
 <h1>Your shower tracklist</h1>
 
-<spinner></spinner>
+<spinner *ngIf="!loaded"></spinner>
 
 <label
   class="mdl-button mdl-js-button mdl-js-ripple-effect shuffle-checkbox-label"
@@ -18,7 +18,25 @@
   </label>
 </label>
 
-<div class="tracks">
-  Tracklist coming soon.
+<div *ngIf="loaded">
+  <div
+    *ngIf="selectedPlaylist?.tracklist?.length < selectedPlaylist?.tracks"
+    class="tracks missing-tracks"
+    >
+    Only the most recent 100 tracks are available right now.
+  </div>
+
+  <div
+    *ngIf="selectedPlaylist?.tracks == 0"
+    class="tracks no-tracks"
+    >
+    This playlist is empty.
+  </div>
+
+  <ul>
+    <li *ngFor="#track of selectedPlaylist?.tracklist">
+      "{{ track.title }}" by {{ track.artists[0] }}
+    </li>
+  </ul>
 </div>
 

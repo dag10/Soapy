@@ -5,17 +5,9 @@ playback-card {
 
   position: relative;
 
-  &.loading {
-    .shuffle-btn,
-    .tracks {
-      display: none;
-    }
-  }
-
-  &:not(.loading) {
-    spinner {
-      display: none;
-    }
+  spinner {
+    display: block;
+    margin: 60px auto;
   }
 
   .shuffle-checkbox-label {

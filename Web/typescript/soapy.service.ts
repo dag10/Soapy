@@ -4,11 +4,12 @@ import * as Rx from 'rxjs/Rx';
 
 import {StaticData} from './StaticData';
 import {BaseError} from './error';
-import {User, Playlist, Playback} from './soapy.interfaces';
+import {User, Playlist, Track, Playback} from './soapy.interfaces';
 import * as API from './soapy.api.interfaces';
 
 
 export interface ServiceAppData {
+  playlist?: Playlist;
   playlists?: Playlist[];
   selectedPlaylist?: Playlist;
   user?: User;
@@ -87,6 +88,29 @@ export class SoapyService {
   }
 
   /**
+   * Gets data for a playlist including its tracklist.
+   */
+  public fetchPlaylistWithTracklist(id: string): Rx.Observable<Playlist> {
+    var playlist = this.getPlaylist(id);
+    if (playlist && playlist.tracklist) {
+      return Rx.Observable.of(playlist);
+    }
+
+    return this
+      .makeGetRequest(`/api/me/playlist/${ id }`)
+      .map(res => res.json())
+      .map(this.processAppData.bind(this))
+      .map((data: ServiceAppData) => {
+        if (data.playlist) {
+          return data.playlist;
+        } else {
+          throw new Error('Failed to retreive track list.');
+        }
+      })
+      .catch(this.catchAPIErrors.bind(this));
+  }
+
+  /**
    * Unpairs the associated Spotify account.
    */
   public unpair(): Rx.Observable<Response> {
@@ -152,6 +176,11 @@ export class SoapyService {
       });
     }
 
+    if (data.playlist) {
+      this.cachePlaylist(data.playlist);
+      ret.playlist = this.getPlaylist('' + data.playlist.soapyPlaylistId);
+    }
+
     if (data.user.selectedPlaylist) {
       var playlist = data.user.selectedPlaylist;
 
@@ -172,24 +201,52 @@ export class SoapyService {
   }
 
   /**
+   * Maps SpotifyTrack to Track object.
+   */
+  private formatTrackFromSpotifyTrack(track: API.SpotifyTrack): Track {
+    var ret: Track = {
+      id: track.uri,
+      title: track.name,
+    };
+
+    if (track.artists) {
+      ret.artists = track.artists.map(artist => artist.name);
+    }
+
+    return ret;
+  }
+
+  /**
    * Maps SoapyPlaylist object from an API response into a Playlist object.
    */
   private formatPlaylistFromAPI(data: API.SoapyPlaylist): Playlist {
     var playlist: Playlist = {
       id: '' + data.soapyPlaylistId,
-      title: data.spotifyPlaylist.name,
-      tracks: data.spotifyPlaylist.tracks.total,
+      title: `Playlist ${ data.soapyPlaylistId }`,
     };
 
-    if (data.spotifyPlaylist && data.spotifyPlaylist.images) {
-      var images = data.spotifyPlaylist.images;
-      if (images.length > 0) {
-        images.sort((a, b) => {
-          return a.width - b.width;
-        });
+    if (data.spotifyPlaylist) {
+      playlist.title = data.spotifyPlaylist.name;
 
-        playlist.image = images[images.length > 1 ? 1 : 0].url;
+      if (data.spotifyPlaylist.tracks) {
+        playlist.tracks = data.spotifyPlaylist.tracks.total;
       }
+
+      if (data.spotifyPlaylist.images) {
+        var images = data.spotifyPlaylist.images;
+        if (images.length > 0) {
+          images.sort((a, b) => {
+            return a.width - b.width;
+          });
+
+          playlist.image = images[images.length > 1 ? 1 : 0].url;
+        }
+      }
+    }
+
+    if (data.tracklist) {
+      playlist.tracklist = data.tracklist.map(
+        this.formatTrackFromSpotifyTrack);
     }
 
     return playlist;
@@ -199,8 +256,18 @@ export class SoapyService {
    * Adds the playlist to the playlist dictionary.
    */
   private cachePlaylist(playlist: API.SoapyPlaylist) {
-    this.playlists['' + playlist.soapyPlaylistId] =
-        this.formatPlaylistFromAPI(playlist);
+    // This is lazy playlist augmentation. If it has a trackist, we only
+    // augment the tracklist. Otherwise, we override the playlist.
+    //
+    // As playlist API becomes richer of time, a smarter playlist augmentation
+    // algorithm will be required.
+    var formattedPlaylist = this.formatPlaylistFromAPI(playlist);
+    var idStr = '' + playlist.soapyPlaylistId;
+    if (!this.playlists[idStr] || !playlist.tracklist) {
+      this.playlists[idStr] = formattedPlaylist;
+    } else {
+      this.playlists[idStr].tracklist = formattedPlaylist.tracklist;
+    }
   }
 
   /**
@@ -220,6 +287,19 @@ export class SoapyService {
     var body: string = params ? params.toString() : '';
 
     var res = this.http.post(route, body, options)
+      .catch(this.catchAPIErrors.bind(this))
+      .publishReplay(1);
+
+    res.connect();
+
+    return res;
+  }
+
+  /**
+   * Makes a get request to the API.
+   */
+  private makeGetRequest(route: string): Rx.Observable<Response> {
+    var res = this.http.get(route)
       .catch(this.catchAPIErrors.bind(this))
       .publishReplay(1);
 

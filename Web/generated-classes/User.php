@@ -22,6 +22,7 @@ class User extends BaseUser
       'playback' => [
         'playbackMode' => $this->getPlaybackMode(),
         ],
+      'selectedPlaylistId' => $this->getPlaylistId(),
       ];
 
     $spotifyAccount = $this->getSpotifyAccount();

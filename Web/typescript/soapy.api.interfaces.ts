@@ -55,6 +55,7 @@ export interface User {
   spotifyAccount?: SpotifyAccount;
   playlists?: SoapyPlaylist[];
   selectedPlaylist?: SoapyPlaylist;
+  selectedPlaylistId?: number;
 }
 
 export interface Response {

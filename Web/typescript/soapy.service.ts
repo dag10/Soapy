@@ -32,6 +32,8 @@ export class SoapyService {
   private playlists: { [id: string] : Playlist; } = {};
   private _appData: EventEmitter<ServiceAppData> = new EventEmitter();
   private _selectedPlaylistId: string = null;
+  private _tracklistObservables: { [id: string] : Rx.Observable<Playlist> }
+    = {};
 
   constructor(private http: Http) {
     this.errors.subscribe((error) => {
@@ -94,8 +96,7 @@ export class SoapyService {
         && StaticData.userData.user
         && StaticData.userData.user.selectedPlaylistId) {
       this.fetchPlaylistWithTracklist(
-        '' + StaticData.userData.user.selectedPlaylistId)
-        .publish().connect();
+        '' + StaticData.userData.user.selectedPlaylistId);
     }
   }
 
@@ -114,15 +115,21 @@ export class SoapyService {
    * Gets data for a playlist including its tracklist.
    */
   public fetchPlaylistWithTracklist(id: string): Rx.Observable<Playlist> {
-    var playlist = this.getPlaylist(id);
-    if (playlist && playlist.tracklist) {
-      return Rx.Observable.of(playlist);
+    if (this._tracklistObservables[id]) {
+      return this._tracklistObservables[id];
     }
 
-    return this
+    var playlist = this.getPlaylist(id);
+    if (playlist && playlist.tracklist) {
+      this._tracklistObservables[id] = Rx.Observable.of(playlist);
+      return this._tracklistObservables[id];
+    }
+
+    var stream = this
       .makeGetRequest(`/api/me/playlist/${ id }`)
       .map(res => res.json())
       .map(this.processAppData.bind(this))
+      .catch(this.catchAPIErrors.bind(this))
       .map((data: ServiceAppData) => {
         if (data.playlist) {
           if (data.playlist.id === this._selectedPlaylistId) {
@@ -135,7 +142,12 @@ export class SoapyService {
           throw new Error('Failed to retreive track list.');
         }
       })
-      .catch(this.catchAPIErrors.bind(this));
+      .publishReplay(1);
+
+    stream.connect();
+
+    this._tracklistObservables[id] = stream;
+    return this._tracklistObservables[id];
   }
 
   /**

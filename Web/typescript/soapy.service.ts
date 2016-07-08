@@ -29,10 +29,10 @@ export class SoapyService {
   public playbackData: Rx.Observable<Playback> = null;
   public errors: EventEmitter<any> = new EventEmitter();
 
-  private playlists: { [id: string] : Playlist; } = {};
+  private playlists: { [id: string]: Playlist; } = {};
   private _appData: EventEmitter<ServiceAppData> = new EventEmitter();
   private _selectedPlaylistId: string = null;
-  private _tracklistObservables: { [id: string] : Rx.Observable<Playlist> }
+  private _tracklistObservables: { [id: string]: Rx.Observable<Playlist> }
     = {};
 
   constructor(private http: Http) {
@@ -326,8 +326,8 @@ export class SoapyService {
   /**
    * Makes a parameterize post request to the API.
    */
-  private makePostRequest(route: string, params?: URLSearchParams)
-      : Rx.Observable<Response> {
+  private makePostRequest(route: string, params?: URLSearchParams):
+    Rx.Observable<Response> {
 
     var headers = new Headers({
       'Content-Type': 'application/x-www-form-urlencoded',
@@ -345,7 +345,7 @@ export class SoapyService {
 
     res.connect();
 
-    return res;
+    return <Rx.ConnectableObservable<Response>> res;
   }
 
   /**
@@ -358,7 +358,7 @@ export class SoapyService {
 
     res.connect();
 
-    return res;
+    return <Rx.ConnectableObservable<Response>> res;
   }
 
   /**

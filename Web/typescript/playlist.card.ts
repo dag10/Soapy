@@ -23,7 +23,7 @@ declare var jQuery: JQueryStatic;
   },
 })
 export class PlaylistCardComponent implements AfterViewInit, AfterViewChecked {
-  @Output() playlistSelected: EventEmitter<Playlist> = new EventEmitter();
+  @Output() playlistSelected: EventEmitter<Playlist> = new EventEmitter<Playlist>();
 
   private $el: JQuery;
   private _playlists: Playlist[];

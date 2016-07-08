@@ -24,7 +24,7 @@ declare var jQuery: JQueryStatic;
   template: StaticData.templates.PlaybackCard,
 })
 export class PlaybackCardComponent implements AfterViewInit {
-  @Output() playbackUpdated: EventEmitter<Playback> = new EventEmitter();
+  @Output() playbackUpdated: EventEmitter<Playback> = new EventEmitter<Playback>();
 
   private $el: JQuery;
   private _selectedPlaylist: Playlist = null;

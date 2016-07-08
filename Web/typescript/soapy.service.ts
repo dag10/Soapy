@@ -29,7 +29,7 @@ export class SoapyService {
   public playbackData: Rx.Observable<Playback> = null;
   public errors: EventEmitter<any> = new EventEmitter();
 
-  private playlists: { [id: string] : Playlist; } = {};
+  private playlists: { [id: string]: Playlist; } = {};
   private _appData: EventEmitter<ServiceAppData> = new EventEmitter();
   private _selectedPlaylistId: string = null;
 
@@ -119,11 +119,11 @@ export class SoapyService {
       return Rx.Observable.of(playlist);
     }
 
-    return this
+    return <Rx.Observable<Playlist>> this
       .makeGetRequest(`/api/me/playlist/${ id }`)
       .map(res => res.json())
       .map(this.processAppData.bind(this))
-      .map((data: ServiceAppData) => {
+      .map((data: ServiceAppData): Playlist => {
         if (data.playlist) {
           if (data.playlist.id === this._selectedPlaylistId) {
             this._appData.emit({
@@ -314,8 +314,8 @@ export class SoapyService {
   /**
    * Makes a parameterize post request to the API.
    */
-  private makePostRequest(route: string, params?: URLSearchParams)
-      : Rx.Observable<Response> {
+  private makePostRequest(route: string, params?: URLSearchParams):
+    Rx.Observable<Response> {
 
     var headers = new Headers({
       'Content-Type': 'application/x-www-form-urlencoded',
@@ -333,7 +333,7 @@ export class SoapyService {
 
     res.connect();
 
-    return res;
+    return <Rx.ConnectableObservable<Response>> res;
   }
 
   /**
@@ -346,7 +346,7 @@ export class SoapyService {
 
     res.connect();
 
-    return res;
+    return <Rx.ConnectableObservable<Response>> res;
   }
 
   /**

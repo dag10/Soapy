@@ -39,8 +39,13 @@
   </div>
 
   <ul>
-    <li *ngFor="let track of validTracklist; let i=index">
-    <div class="position">{{ (i+1) }}</div>
+    <li *ngFor="#track of validTracklist" [class.unplayable]="track.local">
+      <div class="position" *ngIf="!track.local">
+        {{ track.displayedPosition }}
+      </div>
+      <div class="position" *ngIf="track.local">
+        UNPLAYABLE
+      </div>
       <span class="title">&ldquo;{{ track.title }}&rdquo;</span> by {{ track.artists[0] }}
     </li>
   </ul>

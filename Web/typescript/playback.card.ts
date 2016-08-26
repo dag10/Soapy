@@ -15,6 +15,11 @@ import {SoapyService} from './soapy.service';
 declare var jQuery: JQueryStatic;
 
 
+export interface DisplayedTrack extends Track {
+  displayedPosition?: number;
+}
+
+
 @Component({
   providers: [SoapyService],
   directives: [
@@ -97,10 +102,15 @@ export class PlaybackCardComponent implements AfterViewInit {
     return false;
   }
 
-  public get validTracklist(): Track[] {
-    var tracks: Track[] = [];
-    this._selectedPlaylist.tracklist.forEach(function(track) {
+  public get validTracklist(): DisplayedTrack[] {
+    var tracks: DisplayedTrack[] = [];
+    var nextPosition = 1;
+    this._selectedPlaylist.tracklist.forEach(function(track: DisplayedTrack) {
       if (track.valid) {
+        if (!track.local) {
+          track.displayedPosition = nextPosition;
+          nextPosition++;
+        }
         tracks.push(track);
       }
     });

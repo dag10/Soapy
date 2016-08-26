@@ -7,7 +7,7 @@ import {
   EventEmitter,
   ChangeDetectorRef} from 'angular2/core';
 
-import {Playback, Playlist} from './soapy.interfaces';
+import {Track, Playback, Playlist} from './soapy.interfaces';
 import {SpinnerComponent} from './spinner';
 import {StaticData} from './StaticData';
 import {SoapyService} from './soapy.service';
@@ -95,6 +95,43 @@ export class PlaybackCardComponent implements AfterViewInit {
     this.playbackUpdated.emit(newPlayback);
 
     return false;
+  }
+
+  public get validTracklist(): Track[] {
+    var tracks: Track[] = [];
+    this._selectedPlaylist.tracklist.forEach(function(track) {
+      if (track.valid) {
+        tracks.push(track);
+      }
+    });
+    return tracks;
+  }
+
+  public get hasInvalidTracks(): boolean {
+    if (!this._selectedPlaylist ||
+        !this._selectedPlaylist.tracklist) {
+      return false;
+    }
+
+    for (var i = 0; i < this._selectedPlaylist.tracklist.length; i++) {
+      if (!this._selectedPlaylist.tracklist[i].valid) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  public get tracklistIsIncomplete(): boolean {
+    if (!this._selectedPlaylist ||
+        !this._selectedPlaylist.tracklist) {
+      return false;
+    }
+
+    var actualTracks = this._selectedPlaylist.tracklist.length;
+    var intendedTracks = this._selectedPlaylist.tracks;
+
+    return actualTracks < intendedTracks && intendedTracks > 100;
   }
 }
 

@@ -95,14 +95,31 @@ function get_tracks_for_playlist($api, $playlist) {
 
 function get_formatted_tracks_for_playlist($api, $playlist) {
   $songs = get_tracks_for_playlist($api, $playlist);
+  $newSongs = array();
 
   for ($i = 0; $i < sizeof($songs); $i++) {
     $song = $songs[$i];
+
+    if (is_song_valid($song)) {
+      $song['track']['is_local'] = $song['is_local'];
+      $song['track']['is_valid'] = true;
+    } else {
+      $song['track']['is_local'] = true;
+      $song['track']['is_valid'] = false;
+    }
     
-    $song['track']['is_local'] = $song['is_local'];
-    $songs[$i] = $song['track'];
+    $newSongs[] = $song['track'];
   }
 
-  return $songs;
+  return $newSongs;
+}
+
+function is_song_valid($songData) {
+  if (!$songData) return false;
+  if (!isset($songData['track'])) return false;
+  if (!isset($songData['track']['uri'])) return false;
+  if (!isset($songData['track']['name'])) return false;
+
+  return true;
 }
 

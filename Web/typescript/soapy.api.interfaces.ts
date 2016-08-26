@@ -27,6 +27,8 @@ export interface SpotifyTrack {
   name: string;
   uri: string;
   artists: SpotifyTrackArtist[];
+  is_local: boolean;
+  is_valid: boolean;
 }
 
 export interface SpotifyPlaylist {

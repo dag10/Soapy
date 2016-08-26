@@ -8,6 +8,8 @@ export interface Track extends SelectableOption {
   title: string;
   artists?: string[];
   album?: string;
+  valid?: boolean;
+  local?: boolean;
 }
 
 export interface Playlist extends SelectableOption {

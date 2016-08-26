@@ -20,10 +20,15 @@
 
 <div *ngIf="loaded" class="tracks">
   <div
-    *ngIf="selectedPlaylist?.tracklist?.length < selectedPlaylist?.tracks"
-    class="missing-tracks"
+    *ngIf="hasInvalidTracks || tracklistIsIncomplete"
+    class="tracklist-notice"
     >
-    Only the first 100 tracks are available right now.
+    <div *ngIf="tracklistIsIncomplete">
+      Only the first 100 tracks are available right now.
+    </div>
+    <div *ngIf="hasInvalidTracks">
+      Some tracks are omitted due to errors.
+    </div>
   </div>
 
   <div
@@ -34,11 +39,10 @@
   </div>
 
   <ul>
-    <li *ngFor="let track of selectedPlaylist.tracklist; let i=index">
+    <li *ngFor="let track of validTracklist; let i=index">
     <div class="position">{{ (i+1) }}</div>
       <span class="title">&ldquo;{{ track.title }}&rdquo;</span> by {{ track.artists[0] }}
     </li>
   </ul>
 </div>
-
 

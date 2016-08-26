@@ -235,6 +235,8 @@ export class SoapyService {
     var ret: Track = {
       id: track.uri,
       title: track.name,
+      valid: track.is_valid,
+      local: track.is_local,
     };
 
     if (track.artists) {

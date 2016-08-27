@@ -20,7 +20,8 @@
 
 <div *ngIf="loaded" class="tracks">
   <div
-    *ngIf="hasInvalidTracks || tracklistIsIncomplete"
+    *ngIf="hasInvalidTracks || hasLocalTracks || tracklistIsIncomplete ||
+           (selectedPlaylist?.tracks > 0 && !tracklistHasPlayableSongs)"
     class="tracklist-notice"
     >
     <div *ngIf="tracklistIsIncomplete">
@@ -28,6 +29,13 @@
     </div>
     <div *ngIf="hasInvalidTracks">
       Some tracks are omitted due to errors.
+    </div>
+    <div *ngIf="hasLocalTracks">
+      This playlist has songs that are stored locally on your computer,
+      which are not playable by Soapy.
+    </div>
+    <div *ngIf="selectedPlaylist?.tracks > 0 && !tracklistHasPlayableSongs">
+      This playlist has no playable songs.
     </div>
   </div>
 

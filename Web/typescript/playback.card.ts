@@ -132,6 +132,22 @@ export class PlaybackCardComponent implements AfterViewInit {
     return false;
   }
 
+  public get hasLocalTracks(): boolean {
+    if (!this._selectedPlaylist ||
+        !this._selectedPlaylist.tracklist) {
+      return false;
+    }
+
+    for (var i = 0; i < this._selectedPlaylist.tracklist.length; i++) {
+      if (this._selectedPlaylist.tracklist[i].local &&
+          this._selectedPlaylist.tracklist[i].valid) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
   public get tracklistIsIncomplete(): boolean {
     if (!this._selectedPlaylist ||
         !this._selectedPlaylist.tracklist) {
@@ -142,6 +158,22 @@ export class PlaybackCardComponent implements AfterViewInit {
     var intendedTracks = this._selectedPlaylist.tracks;
 
     return actualTracks < intendedTracks && intendedTracks > 100;
+  }
+
+  public get tracklistHasPlayableSongs(): boolean {
+    if (!this._selectedPlaylist ||
+        !this._selectedPlaylist.tracklist) {
+      return false;
+    }
+
+    for (var i = 0; i < this._selectedPlaylist.tracklist.length; i++) {
+      if (!this._selectedPlaylist.tracklist[i].local &&
+          this._selectedPlaylist.tracklist[i].valid) {
+        return true;
+      }
+    }
+
+    return false;
   }
 }
 

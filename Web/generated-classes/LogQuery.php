@@ -14,5 +14,13 @@ use Base\LogQuery as BaseLogQuery;
  */
 class LogQuery extends BaseLogQuery
 {
+  public static function bathrooms() {
+    $query = LogQuery::create()
+      ->select(array('bathroom'))
+      ->groupBy('bathroom')
+      ->find()
+      ->toArray();
 
+    return $query;
+  }
 }

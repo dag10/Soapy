@@ -5,4 +5,6 @@
 //= AccountCard : account.card.html
 //= PlaylistCard : playlist.card.html
 //= PlaybackCard : playback.card.html
+//= LogsApp : logs.app.html
+//= LogsCard : logs.card.html
 

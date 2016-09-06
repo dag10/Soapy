@@ -53,6 +53,7 @@ export interface User {
   ldap: string;
   firstName: string;
   lastName: string;
+  isAdmin: boolean;
   playback?: Playback;
   spotifyAccount?: SpotifyAccount;
   playlists?: SoapyPlaylist[];
@@ -60,9 +61,19 @@ export interface User {
   selectedPlaylistId?: number;
 }
 
+export interface LogEvent {
+  Id: number;
+  Bathroom?: string;
+  Level?: string;
+  Time: string;
+  Tag?: string;
+  Message: string;
+}
+
 export interface Response {
   user?: User;
   playlist?: SoapyPlaylist;
   error?: string;
+  events?: LogEvent[];
 }
 

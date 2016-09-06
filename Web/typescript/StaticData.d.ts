@@ -8,12 +8,15 @@ interface TemplateFormat {
   AccountCard: string;
   PlaylistCard: string;
   PlaybackCard: string;
+  LogsApp: string;
+  LogsCard: string;
 }
 
 interface StaticDataFormat {
   spotifyAuthUrl: string;
   userData: API.Response;
   templates: TemplateFormat;
+  bathrooms?: string[];
 }
 
 export var StaticData: StaticDataFormat;

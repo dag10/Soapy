@@ -1,0 +1,30 @@
+<ul *ngIf="hasBathrooms" class="bathroom-buttons nav nav-tabs" role="group">
+  <li
+    *ngFor="#bathroom of bathrooms"
+    role="presentation"
+    [class.active]="bathroom == currentBathroom"
+    >
+    <a
+      class="btn btn-default"
+      (click)="chooseBathroom(bathroom)"
+      >
+      {{ bathroom }}
+    </a>
+  </li>
+</ul>
+
+<ul *ngIf="hasBathrooms" class="event-list">
+  <li
+    *ngFor="#event of events"
+    >
+    {{ event.Message }}
+  </li>
+</ul>
+
+<div *ngIf="!hasBathrooms">
+  <div class="no-bathrooms">
+    No logs found.
+  </div>
+</div>
+
+

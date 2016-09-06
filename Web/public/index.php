@@ -41,6 +41,9 @@ function start_view_context($app, $opts=[]) {
   global $cfg, $base_url, $sp_auth_url;
 
   $rfid = isset($opts['rfid']) ? $opts['rfid'] : null;
+  $admin_only = isset($opts['admin_only'])
+    ? $opts['admin_only']
+    : false;
   $require_spotify = isset($opts['require_spotify'])
     ? $opts['require_spotify']
     : false;
@@ -114,12 +117,21 @@ function start_view_context($app, $opts=[]) {
     }
   }
 
+  if ($admin_only) {
+    if (!$user || !$user->getIsAdmin()) {
+      http_response_code(403);
+      $dieWithError('You are not an admin.');
+    }
+  }
+
   return array(
     'base_url' => $cfg['url'],
     'auth_url' => $sp_auth_url,
     'authorized' => !!$spotifyacct,
     'sp_api' => $api,
     'user' => $user,
+    'is_admin' => $user && $user->getIsAdmin(),
+    'current_page' => '',
   );
 }
 
@@ -144,8 +156,22 @@ $app->get(
     '/?', function() use ($app) {
 
   $ctx = start_view_context($app);
-  $ctx['main_module'] = 'main';
+  $ctx['main_module'] = 'main.init';
   $ctx['playlist_api_data'] = apiRawUserData($ctx);
+
+  $app->render('app.html', $ctx);
+});
+
+$app->get(
+    '/logs/?', function() use ($app) {
+
+  $ctx = start_view_context($app, ['admin_only' => true]);
+
+  $ctx['bathrooms'] = LogQuery::bathrooms();
+
+  $ctx['main_module'] = 'logs.init';
+  $ctx['playlist_api_data'] = apiRawUserData($ctx);
+  $ctx['current_page'] = 'logs';
 
   $app->render('app.html', $ctx);
 });
@@ -211,6 +237,33 @@ $app->post('/api/me/unpair/?', function() use ($app) {
   $ctx['user']->getSpotifyAccount()->delete();
 
   dieWithJsonSuccess();
+});
+
+// Raw API endpoint for fetching log data.
+function apiRawGetLogs($room, $since) {
+  dieWithJson([
+    'events' => LogQuery::create()
+      ->filterByBathroom($room)
+      ->filterById(array('min' => $since))
+      ->orderByTime('desc')
+      ->limit(500)
+      ->find()
+      ->toArray(),
+  ]);
+}
+
+// API endpoint to get logs for a room.
+$app->get('/api/log/view/:room', function($room) use ($app) {
+  $ctx = start_view_context($app, ['admin_only' => true, 'json' => true]);
+
+  apiRawGetLogs($room, 0);
+});
+
+// API endpoint to get logs for a room since a certain log entry.
+$app->get('/api/log/view/:room/since/:lastLogId', function($room, $lastLogId) use ($app) {
+  $ctx = start_view_context($app, ['admin_only' => true, 'json' => true]);
+
+  apiRawGetLogs($room, $lastLogId);
 });
 
 // API endpoint for setting the playback settings for a user.

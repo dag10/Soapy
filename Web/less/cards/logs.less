@@ -1,0 +1,33 @@
+@import 'base.less';
+
+logs-card {
+  .card();
+
+  @tab-height: 35px;
+  @top-padding: 10px + @tab-height;
+
+  padding-top: @top-padding;
+  position: relative;
+
+  .nav-tabs {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+
+    padding: 6px 6px 0 6px;
+
+    li a {
+      height: 35px;
+    }
+  }
+
+  .no-bathrooms {
+    @margin: 100px;
+    margin: @margin auto;
+    margin-top: @margin - @top-padding;
+    text-align: center;
+    font-size: 15px;
+  }
+}
+

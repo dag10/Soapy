@@ -72,14 +72,45 @@ DROP TABLE IF EXISTS `playlist`;
 CREATE TABLE `playlist`
 (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
+    PRIMARY KEY (`id`)
+) ENGINE=InnoDB;
+
+-- ---------------------------------------------------------------------
+-- listensto
+-- ---------------------------------------------------------------------
+
+DROP TABLE IF EXISTS `listensto`;
+
+CREATE TABLE `listensto`
+(
+    `user_id` INTEGER NOT NULL,
+    `playlist_id` INTEGER NOT NULL,
+    `lastplayedsonguri` TEXT,
+    PRIMARY KEY (`user_id`,`playlist_id`),
+    INDEX `listensto_fi_10fa06` (`playlist_id`),
+    CONSTRAINT `listensto_fk_29554a`
+        FOREIGN KEY (`user_id`)
+        REFERENCES `user` (`id`),
+    CONSTRAINT `listensto_fk_10fa06`
+        FOREIGN KEY (`playlist_id`)
+        REFERENCES `playlist` (`id`)
+) ENGINE=InnoDB;
+
+-- ---------------------------------------------------------------------
+-- spotifyplaylist
+-- ---------------------------------------------------------------------
+
+DROP TABLE IF EXISTS `spotifyplaylist`;
+
+CREATE TABLE `spotifyplaylist`
+(
+    `id` INTEGER NOT NULL,
     `uri` TEXT NOT NULL,
-    `lastplayedsong` TEXT,
-    `owner_id` INTEGER NOT NULL,
     PRIMARY KEY (`id`),
-    INDEX `playlist_fi_ac5b84` (`owner_id`),
-    CONSTRAINT `playlist_fk_ac5b84`
-        FOREIGN KEY (`owner_id`)
-        REFERENCES `user` (`id`)
+    UNIQUE INDEX `spotifyplaylist_u_480850` (`uri`(80)),
+    CONSTRAINT `spotifyplaylist_fk_e00ee3`
+        FOREIGN KEY (`id`)
+        REFERENCES `playlist` (`id`)
 ) ENGINE=InnoDB;
 
 # This restores the fkey checks, after having unset them earlier

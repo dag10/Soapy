@@ -130,7 +130,7 @@ abstract class LogQuery extends ModelCriteria
         if ($key === null) {
             return null;
         }
-        if ((null !== ($obj = LogTableMap::getInstanceFromPool(null === $key || is_scalar($key) || is_callable([$key, '__toString']) ? (string) $key : $key))) && !$this->formatter) {
+        if ((null !== ($obj = LogTableMap::getInstanceFromPool((string) $key))) && !$this->formatter) {
             // the object is already in the instance pool
             return $obj;
         }
@@ -174,7 +174,7 @@ abstract class LogQuery extends ModelCriteria
             /** @var ChildLog $obj */
             $obj = new ChildLog();
             $obj->hydrate($row);
-            LogTableMap::addInstanceToPool($obj, null === $key || is_scalar($key) || is_callable([$key, '__toString']) ? (string) $key : $key);
+            LogTableMap::addInstanceToPool($obj, (string) $key);
         }
         $stmt->closeCursor();
 

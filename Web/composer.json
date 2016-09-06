@@ -17,7 +17,7 @@
     },
     "require": {
         "php": ">=5.3.0",
-        "propel/propel": "~2.0@dev",
+        "propel/propel": "dev-master#eadfdf2",
         "jwilsson/spotify-web-api-php": "0.8.*",
         "monolog/monolog": "1.*",
         "slim/slim": "2.*",

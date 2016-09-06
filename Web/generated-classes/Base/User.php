@@ -12,8 +12,6 @@ use \User as ChildUser;
 use \UserQuery as ChildUserQuery;
 use \Exception;
 use \PDO;
-use Map\ListensToTableMap;
-use Map\SpotifyAccountTableMap;
 use Map\UserTableMap;
 use Propel\Runtime\Propel;
 use Propel\Runtime\ActiveQuery\Criteria;
@@ -392,15 +390,7 @@ abstract class User implements ActiveRecordInterface
     {
         $this->clearAllReferences();
 
-        $cls = new \ReflectionClass($this);
-        $propertyNames = [];
-        $serializableProperties = array_diff($cls->getProperties(), $cls->getProperties(\ReflectionProperty::IS_STATIC));
-
-        foreach($serializableProperties as $property) {
-            $propertyNames[] = $property->getName();
-        }
-
-        return $propertyNames;
+        return array_keys(get_object_vars($this));
     }
 
     /**
@@ -1569,10 +1559,7 @@ abstract class User implements ActiveRecordInterface
         if (null !== $this->collSpotifyAccounts && !$overrideExisting) {
             return;
         }
-
-        $collectionClassName = SpotifyAccountTableMap::getTableMap()->getCollectionClassName();
-
-        $this->collSpotifyAccounts = new $collectionClassName;
+        $this->collSpotifyAccounts = new ObjectCollection();
         $this->collSpotifyAccounts->setModel('\SpotifyAccount');
     }
 
@@ -1717,10 +1704,6 @@ abstract class User implements ActiveRecordInterface
 
         if (!$this->collSpotifyAccounts->contains($l)) {
             $this->doAddSpotifyAccount($l);
-
-            if ($this->spotifyAccountsScheduledForDeletion and $this->spotifyAccountsScheduledForDeletion->contains($l)) {
-                $this->spotifyAccountsScheduledForDeletion->remove($this->spotifyAccountsScheduledForDeletion->search($l));
-            }
         }
 
         return $this;
@@ -1794,10 +1777,7 @@ abstract class User implements ActiveRecordInterface
         if (null !== $this->collUsers && !$overrideExisting) {
             return;
         }
-
-        $collectionClassName = ListensToTableMap::getTableMap()->getCollectionClassName();
-
-        $this->collUsers = new $collectionClassName;
+        $this->collUsers = new ObjectCollection();
         $this->collUsers->setModel('\ListensTo');
     }
 
@@ -1945,10 +1925,6 @@ abstract class User implements ActiveRecordInterface
 
         if (!$this->collUsers->contains($l)) {
             $this->doAddUser($l);
-
-            if ($this->usersScheduledForDeletion and $this->usersScheduledForDeletion->contains($l)) {
-                $this->usersScheduledForDeletion->remove($this->usersScheduledForDeletion->search($l));
-            }
         }
 
         return $this;
@@ -2033,10 +2009,9 @@ abstract class User implements ActiveRecordInterface
      */
     public function initPlaylists()
     {
-        $collectionClassName = ListensToTableMap::getTableMap()->getCollectionClassName();
-
-        $this->collPlaylists = new $collectionClassName;
+        $this->collPlaylists = new ObjectCollection();
         $this->collPlaylistsPartial = true;
+
         $this->collPlaylists->setModel('\Playlist');
     }
 

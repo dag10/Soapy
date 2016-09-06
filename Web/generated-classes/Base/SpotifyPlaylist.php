@@ -302,15 +302,7 @@ abstract class SpotifyPlaylist implements ActiveRecordInterface
     {
         $this->clearAllReferences();
 
-        $cls = new \ReflectionClass($this);
-        $propertyNames = [];
-        $serializableProperties = array_diff($cls->getProperties(), $cls->getProperties(\ReflectionProperty::IS_STATIC));
-
-        foreach($serializableProperties as $property) {
-            $propertyNames[] = $property->getName();
-        }
-
-        return $propertyNames;
+        return array_keys(get_object_vars($this));
     }
 
     /**
@@ -1200,8 +1192,7 @@ abstract class SpotifyPlaylist implements ActiveRecordInterface
     // delegate behavior
 
     if (is_callable(array('\Playlist', $name))) {
-        $delegate = $this->getPlaylist();
-        if (!$delegate) {
+        if (!$delegate = $this->getPlaylist()) {
             $delegate = new ChildPlaylist();
             $this->setPlaylist($delegate);
         }

@@ -2,14 +2,41 @@
 
 $cfg = array(
   'spotify' => array(
+    'callback_route' => 'sp_callback',
+
+    // Get these values from
+    // https://developer.spotify.com/my-applications/#!/applications
     'client_id' => '',
     'client_secret' => '',
-    'callback_route' => 'sp_callback',
   ),
 
+  // URL this installation will be accessed at. No trailing slash.
   'url' => 'http://soapy.csh.rit.edu',
+
+  // If true, username will be used from webauth headers. Otherwise, a user
+  // named "dev" is always logged into the website.
   'webauth' => true,
-  'ldap' => true,
+
+  // If true, RFID IDs will be looked up in LDAP.
+  'ibutton' => array(
+    // JD's iButton lookup server, used to get the CSH username for an
+    // RFID ID.
+    'ibutton_server' => array(
+      'enabled' => true,
+      'url' => 'http://www.csh.rit.edu:56124/?ibutton=%s',
+    ),
+
+    // Maps of RFID IDs to usernames, which override anything returned
+    // from the iButton server.
+    // Follows the format of 'RFID_ID' => 'USERNAME'.
+    // For local development, map your personal RFID ID to the 'dev' username.
+    'overrides' => array(
+      '12345' => 'dev',
+    ),
+  ),
+
+  // Make this a unique string. Used to secure the API that the tablets used
+  // to talk to the website.
   'soapy_secret' => 'caramel',
 );
 

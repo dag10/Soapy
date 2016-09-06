@@ -6,7 +6,8 @@ require '../config.php';
 function get_webauth($app) {
   global $cfg;
 
-  // This is just to fake webauth when developing on systems without it.
+  // Find out who the current user is from the webauth env vars.
+  // More info at https://wiki.csh.rit.edu/wiki/Member_Pages
   if ($cfg['webauth']) {
     foreach (['WEBAUTH_USER', 'WEBAUTH_LDAP_GIVENNAME', 'WEBAUTH_LDAP_SN'] as $key) {
       if (!isset($_SERVER[$key])) {
@@ -20,8 +21,10 @@ function get_webauth($app) {
       'lastname' => $_SERVER['WEBAUTH_LDAP_SN'],
     ];
   } else {
+
+    // This is just to fake webauth when developing on systems without it.
     return [
-      'ldap' => 'dag10',
+      'ldap' => 'dev',
       'firstname' => 'John',
       'lastname' => 'Smith',
     ];
@@ -31,22 +34,26 @@ function get_webauth($app) {
 function user_for_rfid($rfid) {
   global $cfg;
 
-  $tempMappings = [
-    ];
-
-  if ($rfid == "12345") {
-    return \UserQuery::create()->findPk(1);
-  } else if (isset($tempMappings[$rfid])) {
-    return \UserQuery::create()->findOneByLDAP($tempMappings[$rfid]);
-  }
-
-  // Use JD's server for fetching user info for iButton/RFID id.
-  if (!$cfg['ldap'] || ($json = @file_get_contents(
-      "http://www.csh.rit.edu:56124/?ibutton=" . $rfid)) === false) {
+  if (!$cfg['ibutton']) {
     return null;
   }
 
-  // TODO: Cache RFID->LDAP mappings in db.
+  if (isset($cfg['ibutton']['overrides'][$rfid])) {
+    return \UserQuery::create()->findOneByLDAP(
+      $cfg['ibutton']['overrides'][$rfid]);
+  }
+
+  if (!$cfg['ibutton']['ibutton_server'] ||
+    !$cfg['ibutton']['ibutton_server']['enabled'] ||
+    !$cfg['ibutton']['ibutton_server']['url']) {
+    return null;
+  }
+
+  // Use JD's server for fetching user info for iButton/RFID id.
+  $url = sprintf($cfg['ibutton']['ibutton_server']['url'], $rfid);
+  if (($json = @file_get_contents($url)) === false) {
+    return null;
+  }
 
   try {
     $user_data = json_decode($json, true);

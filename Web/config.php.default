@@ -38,5 +38,10 @@ $cfg = array(
   // Make this a unique string. Used to secure the API that the tablets used
   // to talk to the website.
   'soapy_secret' => 'caramel',
+
+  // These users can see logs. When in dev mode, the default username is "dev".
+  'admins' => [
+    'dev',
+  ],
 );
 

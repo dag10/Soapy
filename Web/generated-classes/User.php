@@ -2,6 +2,8 @@
 
 use Base\User as BaseUser;
 
+require '../config.php';
+
 /**
  * Skeleton subclass for representing a row from the 'user' table.
  *
@@ -14,11 +16,18 @@ use Base\User as BaseUser;
  */
 class User extends BaseUser
 {
+  public function getIsAdmin() {
+    global $cfg;
+
+    return $cfg['admins'] && in_array($this->getLdap(), $cfg['admins']);
+  }
+
   public function getDataForJson() {
     $data = [
       'ldap' => $this->getLdap(),
       'firstName' => $this->getFirstName(),
       'lastName' => $this->getLastName(),
+      'isAdmin' => $this->getIsAdmin(),
       'playback' => [
         'playbackMode' => $this->getPlaybackMode(),
         ],

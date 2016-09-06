@@ -6,8 +6,10 @@ export interface SelectableOption {
 export interface Track extends SelectableOption {
   id: string;
   title: string;
-  artist?: string;
+  artists?: string[];
   album?: string;
+  valid?: boolean;
+  local?: boolean;
 }
 
 export interface Playlist extends SelectableOption {

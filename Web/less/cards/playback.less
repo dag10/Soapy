@@ -1,21 +1,19 @@
 @import 'base.less';
 
 playback-card {
+  @list-gutter-width: 86px;
+
   .card();
 
   position: relative;
-
-  &.loading {
-    .shuffle-btn,
-    .tracks {
-      display: none;
-    }
+  
+  h1 {
+    margin-left: @list-gutter-width;
   }
 
-  &:not(.loading) {
-    spinner {
-      display: none;
-    }
+  spinner {
+    display: block;
+    margin: 60px auto;
   }
 
   .shuffle-checkbox-label {
@@ -24,9 +22,54 @@ playback-card {
   }
 
   .tracks {
-    text-align: center;
-    font-style: italic;
-    padding: 40px 0;
+    .no-tracks {
+      text-align: center;
+      font-style: italic;
+      padding: 40px 0;
+    }
+
+    .tracklist-notice {
+      padding: 8px 0 20px 0;
+      margin-left: @list-gutter-width;
+
+      & > div {
+        margin-bottom: 10px;
+      }
+    }
+
+    ul {
+      padding-left: 0;
+
+      li {
+        font-weight: 300;
+        font-size: 15px;
+        list-style: none;
+        line-height: 28px;
+        white-space: nowrap;
+        overflow: hidden;
+
+        .position {
+          display: inline-block;
+          width: @list-gutter-width;
+          text-align: right;
+          padding-right: 20px;
+          font-weight: 400;
+        }
+
+        .title {
+          font-weight: 400;
+        }
+
+        &.unplayable {
+          opacity: 0.4;
+
+          .position {
+            font-size: 11px;
+            vertical-align: middle;
+          }
+        }
+      }
+    }
   }
 }
 

@@ -1,6 +1,6 @@
 <h1>Your shower tracklist</h1>
 
-<spinner></spinner>
+<spinner *ngIf="!loaded"></spinner>
 
 <label
   class="mdl-button mdl-js-button mdl-js-ripple-effect shuffle-checkbox-label"
@@ -18,7 +18,44 @@
   </label>
 </label>
 
-<div class="tracks">
-  Tracklist coming soon.
+<div *ngIf="loaded" class="tracks">
+  <div
+    *ngIf="hasInvalidTracks || hasLocalTracks || tracklistIsIncomplete ||
+           (selectedPlaylist?.tracks > 0 && !tracklistHasPlayableSongs)"
+    class="tracklist-notice"
+    >
+    <div *ngIf="tracklistIsIncomplete">
+      Only the first 100 tracks are available right now.
+    </div>
+    <div *ngIf="hasInvalidTracks">
+      Some tracks are omitted due to errors.
+    </div>
+    <div *ngIf="hasLocalTracks">
+      This playlist has songs that are stored locally on your computer,
+      which are not playable by Soapy.
+    </div>
+    <div *ngIf="selectedPlaylist?.tracks > 0 && !tracklistHasPlayableSongs">
+      This playlist has no playable songs.
+    </div>
+  </div>
+
+  <div
+    *ngIf="selectedPlaylist?.tracks == 0"
+    class="no-tracks"
+    >
+    This playlist is empty.
+  </div>
+
+  <ul>
+    <li *ngFor="#track of validTracklist" [class.unplayable]="track.local">
+      <div class="position" *ngIf="!track.local">
+        {{ track.displayedPosition }}
+      </div>
+      <div class="position" *ngIf="track.local">
+        UNPLAYABLE
+      </div>
+      <span class="title">&ldquo;{{ track.title }}&rdquo;</span> by {{ track.artists[0] }}
+    </li>
+  </ul>
 </div>
 

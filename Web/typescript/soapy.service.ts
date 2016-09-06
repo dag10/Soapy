@@ -4,11 +4,12 @@ import * as Rx from 'rxjs/Rx';
 
 import {StaticData} from './StaticData';
 import {BaseError} from './error';
-import {User, Playlist, Playback} from './soapy.interfaces';
+import {User, Playlist, Track, Playback} from './soapy.interfaces';
 import * as API from './soapy.api.interfaces';
 
 
 export interface ServiceAppData {
+  playlist?: Playlist;
   playlists?: Playlist[];
   selectedPlaylist?: Playlist;
   user?: User;
@@ -28,7 +29,9 @@ export class SoapyService {
   public playbackData: Rx.Observable<Playback> = null;
   public errors: EventEmitter<any> = new EventEmitter();
 
-  private playlists: { [id: string] : Playlist; } = {};
+  private playlists: { [id: string]: Playlist; } = {};
+  private _appData: EventEmitter<ServiceAppData> = new EventEmitter();
+  private _selectedPlaylistId: string = null;
 
   constructor(private http: Http) {
     this.errors.subscribe((error) => {
@@ -43,13 +46,25 @@ export class SoapyService {
       .map(res => res.json());
 
     // Consolidated stream of all data sources, formatted as ServiceAppData.
-    var appData = Rx.Observable.merge(rawPlaylistsData, rawUserData)
+    var appData = this._appData.publishReplay(1);
+
+    // Initial source of data: partial static data and loaded playlists data.
+    Rx.Observable.merge(rawPlaylistsData, rawUserData)
       .map(this.processAppData.bind(this))
       .catch(this.catchAPIErrors.bind(this))
-      .publishReplay(1);
+      .subscribe(data => {
+        this._appData.emit(data);
+      });
 
     // Stream of AppData for external consumers.
     this.playlistsData = appData.share();
+
+    // Keep track of selected playlist id.
+    this.playlistsData.subscribe((data: ServiceAppData) => {
+      if (data.selectedPlaylist) {
+        this._selectedPlaylistId = data.selectedPlaylist.id;
+      }
+    });
 
     // Stream of User data for external consumers.
     this.userData = appData
@@ -73,6 +88,15 @@ export class SoapyService {
 
     // Kick off data loading, even if we have no other subscribers.
     appData.connect();
+
+    // If we already know the user has a selected playlist, start loading it.
+    if (StaticData.userData
+        && StaticData.userData.user
+        && StaticData.userData.user.selectedPlaylistId) {
+      this.fetchPlaylistWithTracklist(
+        '' + StaticData.userData.user.selectedPlaylistId)
+        .publish().connect();
+    }
   }
 
   /**
@@ -84,6 +108,34 @@ export class SoapyService {
     }
 
     return null;
+  }
+
+  /**
+   * Gets data for a playlist including its tracklist.
+   */
+  public fetchPlaylistWithTracklist(id: string): Rx.Observable<Playlist> {
+    var playlist = this.getPlaylist(id);
+    if (playlist && playlist.tracklist) {
+      return Rx.Observable.of(playlist);
+    }
+
+    return <Rx.Observable<Playlist>> this
+      .makeGetRequest(`/api/me/playlist/${ id }`)
+      .map(res => res.json())
+      .map(this.processAppData.bind(this))
+      .map((data: ServiceAppData): Playlist => {
+        if (data.playlist) {
+          if (data.playlist.id === this._selectedPlaylistId) {
+            this._appData.emit({
+              selectedPlaylist: data.playlist,
+            });
+          }
+          return data.playlist;
+        } else {
+          throw new Error('Failed to retreive track list.');
+        }
+      })
+      .catch(this.catchAPIErrors.bind(this));
   }
 
   /**
@@ -152,6 +204,11 @@ export class SoapyService {
       });
     }
 
+    if (data.playlist) {
+      this.cachePlaylist(data.playlist);
+      ret.playlist = this.getPlaylist('' + data.playlist.soapyPlaylistId);
+    }
+
     if (data.user.selectedPlaylist) {
       var playlist = data.user.selectedPlaylist;
 
@@ -172,24 +229,54 @@ export class SoapyService {
   }
 
   /**
+   * Maps SpotifyTrack to Track object.
+   */
+  private formatTrackFromSpotifyTrack(track: API.SpotifyTrack): Track {
+    var ret: Track = {
+      id: track.uri,
+      title: track.name,
+      valid: track.is_valid,
+      local: track.is_local,
+    };
+
+    if (track.artists) {
+      ret.artists = track.artists.map(artist => artist.name);
+    }
+
+    return ret;
+  }
+
+  /**
    * Maps SoapyPlaylist object from an API response into a Playlist object.
    */
   private formatPlaylistFromAPI(data: API.SoapyPlaylist): Playlist {
     var playlist: Playlist = {
       id: '' + data.soapyPlaylistId,
-      title: data.spotifyPlaylist.name,
-      tracks: data.spotifyPlaylist.tracks.total,
+      title: `Playlist ${ data.soapyPlaylistId }`,
     };
 
-    if (data.spotifyPlaylist && data.spotifyPlaylist.images) {
-      var images = data.spotifyPlaylist.images;
-      if (images.length > 0) {
-        images.sort((a, b) => {
-          return a.width - b.width;
-        });
+    if (data.spotifyPlaylist) {
+      playlist.title = data.spotifyPlaylist.name;
 
-        playlist.image = images[images.length > 1 ? 1 : 0].url;
+      if (data.spotifyPlaylist.tracks) {
+        playlist.tracks = data.spotifyPlaylist.tracks.total;
       }
+
+      if (data.spotifyPlaylist.images) {
+        var images = data.spotifyPlaylist.images;
+        if (images.length > 0) {
+          images.sort((a, b) => {
+            return a.width - b.width;
+          });
+
+          playlist.image = images[images.length > 1 ? 1 : 0].url;
+        }
+      }
+    }
+
+    if (data.tracklist) {
+      playlist.tracklist = data.tracklist.map(
+        this.formatTrackFromSpotifyTrack);
     }
 
     return playlist;
@@ -197,17 +284,40 @@ export class SoapyService {
 
   /**
    * Adds the playlist to the playlist dictionary.
+   *
+   * It currently just crudly augments the playlist based on the assumption
+   * that we fall under one of three different cases:
+   *
+   * Case 1: There is no cached playlist, so we cache the entire playlist
+   *         we're given.
+   * 
+   * Case 2: The given playlist has a tracklist, so we add the tracklist to
+   *         the cached playlist.
+   *
+   * Case 3: The cached playlist has a tracklist and ours doesn't, so we
+   *         set the cached playlist to the given playlist but retain the
+   *         tracklist.
    */
   private cachePlaylist(playlist: API.SoapyPlaylist) {
-    this.playlists['' + playlist.soapyPlaylistId] =
-        this.formatPlaylistFromAPI(playlist);
+    var formattedPlaylist = this.formatPlaylistFromAPI(playlist);
+    var idStr = '' + playlist.soapyPlaylistId;
+
+    if (!this.playlists[idStr]) {
+      this.playlists[idStr] = formattedPlaylist;
+    } else if (formattedPlaylist.tracklist) {
+      this.playlists[idStr].tracklist = formattedPlaylist.tracklist;
+    } else {
+      var tracklist = this.playlists[idStr].tracklist;
+      this.playlists[idStr] = formattedPlaylist;
+      this.playlists[idStr].tracklist = tracklist;
+    }
   }
 
   /**
    * Makes a parameterize post request to the API.
    */
-  private makePostRequest(route: string, params?: URLSearchParams)
-      : Rx.Observable<Response> {
+  private makePostRequest(route: string, params?: URLSearchParams):
+    Rx.Observable<Response> {
 
     var headers = new Headers({
       'Content-Type': 'application/x-www-form-urlencoded',
@@ -225,7 +335,20 @@ export class SoapyService {
 
     res.connect();
 
-    return res;
+    return <Rx.ConnectableObservable<Response>> res;
+  }
+
+  /**
+   * Makes a get request to the API.
+   */
+  private makeGetRequest(route: string): Rx.Observable<Response> {
+    var res = this.http.get(route)
+      .catch(this.catchAPIErrors.bind(this))
+      .publishReplay(1);
+
+    res.connect();
+
+    return <Rx.ConnectableObservable<Response>> res;
   }
 
   /**

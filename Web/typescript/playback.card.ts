@@ -7,31 +7,36 @@ import {
   EventEmitter,
   ChangeDetectorRef} from 'angular2/core';
 
-import {Playback, Playlist} from './soapy.interfaces';
+import {Track, Playback, Playlist} from './soapy.interfaces';
 import {SpinnerComponent} from './spinner';
 import {StaticData} from './StaticData';
+import {SoapyService} from './soapy.service';
 
 declare var jQuery: JQueryStatic;
 
 
+export interface DisplayedTrack extends Track {
+  displayedPosition?: number;
+}
+
+
 @Component({
+  providers: [SoapyService],
   directives: [
     SpinnerComponent,
   ],
   selector: 'playback-card',
   template: StaticData.templates.PlaybackCard,
-  host: {
-    '[class.loading]': '!loaded',
-  },
 })
 export class PlaybackCardComponent implements AfterViewInit {
-  @Output() playbackUpdated: EventEmitter<Playback> = new EventEmitter();
+  @Output() playbackUpdated: EventEmitter<Playback> = new EventEmitter<Playback>();
 
   private $el: JQuery;
   private _selectedPlaylist: Playlist = null;
   private _playback: Playback = null;
 
-  constructor(private el: ElementRef,
+  constructor(private _soapyService: SoapyService,
+              private el: ElementRef,
               private _changeDetector: ChangeDetectorRef) {
     this.$el = jQuery(this.el.nativeElement);
   }
@@ -56,6 +61,13 @@ export class PlaybackCardComponent implements AfterViewInit {
       this.hide();
     } else {
       this.show();
+
+      this._soapyService
+        .fetchPlaylistWithTracklist(this._selectedPlaylist.id)
+        .subscribe((fetchedPlaylist: Playlist) => {
+          this._selectedPlaylist = fetchedPlaylist;
+          this._changeDetector.detectChanges();
+        });
     }
 
     this._changeDetector.detectChanges();
@@ -76,7 +88,9 @@ export class PlaybackCardComponent implements AfterViewInit {
   }
 
   public get loaded(): boolean {
-    return (this.playback !== null);
+    return (this.playback !== null
+            && this.selectedPlaylist !== null
+            && !!this.selectedPlaylist.tracklist);
   }
 
   public toggleShuffle() {
@@ -84,6 +98,80 @@ export class PlaybackCardComponent implements AfterViewInit {
     newPlayback.shuffle = !newPlayback.shuffle;
 
     this.playbackUpdated.emit(newPlayback);
+
+    return false;
+  }
+
+  public get validTracklist(): DisplayedTrack[] {
+    var tracks: DisplayedTrack[] = [];
+    var nextPosition = 1;
+    this._selectedPlaylist.tracklist.forEach(function(track: DisplayedTrack) {
+      if (track.valid) {
+        if (!track.local) {
+          track.displayedPosition = nextPosition;
+          nextPosition++;
+        }
+        tracks.push(track);
+      }
+    });
+    return tracks;
+  }
+
+  public get hasInvalidTracks(): boolean {
+    if (!this._selectedPlaylist ||
+        !this._selectedPlaylist.tracklist) {
+      return false;
+    }
+
+    for (var i = 0; i < this._selectedPlaylist.tracklist.length; i++) {
+      if (!this._selectedPlaylist.tracklist[i].valid) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  public get hasLocalTracks(): boolean {
+    if (!this._selectedPlaylist ||
+        !this._selectedPlaylist.tracklist) {
+      return false;
+    }
+
+    for (var i = 0; i < this._selectedPlaylist.tracklist.length; i++) {
+      if (this._selectedPlaylist.tracklist[i].local &&
+          this._selectedPlaylist.tracklist[i].valid) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  public get tracklistIsIncomplete(): boolean {
+    if (!this._selectedPlaylist ||
+        !this._selectedPlaylist.tracklist) {
+      return false;
+    }
+
+    var actualTracks = this._selectedPlaylist.tracklist.length;
+    var intendedTracks = this._selectedPlaylist.tracks;
+
+    return actualTracks < intendedTracks && intendedTracks > 100;
+  }
+
+  public get tracklistHasPlayableSongs(): boolean {
+    if (!this._selectedPlaylist ||
+        !this._selectedPlaylist.tracklist) {
+      return false;
+    }
+
+    for (var i = 0; i < this._selectedPlaylist.tracklist.length; i++) {
+      if (!this._selectedPlaylist.tracklist[i].local &&
+          this._selectedPlaylist.tracklist[i].valid) {
+        return true;
+      }
+    }
 
     return false;
   }

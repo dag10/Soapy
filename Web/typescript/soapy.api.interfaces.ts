@@ -18,6 +18,19 @@ export interface SpotifyPlaylistTracks {
   total: number;
 }
 
+export interface SpotifyTrackArtist {
+  name: string;
+}
+
+export interface SpotifyTrack {
+  duration_ms: number;
+  name: string;
+  uri: string;
+  artists: SpotifyTrackArtist[];
+  is_local: boolean;
+  is_valid: boolean;
+}
+
 export interface SpotifyPlaylist {
   id: string;
   href: string;
@@ -26,7 +39,6 @@ export interface SpotifyPlaylist {
   public: boolean;
   tracks: SpotifyPlaylistTracks;
   images?: SpotifyPlaylistImage[];
-  // Note: incomplete...
 }
 
 export interface SoapyPlaylist {
@@ -34,6 +46,7 @@ export interface SoapyPlaylist {
   spotifyPlaylistUri?: string;
   lastPlayedSongUri?: string;
   spotifyPlaylist?: SpotifyPlaylist;
+  tracklist?: SpotifyTrack[];
 }
 
 export interface User {
@@ -44,10 +57,12 @@ export interface User {
   spotifyAccount?: SpotifyAccount;
   playlists?: SoapyPlaylist[];
   selectedPlaylist?: SoapyPlaylist;
+  selectedPlaylistId?: number;
 }
 
 export interface Response {
   user?: User;
+  playlist?: SoapyPlaylist;
   error?: string;
 }
 

@@ -6,7 +6,10 @@
   class="mdl-button mdl-js-button mdl-js-ripple-effect shuffle-checkbox-label"
   for="shuffle-checkbox"
   >
-  <label class="mdl-checkbox mdl-js-checkbox">
+  <label
+    class="mdl-checkbox mdl-js-checkbox"
+    [class.is-checked]="playback?.shuffle"
+    >
     <input
       type="checkbox"
       id="shuffle-checkbox"

@@ -16,7 +16,7 @@ export class APIError extends BaseError {
 export interface Bathroom {
   name: string;
   lastLogId: number;
-  logStream?: Rx.Observable<API.LogEvent>;
+  logStream?: Rx.Observable<API.LogEvent[]>;
 }
 
 @Injectable()
@@ -24,8 +24,10 @@ export class LogsService {
   public errors: EventEmitter<any> = new EventEmitter();
 
   private _bathrooms: { [name: string]: Bathroom; } = {};
-  private _allLogEvents: EventEmitter<API.LogEvent> =
-    new EventEmitter<API.LogEvent>();
+  private _allLogEvents: EventEmitter<API.LogEvent[]> =
+    new EventEmitter<API.LogEvent[]>();
+  private _currentlyFetchingRoom: Bathroom = null;
+  private _maxPollInterval: number = 500; // milliseconds
 
   constructor(private http: Http) {
     this.errors.subscribe((error) => {
@@ -34,7 +36,9 @@ export class LogsService {
 
     this.getBathroomNames().forEach((name: string) => {
       var stream = this._allLogEvents
-        .filter((event) => event.Bathroom === name)
+        .map(events => events.filter(
+            event => event.Bathroom.toLowerCase() === name.toLowerCase()))
+        .filter(events => events.length > 0)
         .publishReplay();
 
       stream.connect();
@@ -45,54 +49,35 @@ export class LogsService {
         logStream: stream
       };
 
-      stream.subscribe((event) => {
-        this._bathrooms[name].lastLogId = event.Id;
+      stream.subscribe(events => {
+        var greatestLogId = events[events.length - 1].Id;
+        if (greatestLogId > this._bathrooms[name].lastLogId) {
+          this._bathrooms[name].lastLogId = greatestLogId;
+        }
       });
     });
-
-    var nextId = 1;
-    setInterval(() => {
-      this.getBathroomNames().forEach((room) => {
-        this._allLogEvents.emit({
-          Id: nextId++,
-          Bathroom: room,
-          Time: new Date().toString(),
-          Message: 'Room: ' + room + ', time: ' + (new Date().getTime())
-        });
-      });
-    }, 1000);
-
-    //console.info('Mocking events...');
-    //this._allLogEvents.emit({
-      //Id: 1,
-      //Bathroom: 'dev',
-      //Time: '0:0:0',
-      //Message: 'FIRST!'
-    //});
-
-    //setTimeout(() => {
-      //this._allLogEvents.emit({
-        //Id: 2,
-        //Bathroom: 'southside_mens',
-        //Time: '0:0:0',
-        //Message: 'DELAYED in WRONG BATHROOM!'
-      //});
-    //}, 2500);
-
-    //setTimeout(() => {
-      //this._allLogEvents.emit({
-        //Id: 2,
-        //Bathroom: 'dev',
-        //Time: '0:0:0',
-        //Message: 'DELAYED in CORRECT BATHROOM!'
-      //});
-    //}, 3000);
   }
 
+  /**
+   * Repeatedly polls for latest logs for a particular room.
+   */
   public subscribeToLog(room: string) {
+    if (this._currentlyFetchingRoom === this._bathrooms[room]) {
+      return;
+    }
+
+    var shouldFetch = (this._currentlyFetchingRoom === null);
+    this._currentlyFetchingRoom = this._bathrooms[room];
+    if (shouldFetch) {
+      this.fetchLatestLogs();
+    }
   }
 
+  /**
+   * Stops polling for logs.
+   */
   public unsubscribeFromAllLogs() {
+    this._currentlyFetchingRoom = null;
   }
 
   /**
@@ -105,8 +90,76 @@ export class LogsService {
   /**
    * Gets the event stream for a given bathroom name.
    */
-  public eventsForBathroom(room: string): Rx.Observable<API.LogEvent> {
+  public eventsForBathroom(room: string): Rx.Observable<API.LogEvent[]> {
     return this._bathrooms[room].logStream;
+  }
+
+  /**
+   * Fetches the latest logs for the currently subscribed room, and
+   * calls itself again once the data loads.
+   */
+  private fetchLatestLogs() {
+    var room = this._currentlyFetchingRoom;
+    if (room === null) {
+      return;
+    }
+
+    var startTime = new Date().getTime();
+
+    var rpc: Rx.Observable<API.Response>;
+    if (room.lastLogId === 0) {
+      rpc = this.fetchLatestLogsForRoom(room.name);
+    } else {
+      rpc = this.fetchLogsForRoomSince(room.name, room.lastLogId);
+    }
+
+    rpc.subscribe(res => {
+      // If we are no longer subscribed to this room once the data comes in,
+      // discard it.
+      if (room !== this._currentlyFetchingRoom) {
+        return;
+      }
+
+      this.processEvents(res.events);
+
+      // Calculate a short delay for refetching to avoid spamming.
+      var elapsed = new Date().getTime() - startTime;
+      var timeout = this._maxPollInterval - elapsed;
+      if (timeout < 0) {
+        timeout = 0;
+      }
+
+      setTimeout(this.fetchLatestLogs.bind(this), timeout);
+    });
+  }
+
+  /**
+   * Notifies subscribers of the new events in order of ascending log ID.
+   *
+   * NOTE: Has the side effect of sorting the supplied array.
+   */
+  private processEvents(events: API.LogEvent[]) {
+    events.sort((a, b) => (a.Id - b.Id));
+    this._allLogEvents.emit(events);
+  }
+
+  /**
+   * Fetches latest logs for a room name.
+   */
+  private fetchLatestLogsForRoom(room: string): Rx.Observable<API.Response> {
+    return this
+      .makeGetRequest(`/api/log/view/${ room }`)
+      .map(res => res.json());
+  }
+
+  /**
+   * Fetches logs for a room name after a certain log ID.
+   */
+  private fetchLogsForRoomSince(
+      room: string, lastLogId: number): Rx.Observable<API.Response> {
+    return this
+      .makeGetRequest(`/api/log/view/${ room }/since/${ lastLogId }`)
+      .map(res => res.json());
   }
 
   /**

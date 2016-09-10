@@ -244,7 +244,8 @@ function apiRawGetLogs($room, $since) {
   dieWithJson([
     'events' => LogQuery::create()
       ->filterByBathroom($room)
-      ->filterById(array('min' => $since))
+      // +1 because $since is is exclusive but filterById min is inclusive.
+      ->filterById(array('min' => $since + 1))
       ->orderByTime('desc')
       ->limit(500)
       ->find()

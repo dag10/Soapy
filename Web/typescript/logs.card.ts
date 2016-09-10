@@ -22,6 +22,7 @@ export class LogsCardComponent implements OnInit, AfterViewInit {
   private _currentSubscription: Rx.Subscription = null;
   private _events: API.LogEvent[] = [];
   private _dontRerenderLoggings = false;
+  private _isPaused: boolean = false;
   private $el: JQuery;
 
   constructor(private el: ElementRef,
@@ -59,7 +60,6 @@ export class LogsCardComponent implements OnInit, AfterViewInit {
 
     this._currentBathroom = bathroom;
 
-    this._logsService.unsubscribeFromAllLogs();
     this.removeCurrentSubscription();
     this._events = [];
 
@@ -68,13 +68,44 @@ export class LogsCardComponent implements OnInit, AfterViewInit {
       .eventsForBathroom(bathroom)
       .subscribe(this.eventHandler.bind(this));
     this._logsService.subscribeToLog(bathroom);
+    this._isPaused = false;
 
     this._changeDetector.detectChanges();
     this._dontRerenderLoggings = false;
   }
 
-  public eventHandler(event: API.LogEvent) {
-    this._events.unshift(event);
+  public pause() {
+    if (this._isPaused) {
+      return;
+    }
+
+    this._logsService.unsubscribeFromAllLogs();
+    this._isPaused = true;
+  }
+
+  public resume() {
+    if (!this._isPaused) {
+      return;
+    }
+
+    if (this._currentBathroom !== null) {
+      this._logsService.subscribeToLog(this._currentBathroom);
+    }
+    this._isPaused = false;
+  }
+
+  public toggleRealtime() {
+    if (this.isPaused) {
+      this.resume();
+    } else {
+      this.pause();
+    }
+  }
+
+  public eventHandler(events: API.LogEvent[]) {
+    events.forEach(event => {
+      this._events.unshift(event);
+    });
 
     if (!this._dontRerenderLoggings) {
       this._changeDetector.detectChanges();
@@ -83,6 +114,10 @@ export class LogsCardComponent implements OnInit, AfterViewInit {
 
   public get events(): API.LogEvent[] {
     return this._events;
+  }
+
+  public get isPaused(): boolean {
+    return this._isPaused;
   }
 
   private removeCurrentSubscription() {

@@ -1,25 +1,48 @@
-<ul *ngIf="hasBathrooms" class="bathroom-buttons nav nav-tabs" role="group">
-  <li
-    *ngFor="#bathroom of bathrooms"
-    role="presentation"
-    [class.active]="bathroom == currentBathroom"
+<div class="controls">
+  <label
+    class="mdl-button mdl-js-button mdl-js-ripple-effect realtime-checkbox-label"
+    for="realtime-checkbox"
     >
-    <a
-      class="btn btn-default"
-      (click)="chooseBathroom(bathroom)"
+    <label
+      class="mdl-checkbox mdl-js-checkbox"
+      [class.is-checked]="!isPaused"
       >
-      {{ bathroom }}
-    </a>
-  </li>
-</ul>
+      <input
+        type="checkbox"
+        id="realtime-checkbox"
+        class="mdl-checkbox__input realtime-checkbox"
+        [checked]="!isPaused"
+        (change)="toggleRealtime()"
+        >
+      <span class="mdl-checkbox__label">Realtime</span>
+    </label>
+  </label>
+</div>
 
-<ul *ngIf="hasBathrooms" class="event-list">
-  <li
-    *ngFor="#event of events"
-    >
-    {{ event.Message }}
-  </li>
-</ul>
+<div class="tabs-container" *ngIf="hasBathrooms">
+  <ul class="bathroom-buttons nav nav-tabs" role="group">
+    <li
+      *ngFor="#bathroom of bathrooms"
+      role="presentation"
+      [class.active]="bathroom == currentBathroom"
+      >
+      <a
+        class="btn btn-default"
+        (click)="chooseBathroom(bathroom)"
+        >
+        {{ bathroom }}
+      </a>
+    </li>
+  </ul>
+
+  <ul class="event-list">
+    <li
+      *ngFor="#event of events"
+      >
+      {{ event.Message }}
+    </li>
+  </ul>
+</div>
 
 <div *ngIf="!hasBathrooms">
   <div class="no-bathrooms">

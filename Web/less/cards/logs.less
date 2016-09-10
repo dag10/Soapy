@@ -3,29 +3,32 @@
 logs-card {
   .card();
 
-  @tab-height: 35px;
-  @top-padding: 10px + @tab-height;
+  padding: 0;
 
-  padding-top: @top-padding;
-  position: relative;
+  .realtime-checkbox-label {
+    .button-checkbox;
+  }
 
-  .nav-tabs {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
+  .controls {
+    width: 100%;
+    padding: 7px;
+    padding-bottom: 0;
+  }
 
-    padding: 6px 6px 0 6px;
+  .tabs-container {
+    width: 100%;
 
-    li a {
-      height: 35px;
+    .nav-tabs {
+      padding: 6px 6px 0 6px;
+
+      li a {
+        height: 35px;
+      }
     }
   }
 
   .no-bathrooms {
-    @margin: 100px;
-    margin: @margin auto;
-    margin-top: @margin - @top-padding;
+    margin: 100px auto;
     text-align: center;
     font-size: 15px;
   }

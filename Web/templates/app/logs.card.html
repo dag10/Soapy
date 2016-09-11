@@ -35,6 +35,8 @@
     </li>
   </ul>
 
+  <spinner *ngIf="showSpinner"></spinner>
+
   <ul class="event-list">
     <li
       *ngFor="#event of events"

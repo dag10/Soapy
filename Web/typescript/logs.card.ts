@@ -7,6 +7,7 @@ import {
 
 import {StaticData} from './StaticData';
 import {LogsService} from './logs.service';
+import {SpinnerComponent} from './spinner';
 import * as API from './soapy.api.interfaces';
 import * as Rx from 'rxjs/Rx';
 
@@ -14,6 +15,9 @@ declare var jQuery: JQueryStatic;
 
 
 @Component({
+  directives: [
+    SpinnerComponent,
+  ],
   selector: 'logs-card',
   template: StaticData.templates.LogsCard,
 })
@@ -118,6 +122,10 @@ export class LogsCardComponent implements OnInit, AfterViewInit {
 
   public get isPaused(): boolean {
     return this._isPaused;
+  }
+
+  public get showSpinner(): boolean {
+    return this._events.length === 0;
   }
 
   private removeCurrentSubscription() {

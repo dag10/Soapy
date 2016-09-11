@@ -41,6 +41,12 @@
     <li
       *ngFor="#event of events"
       >
+      <span class="time">{{ event.DisplayTime }}</span>
+      <span class="level-error" *ngIf="event.Level == 'ERROR'">E</span>
+      <span class="level-warn" *ngIf="event.Level == 'WARN'">W</span>
+      <span class="level-info" *ngIf="event.Level == 'INFO'">I</span>
+      <span class="level-debug" *ngIf="event.Level == 'DEBUG'">D</span>
+      <span class="level-verbose" *ngIf="event.Level == 'VERBOSE'">V</span>
       {{ event.Message }}
     </li>
   </ul>

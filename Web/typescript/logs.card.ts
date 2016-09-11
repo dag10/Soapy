@@ -13,6 +13,10 @@ import * as Rx from 'rxjs/Rx';
 
 declare var jQuery: JQueryStatic;
 
+interface DisplayLogEvent extends API.LogEvent {
+  DisplayTime?: string;
+}
+
 
 @Component({
   directives: [
@@ -24,7 +28,7 @@ declare var jQuery: JQueryStatic;
 export class LogsCardComponent implements OnInit, AfterViewInit {
   private _currentBathroom: string = null;
   private _currentSubscription: Rx.Subscription = null;
-  private _events: API.LogEvent[] = [];
+  private _events: DisplayLogEvent[] = [];
   private _dontRerenderLoggings = false;
   private _isPaused: boolean = false;
   private $el: JQuery;
@@ -108,7 +112,12 @@ export class LogsCardComponent implements OnInit, AfterViewInit {
 
   public eventHandler(events: API.LogEvent[]) {
     events.forEach(event => {
-      this._events.unshift(event);
+      var displayEvent = <DisplayLogEvent> event;
+      var date = new Date(displayEvent.Time);
+      displayEvent.DisplayTime = date.getMonth() + "/" + date.getDate() +
+        " " + date.getHours() + ":" + date.getMinutes() + ":" +
+        date.getSeconds();
+      this._events.unshift(displayEvent);
     });
 
     if (!this._dontRerenderLoggings) {
@@ -116,7 +125,7 @@ export class LogsCardComponent implements OnInit, AfterViewInit {
     }
   }
 
-  public get events(): API.LogEvent[] {
+  public get events(): DisplayLogEvent[] {
     return this._events;
   }
 

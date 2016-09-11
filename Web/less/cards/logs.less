@@ -36,13 +36,47 @@ logs-card {
 
       li {
         list-style: none;
-        font-size: 10px;
-        padding: 0 10px;
+        font-size: 11px;
+        line-height: 14px;
+        padding: 0 5px;
         font-family: monospace;
         border-bottom: dashed 0.5px #ddd;
 
         &:last-child {
           border-bottom: none;
+        }
+
+        .time {
+          font-weight: bold;
+        }
+
+        .level-error,
+        .level-warn,
+        .level-info,
+        .level-debug,
+        .level-verbose {
+          font-weight: bold;
+        }
+
+        .level-error {
+          background-color: red;
+          color: white;
+        }
+
+        .level-warn {
+          background-color: #ffb40a;
+        }
+
+        .level-info {
+          color: green;
+        }
+
+        .level-debug {
+          color: #808080;
+        }
+
+        .level-verbose {
+          color: blue;
         }
       }
     }

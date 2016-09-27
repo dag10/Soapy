@@ -114,7 +114,7 @@ export class LogsCardComponent implements OnInit, AfterViewInit {
     events.forEach(event => {
       var displayEvent = <DisplayLogEvent> event;
       var date = new Date(displayEvent.Time);
-      displayEvent.DisplayTime = date.getMonth() + "/" + date.getDate() +
+      displayEvent.DisplayTime = (date.getMonth() + 1) + "/" + date.getDate() +
         " " + date.getHours() + ":" + date.getMinutes() + ":" +
         date.getSeconds();
       this._events.unshift(displayEvent);

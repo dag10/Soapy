@@ -12,13 +12,30 @@ body {
 }
 
 .container {
-  width: @site-width;
+  width: @site-width - 30px;
   padding: 0;
 }
 
 soapy-app {
   .spinner {
     margin: -@card-vertical-margin auto @card-vertical-margin auto;
+  }
+}
+
+.navbar-header {
+  float: left;
+  width: auto;
+}
+
+.navbar-right {
+  float: right;
+}
+
+@media only screen and (max-width: @site-width) {
+  .container {
+    width: 100%;
+    padding-left: @site-gutter;
+    padding-right: @site-gutter;
   }
 }
 

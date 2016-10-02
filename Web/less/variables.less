@@ -16,7 +16,8 @@
 @card-list-hover-bg-color: darken(@card-bg-color, 8%);
 @card-list-press-bg-color: darken(@card-list-hover-bg-color, 4%);
 
-@site-width: 560px;
+@site-width: 590px;
+@site-gutter: 10px;
 
 @control-font-size: 13px;
 
@@ -43,5 +44,5 @@
 @font-family-sans-serif: 'Roboto', sans-serif;
 @font-family-base: @font-family-sans-serif;
 
-@screen-sm-min: @site-width;
+@screen-sm-min: 591px - (@site-gutter * 2);
 

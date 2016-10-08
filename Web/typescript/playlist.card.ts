@@ -20,6 +20,7 @@ declare var jQuery: JQueryStatic;
   host: {
     '[class.collapsed]': '!expanded',
     '[class.hidden]': '!playlists',
+    '[class.cancelable]': 'cancelable',
   },
 })
 export class PlaylistCardComponent implements AfterViewInit, AfterViewChecked {
@@ -84,6 +85,10 @@ export class PlaylistCardComponent implements AfterViewInit, AfterViewChecked {
 
   public get expanded(): boolean {
     return !this.selectedPlaylist;
+  }
+
+  public get cancelable(): boolean {
+    return this.formerlySelectedPlaylist !== null;
   }
 
   public cancel() {

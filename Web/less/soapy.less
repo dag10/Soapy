@@ -31,11 +31,33 @@ soapy-app {
   float: right;
 }
 
+.desktop-only {
+  visibility: visible;
+}
+
+.mobile-only {
+  visibility: hidden;
+}
+
 @media only screen and (max-width: @site-width) {
   .container {
     width: 100%;
     padding-left: @site-gutter;
     padding-right: @site-gutter;
+  }
+}
+
+@media only screen and (max-width: @mobile-width) {
+  body {
+    padding-top: 55px + @card-vertical-margin-mobile;
+  }
+
+  .desktop-only {
+    visibility: hidden;
+  }
+
+  .mobile-only {
+    visibility: visible;
   }
 }
 

@@ -1,10 +1,12 @@
 @import 'base.less';
 
 account-card {
+  @paired-card-height: 86px;
+
   .card();
 
   &.paired {
-    @card-height: 86px;
+    @card-height: @paired-card-height;
     @text-left-margin: @card-height + @card-padding;
 
     & > :not(.paired) {
@@ -84,6 +86,46 @@ account-card {
 
         padding-top: 6px;
         font-size: 18px;
+      }
+    }
+  }
+
+  @media only screen and (max-width: @mobile-width) {
+    &.paired {
+      @card-height: @paired-card-height;
+      @text-left-margin: @card-height + @card-padding-mobile;
+
+      & > a.mdl-button {
+        position: absolute;
+        left: @card-height;
+        right: 0;
+        bottom: 0;
+        top: auto;
+        border-radius: 0;
+        text-align: left;
+        padding: 0 11px;
+      }
+
+      & > div.card-content {
+        h1 {
+          margin: @card-top-padding-mobile auto 7px 0;
+          left: @text-left-margin;
+        }
+
+        .line-2 {
+          .card-copy;
+
+          display: block;
+          position: absolute;
+          left: @text-left-margin;
+          top: 30px;
+        }
+      }
+    }
+
+    &:not(.paired) {
+      .login-container {
+        margin: 0;
       }
     }
   }

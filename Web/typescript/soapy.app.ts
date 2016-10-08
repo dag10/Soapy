@@ -104,7 +104,7 @@ export class SoapyAppComponent implements OnInit {
 
     if (playlist !== null) {
       this._soapyService.selectPlaylist(playlist).subscribe((res) => {
-        // nothing
+        window.scrollTo(0, 0);
       }, (err) => {
         this.selectedPlaylist = formerPlaylist;
       });

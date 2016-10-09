@@ -224,6 +224,9 @@ gulp.task('copy:libs', function() {
     'node_modules/jquery/dist/*',
 
     'node_modules/material-design-lite/material.min.js',
+
+    'node_modules/Stickyfill/dist/stickyfill.js',
+    'node_modules/Stickyfill/dist/stickyfill.min.js',
   ])
   .pipe(gulp.dest(libOut));
 });

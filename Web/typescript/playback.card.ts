@@ -26,6 +26,7 @@ export interface DisplayedTrack extends Track {
     SpinnerComponent,
   ],
   selector: 'playback-card',
+  host: {'(window:scroll)': 'handleScroll($event)'},
   template: StaticData.templates.PlaybackCard,
 })
 export class PlaybackCardComponent implements AfterViewInit {
@@ -42,6 +43,7 @@ export class PlaybackCardComponent implements AfterViewInit {
   }
 
   public ngAfterViewInit() {
+    (<any>window).Stickyfill.add(this.$el.find('.sticky-header')[0]);
     this.hide();
   }
 
@@ -174,6 +176,21 @@ export class PlaybackCardComponent implements AfterViewInit {
     }
 
     return false;
+  }
+
+  private handleScroll(event) {
+    var $header = this.$el.find('.sticky-header');
+    var stickyClass = 'stickied';
+
+    var pos = $header.offset().top - jQuery(window).scrollTop();
+    var top = parseInt($header.css('top'), 10);
+    var atTop = (pos === top);
+
+    if ($header.hasClass(stickyClass) && !atTop) {
+      $header.removeClass(stickyClass);
+    } else if (!$header.hasClass(stickyClass) && atTop) {
+      $header.addClass(stickyClass);
+    }
   }
 }
 

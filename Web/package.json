@@ -6,6 +6,7 @@
     "tslint": "tslint -c tslint.json typescript/**/*.ts"
   },
   "dependencies": {
+    "Stickyfill": "github:wilddeer/stickyfill#3e7c488",
     "angular2": "2.0.0-beta.17",
     "bootstrap": "^3.3.2",
     "bootstrap-csh": "github:computersciencehouse/bootstrap-csh#71ea5d6",

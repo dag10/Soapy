@@ -1,25 +1,27 @@
-<h1>Your shower tracklist</h1>
+<div class="sticky-header">
+  <h1>Your shower tracklist</h1>
+
+  <label
+    class="mdl-button mdl-js-button mdl-js-ripple-effect shuffle-checkbox-label"
+    for="shuffle-checkbox"
+    >
+    <label
+      class="mdl-checkbox mdl-js-checkbox"
+      [class.is-checked]="playback?.shuffle"
+      >
+      <input
+        type="checkbox"
+        id="shuffle-checkbox"
+        class="mdl-checkbox__input shuffle-checkbox"
+        [checked]="playback?.shuffle"
+        (change)="toggleShuffle()"
+        >
+      <span class="mdl-checkbox__label">Shuffle</span>
+    </label>
+  </label>
+</div>
 
 <spinner *ngIf="!loaded"></spinner>
-
-<label
-  class="mdl-button mdl-js-button mdl-js-ripple-effect shuffle-checkbox-label"
-  for="shuffle-checkbox"
-  >
-  <label
-    class="mdl-checkbox mdl-js-checkbox"
-    [class.is-checked]="playback?.shuffle"
-    >
-    <input
-      type="checkbox"
-      id="shuffle-checkbox"
-      class="mdl-checkbox__input shuffle-checkbox"
-      [checked]="playback?.shuffle"
-      (change)="toggleShuffle()"
-      >
-    <span class="mdl-checkbox__label">Shuffle</span>
-  </label>
-</label>
 
 <div *ngIf="loaded" class="tracks">
   <div

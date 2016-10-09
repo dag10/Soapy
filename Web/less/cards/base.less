@@ -17,6 +17,26 @@
   border-radius: @card-border-radius;
   padding: @card-padding;
 
+  .sticky-header {
+    background: #ffffff;
+    position: -webkit-sticky;
+    position: sticky;
+    top: @nav-height;
+    margin-left: -@card-padding;
+    margin-right: -@card-padding;
+    margin-top: -@card-padding;
+    border-top-left-radius: @card-border-radius;
+    border-top-right-radius: @card-border-radius;
+    height: 55px;
+    padding: @card-padding;
+
+    &.stickied {
+      box-shadow: 0 2px 2px rgba(0,0,0,.3);
+      border-top-left-radius: 0;
+      border-top-right-radius: 0;
+    }
+  }
+
   h1 {
     margin: 30px auto 20px auto;
     font-size: 19px;
@@ -69,6 +89,13 @@
 
     h1 {
       font-size: 16px;
+    }
+
+    .sticky-header {
+      margin-left: -@card-padding-mobile;
+      margin-right: -@card-padding-mobile;
+      margin-top: -@card-padding-mobile;
+      padding: @card-padding-mobile;
     }
   }
 }

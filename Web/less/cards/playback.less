@@ -86,12 +86,20 @@ playback-card {
       transform: translateX(-50%);
     }
 
-    .tracks ul li {
-      text-overflow: ellipsis;
+    .tracks {
+      .tracklist-notice {
+        margin-left: 0;
+        padding-bottom: 0;
+        text-align: center;
+      }
 
-      .position {
-        width: 30px;
-        padding-right: 10px;
+      ul li {
+        text-overflow: ellipsis;
+
+        .position {
+          width: 30px;
+          padding-right: 10px;
+        }
       }
     }
   }

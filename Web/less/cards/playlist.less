@@ -140,6 +140,10 @@ playlist-card:not(.collapsed) {
     display: none;
   }
 
+  .sticky-header {
+    z-index: 1;
+  }
+
   ul li {
     transition: background-color 0.18s;
 
@@ -149,6 +153,15 @@ playlist-card:not(.collapsed) {
   }
 
   @media only screen and (max-width: @mobile-width) {
+    .sticky-header {
+      height: @nav-height;
+      padding: 0;
+
+      h1 {
+        line-height: @nav-height;
+      }
+    }
+
     .expanded-title {
       margin-bottom: 10px;
     }
@@ -286,6 +299,15 @@ playlist-card.collapsed {
 
 playlist-card.cancelable:not(.collapsed) {
   @media only screen and (max-width: @mobile-width) {
+    .sticky-header {
+      height: 66px;
+      padding: @card-padding-mobile;
+
+      h1 {
+        line-height: initial;
+      }
+    }
+
     .expanded-title {
       margin-bottom: 40px;
     }

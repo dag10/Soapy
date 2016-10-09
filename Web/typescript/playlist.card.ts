@@ -21,6 +21,7 @@ declare var jQuery: JQueryStatic;
     '[class.collapsed]': '!expanded',
     '[class.hidden]': '!playlists',
     '[class.cancelable]': 'cancelable',
+    '(window:scroll)': 'handleScroll($event)',
   },
 })
 export class PlaylistCardComponent implements AfterViewInit, AfterViewChecked {
@@ -42,6 +43,7 @@ export class PlaylistCardComponent implements AfterViewInit, AfterViewChecked {
   }
 
   public ngAfterViewInit() {
+    (<any>window).Stickyfill.add(this.$el.find('.sticky-header')[0]);
     this.hide();
   }
 
@@ -105,6 +107,21 @@ export class PlaylistCardComponent implements AfterViewInit, AfterViewChecked {
     }
 
     return false;
+  }
+
+  private handleScroll(event) {
+    var $header = this.$el.find('.sticky-header');
+    var stickyClass = 'stickied';
+
+    var pos = $header.offset().top - jQuery(window).scrollTop();
+    var top = parseInt($header.css('top'), 10);
+    var atTop = (pos === top);
+
+    if ($header.hasClass(stickyClass) && !atTop) {
+      $header.removeClass(stickyClass);
+    } else if (!$header.hasClass(stickyClass) && atTop) {
+      $header.addClass(stickyClass);
+    }
   }
 }
 

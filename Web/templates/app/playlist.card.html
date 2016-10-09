@@ -1,13 +1,16 @@
-<h1 class="expanded-title">Choose a playlist for your next shower</h1>
 <h1 class="collapsed-title">Shower playlist:</h1>
 
-<a
-  href="#"
-  (click)="cancel()"
-  class="mdl-button mdl-js-button mdl-js-ripple-effect cancel-btn"
-  [class.hidden]="!cancelable">
-  Cancel
-</a>
+<div class="sticky-header">
+  <h1 class="expanded-title">Choose a playlist for your next shower</h1>
+
+  <a
+    href="#"
+    (click)="cancel()"
+    class="mdl-button mdl-js-button mdl-js-ripple-effect cancel-btn"
+    [class.hidden]="!cancelable">
+    Cancel
+  </a>
+</div>
 
 <a
   href="#"

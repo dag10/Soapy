@@ -155,13 +155,17 @@ playlist-card:not(.collapsed) {
 
     .cancel-btn {
       position: absolute;
-      top: 37px;
+      top: 30px;
       left: 0;
       right: 0;
       text-align: center;
+      border-radius: 0;
     }
 
     ul {
+      margin: -@card-padding-mobile;
+      margin-top: 0px;
+
       li {
         @playlist-li-height: 53px;
 

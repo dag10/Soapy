@@ -19,6 +19,12 @@ playlist-card {
     .card-action-button;
   }
 
+  .change-btn.mdl-button {
+    @media only screen and (max-width: @mobile-width) {
+      padding: 0 11px;
+    }
+  }
+
   ul {
     margin: -@card-padding;
     margin-top: 0px;
@@ -28,7 +34,7 @@ playlist-card {
     li {
       @playlist-image-size: 45px;
       @playlist-image-margin: 13px;
-      @playlist-li-height: 66px;
+      @playlist-li-height: 60px;
 
       .make-row(0px);
 
@@ -60,12 +66,14 @@ playlist-card {
       }
 
       a {
-        text-decoration: none;
+        text-decoration: none !important;
         position: absolute;
         left: 0;
         right: 0;
         top: 0;
         bottom: 0;
+        display: flex;
+        flex-direction: row;
 
         &:link,
         &:visited,
@@ -75,11 +83,6 @@ playlist-card {
         }
 
         .image-container {
-          position: absolute;
-          top: 0;
-          bottom: 0;
-          left: @playlist-image-margin;
-
           /* Ghost element for vertical centering */
           &:before {
             content: '';
@@ -90,6 +93,7 @@ playlist-card {
           }
 
           .image {
+            margin: auto 13px;
             background-color: fade(@brand-primary, 20%);
             background-size: cover;
             height: @playlist-image-size;
@@ -103,26 +107,27 @@ playlist-card {
 
         .title,
         .tracks {
-          position: absolute;
           font-weight: 100;
           line-height: @playlist-li-height;
         }
 
         .title {
-          left: (2 * @playlist-image-margin) + @playlist-image-size;
           font-size: 20px;
           font-weight: 100;
           white-space: nowrap;
           overflow: hidden;
+          text-overflow: ellipsis;
         }
 
         .tracks {
           .card-copy;
 
-          left: 75%;
+          flex-grow: 1;
           width: 70px;
           text-align: right;
           color: lighten(@text-color, 30%);
+          white-space: nowrap;
+          margin: auto 23px;
         }
       }
     }
@@ -140,6 +145,47 @@ playlist-card:not(.collapsed) {
 
     .mdl-ripple {
       background: fade(black, 20);
+    }
+  }
+
+  @media only screen and (max-width: @mobile-width) {
+    .expanded-title {
+      margin-bottom: 10px;
+    }
+
+    .cancel-btn {
+      position: absolute;
+      top: 30px;
+      left: 0;
+      right: 0;
+      text-align: center;
+      border-radius: 0;
+    }
+
+    ul {
+      margin: -@card-padding-mobile;
+      margin-top: 0px;
+
+      li {
+        @playlist-li-height: 53px;
+
+        height: @playlist-li-height;
+        
+        a {
+          .title,
+          .tracks {
+            line-height: @playlist-li-height;
+          }
+
+          .title {
+            font-size: 16px;
+          }
+
+          .tracks {
+            font-size: 12px;
+          }
+        }
+      }
     }
   }
 }
@@ -181,12 +227,13 @@ playlist-card.collapsed {
 
     a {
       cursor: default;
+      display: block;
+      position: relative;
     }
 
     .image-container {
-      left: -2px;
-
       .image {
+        margin: 0;
         width: @collapsed-card-height + 1px;
         height: @collapsed-card-height + 1px;
       }
@@ -198,12 +245,49 @@ playlist-card.collapsed {
     }
 
     .title {
+      position: absolute;
       left: @text-left-margin;
       font-weight: 400;
     }
 
     .tracks {
-      opacity: 0;
+      visibility: hidden;
+    }
+  }
+
+  @media only screen and (max-width: @mobile-width) {
+    .collapsed-title {
+      top: @card-top-padding-mobile;
+      left: @collapsed-card-height + @card-padding-mobile;
+    }
+
+    .change-btn {
+      position: absolute;
+      top: 50px; /* bottom:0 doesn't seem to work. */
+      left: @collapsed-card-height;
+      right: 0;
+      text-align: left;
+      border-radius: 0;
+    }
+
+    li.selected {
+      .title,
+      .tracks {
+        font-size: 15px;
+        position: absolute;
+        left: @collapsed-card-height + @card-padding-mobile;
+        top: 25px;
+        font-weight: 200;
+        line-height: 30px;
+      }
+    }
+  }
+}
+
+playlist-card.cancelable:not(.collapsed) {
+  @media only screen and (max-width: @mobile-width) {
+    .expanded-title {
+      margin-bottom: 40px;
     }
   }
 }

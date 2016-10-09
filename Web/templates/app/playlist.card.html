@@ -5,7 +5,7 @@
   href="#"
   (click)="cancel()"
   class="mdl-button mdl-js-button mdl-js-ripple-effect cancel-btn"
-  [class.hidden]="formerlySelectedPlaylist === null">
+  [class.hidden]="!cancelable">
   Cancel
 </a>
 

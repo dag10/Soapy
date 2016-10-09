@@ -16,7 +16,9 @@
 @card-list-hover-bg-color: darken(@card-bg-color, 8%);
 @card-list-press-bg-color: darken(@card-list-hover-bg-color, 4%);
 
-@site-width: 560px;
+@site-width: 590px;
+@mobile-width: 500px;
+@site-gutter: 10px;
 
 @control-font-size: 13px;
 
@@ -27,9 +29,12 @@
 /* Cards */
 
 @card-vertical-margin: 30px;
+@card-vertical-margin-mobile: 10px;
 
 @card-border-radius: 3px;
 @card-padding: 17px;
+@card-padding-mobile: 11px;
+@card-top-padding-mobile: 9px;
 @card-button-padding: 10px;
 
 /* Easings */
@@ -43,5 +48,5 @@
 @font-family-sans-serif: 'Roboto', sans-serif;
 @font-family-base: @font-family-sans-serif;
 
-@screen-sm-min: @site-width;
+@screen-sm-min: 591px - (@site-gutter * 2);
 

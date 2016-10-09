@@ -179,6 +179,10 @@ export class PlaybackCardComponent implements AfterViewInit {
   }
 
   private handleScroll(event) {
+    this.updateStickyHeader();
+  }
+
+  private updateStickyHeader() {
     var $header = this.$el.find('.sticky-header');
     var stickyClass = 'stickied';
 

@@ -38,6 +38,7 @@ export class PlaylistCardComponent implements AfterViewInit, AfterViewChecked {
   }
 
   public ngAfterViewChecked() {
+    this.updateStickyHeader();
     // Adds ripple effects to list items.
     (<any>window).componentHandler.upgradeElements(this.el.nativeElement);
   }
@@ -110,6 +111,10 @@ export class PlaylistCardComponent implements AfterViewInit, AfterViewChecked {
   }
 
   private handleScroll(event) {
+    this.updateStickyHeader();
+  }
+
+  private updateStickyHeader() {
     var $header = this.$el.find('.sticky-header');
     var stickyClass = 'stickied';
 

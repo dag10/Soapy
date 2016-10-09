@@ -22,6 +22,10 @@ soapy-app {
   }
 }
 
+.navbar {
+  height: @navbar-height;
+}
+
 .navbar-header {
   float: left;
   width: auto;
@@ -31,12 +35,8 @@ soapy-app {
   float: right;
 }
 
-.desktop-only {
-  visibility: visible;
-}
-
 .mobile-only {
-  visibility: hidden;
+  display: none;
 }
 
 @media only screen and (max-width: @site-width) {
@@ -50,14 +50,23 @@ soapy-app {
 @media only screen and (max-width: @mobile-width) {
   body {
     padding-top: @nav-height + @card-vertical-margin-mobile;
+    background-color: @body-bg-color-mobile;
+
+    & > .container {
+      background-color: @body-bg-color-mobile;
+    }
+  }
+
+  .navbar-inverse.navbar-fixed-top {
+    z-index: 99;
   }
 
   .desktop-only {
-    visibility: hidden;
+    display: none;
   }
 
   .mobile-only {
-    visibility: visible;
+    display: inherit;
   }
 }
 

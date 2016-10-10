@@ -26,13 +26,17 @@ export interface DisplayedTrack extends Track {
     SpinnerComponent,
   ],
   selector: 'playback-card',
-  host: {'(window:scroll)': 'handleScroll($event)'},
+  host: {
+    '(window:scroll)': 'handleScroll($event)',
+    '(window:touchend)': 'handleScroll($event)',
+  },
   template: StaticData.templates.PlaybackCard,
 })
 export class PlaybackCardComponent implements AfterViewInit {
   @Output() playbackUpdated: EventEmitter<Playback> = new EventEmitter<Playback>();
 
   private $el: JQuery;
+  private $header: JQuery;
   private _selectedPlaylist: Playlist = null;
   private _playback: Playback = null;
 
@@ -43,7 +47,9 @@ export class PlaybackCardComponent implements AfterViewInit {
   }
 
   public ngAfterViewInit() {
-    (<any>window).Stickyfill.add(this.$el.find('.sticky-header')[0]);
+    this.$header = this.$el.find('.sticky-header');
+    (<any>window).Stickyfill.add(this.$header[0]);
+
     this.hide();
   }
 
@@ -53,6 +59,7 @@ export class PlaybackCardComponent implements AfterViewInit {
 
   public show() {
     this.$el.fadeIn();
+    this.updateStickyHeader();
   }
 
   @Input()
@@ -183,17 +190,16 @@ export class PlaybackCardComponent implements AfterViewInit {
   }
 
   private updateStickyHeader() {
-    var $header = this.$el.find('.sticky-header');
     var stickyClass = 'stickied';
 
-    var pos = $header.offset().top - jQuery(window).scrollTop();
-    var top = parseInt($header.css('top'), 10);
-    var atTop = (pos === top);
+    var pos = this.$header.offset().top - jQuery(window).scrollTop();
+    var top = parseInt(this.$header.css('top'), 10);
+    var atTop = (pos <= top);
 
-    if ($header.hasClass(stickyClass) && !atTop) {
-      $header.removeClass(stickyClass);
-    } else if (!$header.hasClass(stickyClass) && atTop) {
-      $header.addClass(stickyClass);
+    if (this.$header.hasClass(stickyClass) && !atTop) {
+      this.$header.removeClass(stickyClass);
+    } else if (!this.$header.hasClass(stickyClass) && atTop) {
+      this.$header.addClass(stickyClass);
     }
   }
 }

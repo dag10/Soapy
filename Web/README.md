@@ -40,7 +40,7 @@ You must do this every time you edit propel.yaml.
 Create the mysql database, then populate it by running:
 
 ```
-php vendor/bin/propel sql:insert
+php vendor/bin/propel migrate
 ```
 
 #### Building client-side application
@@ -71,26 +71,31 @@ Now just point your browser [there](http://localhost:9000).
 Development
 --
 
-### Adding tables
+### Adding and modifying tables
 
-To add a new mysql table, add the table to schema.xml. Then run:
+To add or alter mysql table, edit schema.xml. Then run:
 
 ```
-php vendor/bin/propel sql:build --overwrite
-php vendor/bin/propel model:build
-composer dump-autoload
-php vendor/bin/propel sql:insert # only if the table needs to be created in db
+php vendor/bin/propel migration:diff # This creates a script that updates the
+                                     # mysql database to the new schema.
+
+php vendor/bin/propel model:build    # This creates the base PHP class for the
+                                     # model logic.
+
+composer dump-autoload               # Needed only if a new table is created.
 ```
 
 The `composer dump-autoload` is used to autoload the new table classes. This
 is apparently the [correct](http://stackoverflow.com/a/25634655/3333841) way
 of doing things.
 
-### Modifying tables
+Once your migration file has been created, feel free to add any necessary code
+to the generated file in the `generated-migrations` directory to populate/alter
+any existing data. This may not be necessary. For more information, read
+about [migrations in Propel](http://propelorm.org/documentation/09-migrations.html).
 
-Follow the sql:build and model:build steps from the "Adding tables" section.
+Finally, update the website's live database by running:
 
-I haven't set up any sort of migration system yet. So if you already have a
-database, you'll have to manually update the structure. If you don't, then just
-run the sql:insert command.
-
+```
+php vendor/bin/propel migrate
+```

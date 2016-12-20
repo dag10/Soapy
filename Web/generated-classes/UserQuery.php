@@ -16,7 +16,8 @@ class UserQuery extends BaseUserQuery
 {
   public static function findOneByRFID($rfid) {
     $ldap = RfidQuery::create()->findOneByRfid($rfid);
-    if (!$ldap) {
+
+    if (!$ldap || !$ldap->getLdap()) {
       return null;
     }
 

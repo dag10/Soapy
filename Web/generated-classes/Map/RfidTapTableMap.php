@@ -2,8 +2,8 @@
 
 namespace Map;
 
-use \Rfid;
-use \RfidQuery;
+use \RfidTap;
+use \RfidTapQuery;
 use Propel\Runtime\Propel;
 use Propel\Runtime\ActiveQuery\Criteria;
 use Propel\Runtime\ActiveQuery\InstancePoolTrait;
@@ -16,7 +16,7 @@ use Propel\Runtime\Map\TableMapTrait;
 
 
 /**
- * This class defines the structure of the 'rfid' table.
+ * This class defines the structure of the 'rfidtap' table.
  *
  *
  *
@@ -26,7 +26,7 @@ use Propel\Runtime\Map\TableMapTrait;
  * (i.e. if it's a text column type).
  *
  */
-class RfidTableMap extends TableMap
+class RfidTapTableMap extends TableMap
 {
     use InstancePoolTrait;
     use TableMapTrait;
@@ -34,7 +34,7 @@ class RfidTableMap extends TableMap
     /**
      * The (dot-path) name of this class
      */
-    const CLASS_NAME = '.Map.RfidTableMap';
+    const CLASS_NAME = '.Map.RfidTapTableMap';
 
     /**
      * The default database name for this class
@@ -44,17 +44,17 @@ class RfidTableMap extends TableMap
     /**
      * The table name for this class
      */
-    const TABLE_NAME = 'rfid';
+    const TABLE_NAME = 'rfidtap';
 
     /**
      * The related Propel class for this table
      */
-    const OM_CLASS = '\\Rfid';
+    const OM_CLASS = '\\RfidTap';
 
     /**
      * A class that can be returned by this tableMap
      */
-    const CLASS_DEFAULT = 'Rfid';
+    const CLASS_DEFAULT = 'RfidTap';
 
     /**
      * The total number of columns
@@ -74,12 +74,12 @@ class RfidTableMap extends TableMap
     /**
      * the column name for the rfid field
      */
-    const COL_RFID = 'rfid.rfid';
+    const COL_RFID = 'rfidtap.rfid';
 
     /**
-     * the column name for the ldap field
+     * the column name for the time field
      */
-    const COL_LDAP = 'rfid.ldap';
+    const COL_TIME = 'rfidtap.time';
 
     /**
      * The default string format for model objects of the related table
@@ -93,10 +93,10 @@ class RfidTableMap extends TableMap
      * e.g. self::$fieldNames[self::TYPE_PHPNAME][0] = 'Id'
      */
     protected static $fieldNames = array (
-        self::TYPE_PHPNAME       => array('Rfid', 'Ldap', ),
-        self::TYPE_CAMELNAME     => array('rfid', 'ldap', ),
-        self::TYPE_COLNAME       => array(RfidTableMap::COL_RFID, RfidTableMap::COL_LDAP, ),
-        self::TYPE_FIELDNAME     => array('rfid', 'ldap', ),
+        self::TYPE_PHPNAME       => array('Rfid', 'Time', ),
+        self::TYPE_CAMELNAME     => array('rfid', 'time', ),
+        self::TYPE_COLNAME       => array(RfidTapTableMap::COL_RFID, RfidTapTableMap::COL_TIME, ),
+        self::TYPE_FIELDNAME     => array('rfid', 'time', ),
         self::TYPE_NUM           => array(0, 1, )
     );
 
@@ -107,10 +107,10 @@ class RfidTableMap extends TableMap
      * e.g. self::$fieldKeys[self::TYPE_PHPNAME]['Id'] = 0
      */
     protected static $fieldKeys = array (
-        self::TYPE_PHPNAME       => array('Rfid' => 0, 'Ldap' => 1, ),
-        self::TYPE_CAMELNAME     => array('rfid' => 0, 'ldap' => 1, ),
-        self::TYPE_COLNAME       => array(RfidTableMap::COL_RFID => 0, RfidTableMap::COL_LDAP => 1, ),
-        self::TYPE_FIELDNAME     => array('rfid' => 0, 'ldap' => 1, ),
+        self::TYPE_PHPNAME       => array('Rfid' => 0, 'Time' => 1, ),
+        self::TYPE_CAMELNAME     => array('rfid' => 0, 'time' => 1, ),
+        self::TYPE_COLNAME       => array(RfidTapTableMap::COL_RFID => 0, RfidTapTableMap::COL_TIME => 1, ),
+        self::TYPE_FIELDNAME     => array('rfid' => 0, 'time' => 1, ),
         self::TYPE_NUM           => array(0, 1, )
     );
 
@@ -124,15 +124,15 @@ class RfidTableMap extends TableMap
     public function initialize()
     {
         // attributes
-        $this->setName('rfid');
-        $this->setPhpName('Rfid');
+        $this->setName('rfidtap');
+        $this->setPhpName('RfidTap');
         $this->setIdentifierQuoting(false);
-        $this->setClassName('\\Rfid');
+        $this->setClassName('\\RfidTap');
         $this->setPackage('');
         $this->setUseIdGenerator(false);
         // columns
         $this->addPrimaryKey('rfid', 'Rfid', 'VARCHAR', true, 64, null);
-        $this->addColumn('ldap', 'Ldap', 'VARCHAR', false, 128, null);
+        $this->addPrimaryKey('time', 'Time', 'TIMESTAMP', true, null, null);
     } // initialize()
 
     /**
@@ -141,6 +141,59 @@ class RfidTableMap extends TableMap
     public function buildRelations()
     {
     } // buildRelations()
+
+    /**
+     * Adds an object to the instance pool.
+     *
+     * Propel keeps cached copies of objects in an instance pool when they are retrieved
+     * from the database. In some cases you may need to explicitly add objects
+     * to the cache in order to ensure that the same objects are always returned by find*()
+     * and findPk*() calls.
+     *
+     * @param \RfidTap $obj A \RfidTap object.
+     * @param string $key             (optional) key to use for instance map (for performance boost if key was already calculated externally).
+     */
+    public static function addInstanceToPool($obj, $key = null)
+    {
+        if (Propel::isInstancePoolingEnabled()) {
+            if (null === $key) {
+                $key = serialize([(null === $obj->getRfid() || is_scalar($obj->getRfid()) || is_callable([$obj->getRfid(), '__toString']) ? (string) $obj->getRfid() : $obj->getRfid()), (null === $obj->getTime() || is_scalar($obj->getTime()) || is_callable([$obj->getTime(), '__toString']) ? (string) $obj->getTime() : $obj->getTime())]);
+            } // if key === null
+            self::$instances[$key] = $obj;
+        }
+    }
+
+    /**
+     * Removes an object from the instance pool.
+     *
+     * Propel keeps cached copies of objects in an instance pool when they are retrieved
+     * from the database.  In some cases -- especially when you override doDelete
+     * methods in your stub classes -- you may need to explicitly remove objects
+     * from the cache in order to prevent returning objects that no longer exist.
+     *
+     * @param mixed $value A \RfidTap object or a primary key value.
+     */
+    public static function removeInstanceFromPool($value)
+    {
+        if (Propel::isInstancePoolingEnabled() && null !== $value) {
+            if (is_object($value) && $value instanceof \RfidTap) {
+                $key = serialize([(null === $value->getRfid() || is_scalar($value->getRfid()) || is_callable([$value->getRfid(), '__toString']) ? (string) $value->getRfid() : $value->getRfid()), (null === $value->getTime() || is_scalar($value->getTime()) || is_callable([$value->getTime(), '__toString']) ? (string) $value->getTime() : $value->getTime())]);
+
+            } elseif (is_array($value) && count($value) === 2) {
+                // assume we've been passed a primary key";
+                $key = serialize([(null === $value[0] || is_scalar($value[0]) || is_callable([$value[0], '__toString']) ? (string) $value[0] : $value[0]), (null === $value[1] || is_scalar($value[1]) || is_callable([$value[1], '__toString']) ? (string) $value[1] : $value[1])]);
+            } elseif ($value instanceof Criteria) {
+                self::$instances = [];
+
+                return;
+            } else {
+                $e = new PropelException("Invalid value passed to removeInstanceFromPool().  Expected primary key or \RfidTap object; got " . (is_object($value) ? get_class($value) . ' object.' : var_export($value, true)));
+                throw $e;
+            }
+
+            unset(self::$instances[$key]);
+        }
+    }
 
     /**
      * Retrieves a string version of the primary key from the DB resultset row that can be used to uniquely identify a row in this table.
@@ -158,11 +211,11 @@ class RfidTableMap extends TableMap
     public static function getPrimaryKeyHashFromRow($row, $offset = 0, $indexType = TableMap::TYPE_NUM)
     {
         // If the PK cannot be derived from the row, return NULL.
-        if ($row[TableMap::TYPE_NUM == $indexType ? 0 + $offset : static::translateFieldName('Rfid', TableMap::TYPE_PHPNAME, $indexType)] === null) {
+        if ($row[TableMap::TYPE_NUM == $indexType ? 0 + $offset : static::translateFieldName('Rfid', TableMap::TYPE_PHPNAME, $indexType)] === null && $row[TableMap::TYPE_NUM == $indexType ? 1 + $offset : static::translateFieldName('Time', TableMap::TYPE_PHPNAME, $indexType)] === null) {
             return null;
         }
 
-        return null === $row[TableMap::TYPE_NUM == $indexType ? 0 + $offset : static::translateFieldName('Rfid', TableMap::TYPE_PHPNAME, $indexType)] || is_scalar($row[TableMap::TYPE_NUM == $indexType ? 0 + $offset : static::translateFieldName('Rfid', TableMap::TYPE_PHPNAME, $indexType)]) || is_callable([$row[TableMap::TYPE_NUM == $indexType ? 0 + $offset : static::translateFieldName('Rfid', TableMap::TYPE_PHPNAME, $indexType)], '__toString']) ? (string) $row[TableMap::TYPE_NUM == $indexType ? 0 + $offset : static::translateFieldName('Rfid', TableMap::TYPE_PHPNAME, $indexType)] : $row[TableMap::TYPE_NUM == $indexType ? 0 + $offset : static::translateFieldName('Rfid', TableMap::TYPE_PHPNAME, $indexType)];
+        return serialize([(null === $row[TableMap::TYPE_NUM == $indexType ? 0 + $offset : static::translateFieldName('Rfid', TableMap::TYPE_PHPNAME, $indexType)] || is_scalar($row[TableMap::TYPE_NUM == $indexType ? 0 + $offset : static::translateFieldName('Rfid', TableMap::TYPE_PHPNAME, $indexType)]) || is_callable([$row[TableMap::TYPE_NUM == $indexType ? 0 + $offset : static::translateFieldName('Rfid', TableMap::TYPE_PHPNAME, $indexType)], '__toString']) ? (string) $row[TableMap::TYPE_NUM == $indexType ? 0 + $offset : static::translateFieldName('Rfid', TableMap::TYPE_PHPNAME, $indexType)] : $row[TableMap::TYPE_NUM == $indexType ? 0 + $offset : static::translateFieldName('Rfid', TableMap::TYPE_PHPNAME, $indexType)]), (null === $row[TableMap::TYPE_NUM == $indexType ? 1 + $offset : static::translateFieldName('Time', TableMap::TYPE_PHPNAME, $indexType)] || is_scalar($row[TableMap::TYPE_NUM == $indexType ? 1 + $offset : static::translateFieldName('Time', TableMap::TYPE_PHPNAME, $indexType)]) || is_callable([$row[TableMap::TYPE_NUM == $indexType ? 1 + $offset : static::translateFieldName('Time', TableMap::TYPE_PHPNAME, $indexType)], '__toString']) ? (string) $row[TableMap::TYPE_NUM == $indexType ? 1 + $offset : static::translateFieldName('Time', TableMap::TYPE_PHPNAME, $indexType)] : $row[TableMap::TYPE_NUM == $indexType ? 1 + $offset : static::translateFieldName('Time', TableMap::TYPE_PHPNAME, $indexType)])]);
     }
 
     /**
@@ -179,11 +232,20 @@ class RfidTableMap extends TableMap
      */
     public static function getPrimaryKeyFromRow($row, $offset = 0, $indexType = TableMap::TYPE_NUM)
     {
-        return (string) $row[
+            $pks = [];
+
+        $pks[] = (string) $row[
             $indexType == TableMap::TYPE_NUM
                 ? 0 + $offset
                 : self::translateFieldName('Rfid', TableMap::TYPE_PHPNAME, $indexType)
         ];
+        $pks[] = (string) $row[
+            $indexType == TableMap::TYPE_NUM
+                ? 1 + $offset
+                : self::translateFieldName('Time', TableMap::TYPE_PHPNAME, $indexType)
+        ];
+
+        return $pks;
     }
 
     /**
@@ -199,7 +261,7 @@ class RfidTableMap extends TableMap
      */
     public static function getOMClass($withPrefix = true)
     {
-        return $withPrefix ? RfidTableMap::CLASS_DEFAULT : RfidTableMap::OM_CLASS;
+        return $withPrefix ? RfidTapTableMap::CLASS_DEFAULT : RfidTapTableMap::OM_CLASS;
     }
 
     /**
@@ -213,22 +275,22 @@ class RfidTableMap extends TableMap
      *
      * @throws PropelException Any exceptions caught during processing will be
      *                         rethrown wrapped into a PropelException.
-     * @return array           (Rfid object, last column rank)
+     * @return array           (RfidTap object, last column rank)
      */
     public static function populateObject($row, $offset = 0, $indexType = TableMap::TYPE_NUM)
     {
-        $key = RfidTableMap::getPrimaryKeyHashFromRow($row, $offset, $indexType);
-        if (null !== ($obj = RfidTableMap::getInstanceFromPool($key))) {
+        $key = RfidTapTableMap::getPrimaryKeyHashFromRow($row, $offset, $indexType);
+        if (null !== ($obj = RfidTapTableMap::getInstanceFromPool($key))) {
             // We no longer rehydrate the object, since this can cause data loss.
             // See http://www.propelorm.org/ticket/509
             // $obj->hydrate($row, $offset, true); // rehydrate
-            $col = $offset + RfidTableMap::NUM_HYDRATE_COLUMNS;
+            $col = $offset + RfidTapTableMap::NUM_HYDRATE_COLUMNS;
         } else {
-            $cls = RfidTableMap::OM_CLASS;
-            /** @var Rfid $obj */
+            $cls = RfidTapTableMap::OM_CLASS;
+            /** @var RfidTap $obj */
             $obj = new $cls();
             $col = $obj->hydrate($row, $offset, false, $indexType);
-            RfidTableMap::addInstanceToPool($obj, $key);
+            RfidTapTableMap::addInstanceToPool($obj, $key);
         }
 
         return array($obj, $col);
@@ -251,18 +313,18 @@ class RfidTableMap extends TableMap
         $cls = static::getOMClass(false);
         // populate the object(s)
         while ($row = $dataFetcher->fetch()) {
-            $key = RfidTableMap::getPrimaryKeyHashFromRow($row, 0, $dataFetcher->getIndexType());
-            if (null !== ($obj = RfidTableMap::getInstanceFromPool($key))) {
+            $key = RfidTapTableMap::getPrimaryKeyHashFromRow($row, 0, $dataFetcher->getIndexType());
+            if (null !== ($obj = RfidTapTableMap::getInstanceFromPool($key))) {
                 // We no longer rehydrate the object, since this can cause data loss.
                 // See http://www.propelorm.org/ticket/509
                 // $obj->hydrate($row, 0, true); // rehydrate
                 $results[] = $obj;
             } else {
-                /** @var Rfid $obj */
+                /** @var RfidTap $obj */
                 $obj = new $cls();
                 $obj->hydrate($row);
                 $results[] = $obj;
-                RfidTableMap::addInstanceToPool($obj, $key);
+                RfidTapTableMap::addInstanceToPool($obj, $key);
             } // if key exists
         }
 
@@ -283,11 +345,11 @@ class RfidTableMap extends TableMap
     public static function addSelectColumns(Criteria $criteria, $alias = null)
     {
         if (null === $alias) {
-            $criteria->addSelectColumn(RfidTableMap::COL_RFID);
-            $criteria->addSelectColumn(RfidTableMap::COL_LDAP);
+            $criteria->addSelectColumn(RfidTapTableMap::COL_RFID);
+            $criteria->addSelectColumn(RfidTapTableMap::COL_TIME);
         } else {
             $criteria->addSelectColumn($alias . '.rfid');
-            $criteria->addSelectColumn($alias . '.ldap');
+            $criteria->addSelectColumn($alias . '.time');
         }
     }
 
@@ -300,7 +362,7 @@ class RfidTableMap extends TableMap
      */
     public static function getTableMap()
     {
-        return Propel::getServiceContainer()->getDatabaseMap(RfidTableMap::DATABASE_NAME)->getTable(RfidTableMap::TABLE_NAME);
+        return Propel::getServiceContainer()->getDatabaseMap(RfidTapTableMap::DATABASE_NAME)->getTable(RfidTapTableMap::TABLE_NAME);
     }
 
     /**
@@ -308,16 +370,16 @@ class RfidTableMap extends TableMap
      */
     public static function buildTableMap()
     {
-        $dbMap = Propel::getServiceContainer()->getDatabaseMap(RfidTableMap::DATABASE_NAME);
-        if (!$dbMap->hasTable(RfidTableMap::TABLE_NAME)) {
-            $dbMap->addTableObject(new RfidTableMap());
+        $dbMap = Propel::getServiceContainer()->getDatabaseMap(RfidTapTableMap::DATABASE_NAME);
+        if (!$dbMap->hasTable(RfidTapTableMap::TABLE_NAME)) {
+            $dbMap->addTableObject(new RfidTapTableMap());
         }
     }
 
     /**
-     * Performs a DELETE on the database, given a Rfid or Criteria object OR a primary key value.
+     * Performs a DELETE on the database, given a RfidTap or Criteria object OR a primary key value.
      *
-     * @param mixed               $values Criteria or Rfid object or primary key or array of primary keys
+     * @param mixed               $values Criteria or RfidTap object or primary key or array of primary keys
      *              which is used to create the DELETE statement
      * @param  ConnectionInterface $con the connection to use
      * @return int             The number of affected rows (if supported by underlying database driver).  This includes CASCADE-related rows
@@ -328,27 +390,37 @@ class RfidTableMap extends TableMap
      public static function doDelete($values, ConnectionInterface $con = null)
      {
         if (null === $con) {
-            $con = Propel::getServiceContainer()->getWriteConnection(RfidTableMap::DATABASE_NAME);
+            $con = Propel::getServiceContainer()->getWriteConnection(RfidTapTableMap::DATABASE_NAME);
         }
 
         if ($values instanceof Criteria) {
             // rename for clarity
             $criteria = $values;
-        } elseif ($values instanceof \Rfid) { // it's a model object
+        } elseif ($values instanceof \RfidTap) { // it's a model object
             // create criteria based on pk values
             $criteria = $values->buildPkeyCriteria();
         } else { // it's a primary key, or an array of pks
-            $criteria = new Criteria(RfidTableMap::DATABASE_NAME);
-            $criteria->add(RfidTableMap::COL_RFID, (array) $values, Criteria::IN);
+            $criteria = new Criteria(RfidTapTableMap::DATABASE_NAME);
+            // primary key is composite; we therefore, expect
+            // the primary key passed to be an array of pkey values
+            if (count($values) == count($values, COUNT_RECURSIVE)) {
+                // array is not multi-dimensional
+                $values = array($values);
+            }
+            foreach ($values as $value) {
+                $criterion = $criteria->getNewCriterion(RfidTapTableMap::COL_RFID, $value[0]);
+                $criterion->addAnd($criteria->getNewCriterion(RfidTapTableMap::COL_TIME, $value[1]));
+                $criteria->addOr($criterion);
+            }
         }
 
-        $query = RfidQuery::create()->mergeWith($criteria);
+        $query = RfidTapQuery::create()->mergeWith($criteria);
 
         if ($values instanceof Criteria) {
-            RfidTableMap::clearInstancePool();
+            RfidTapTableMap::clearInstancePool();
         } elseif (!is_object($values)) { // it's a primary key, or an array of pks
             foreach ((array) $values as $singleval) {
-                RfidTableMap::removeInstanceFromPool($singleval);
+                RfidTapTableMap::removeInstanceFromPool($singleval);
             }
         }
 
@@ -356,20 +428,20 @@ class RfidTableMap extends TableMap
     }
 
     /**
-     * Deletes all rows from the rfid table.
+     * Deletes all rows from the rfidtap table.
      *
      * @param ConnectionInterface $con the connection to use
      * @return int The number of affected rows (if supported by underlying database driver).
      */
     public static function doDeleteAll(ConnectionInterface $con = null)
     {
-        return RfidQuery::create()->doDeleteAll($con);
+        return RfidTapQuery::create()->doDeleteAll($con);
     }
 
     /**
-     * Performs an INSERT on the database, given a Rfid or Criteria object.
+     * Performs an INSERT on the database, given a RfidTap or Criteria object.
      *
-     * @param mixed               $criteria Criteria or Rfid object containing data that is used to create the INSERT statement.
+     * @param mixed               $criteria Criteria or RfidTap object containing data that is used to create the INSERT statement.
      * @param ConnectionInterface $con the ConnectionInterface connection to use
      * @return mixed           The new primary key.
      * @throws PropelException Any exceptions caught during processing will be
@@ -378,18 +450,18 @@ class RfidTableMap extends TableMap
     public static function doInsert($criteria, ConnectionInterface $con = null)
     {
         if (null === $con) {
-            $con = Propel::getServiceContainer()->getWriteConnection(RfidTableMap::DATABASE_NAME);
+            $con = Propel::getServiceContainer()->getWriteConnection(RfidTapTableMap::DATABASE_NAME);
         }
 
         if ($criteria instanceof Criteria) {
             $criteria = clone $criteria; // rename for clarity
         } else {
-            $criteria = $criteria->buildCriteria(); // build Criteria from Rfid object
+            $criteria = $criteria->buildCriteria(); // build Criteria from RfidTap object
         }
 
 
         // Set the correct dbName
-        $query = RfidQuery::create()->mergeWith($criteria);
+        $query = RfidTapQuery::create()->mergeWith($criteria);
 
         // use transaction because $criteria could contain info
         // for more than one table (I guess, conceivably)
@@ -398,7 +470,7 @@ class RfidTableMap extends TableMap
         });
     }
 
-} // RfidTableMap
+} // RfidTapTableMap
 // This is the static code needed to register the TableMap for this table with the main Propel class.
 //
-RfidTableMap::buildTableMap();
+RfidTapTableMap::buildTableMap();

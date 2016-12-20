@@ -4,6 +4,10 @@
     <column name="rfid" type="varchar" size="64" required="true" primaryKey="true" />
     <column name="ldap" type="varchar" size="128" required="false" />
   </table>
+  <table name="rfidtap" phpName="RfidTap">
+    <column name="rfid" type="varchar" size="64" required="true" primaryKey="true" />
+    <column name="time" type="timestamp" required="true" primaryKey="true" />
+  </table>
   <table name="user">
     <column name="id" type="integer" required="true" primaryKey="true" autoIncrement="true" />
     <column name="ldap" type="varchar" size="128" required="true" />

@@ -14,5 +14,15 @@ use Base\RfidQuery as BaseRfidQuery;
  */
 class RfidQuery extends BaseRfidQuery
 {
+  public static function GetOrCreateRFID($rfid) {
+    $mapping = self::create()->findOneByRfid($rfid);
 
+    if (!$mapping) {
+      $mapping = new Rfid();
+      $mapping->setRfid($rfid);
+      $mapping->save();
+    }
+
+    return $mapping;
+  }
 }

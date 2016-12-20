@@ -31,8 +31,15 @@ function get_webauth($app) {
   }
 }
 
+// Note: This has the side-effect of creating an RfidTap entry in the database.
 function user_for_rfid($rfid) {
   global $cfg;
+
+  // Log the tap in the database.
+  $tap = new \RfidTap();
+  $tap->setRfid($rfid);
+  $tap->setTime(time());
+  $tap->save();
 
   // First try to find a user from the RFID mapping in the database.
   $user = \UserQuery::create()->findOneByRFID($rfid);

@@ -25,14 +25,6 @@ $cfg = array(
       'enabled' => true,
       'url' => 'http://www.csh.rit.edu:56124/?ibutton=%s',
     ),
-
-    // Maps of RFID IDs to usernames, which override anything returned
-    // from the iButton server.
-    // Follows the format of 'RFID_ID' => 'USERNAME'.
-    // For local development, map your personal RFID ID to the 'dev' username.
-    'overrides' => array(
-      '12345' => 'dev',
-    ),
   ),
 
   // Make this a unique string. Used to secure the API that the tablets used

@@ -34,13 +34,15 @@ function get_webauth($app) {
 function user_for_rfid($rfid) {
   global $cfg;
 
-  if (!$cfg['ibutton']) {
-    return null;
+  // First try to find a user from the RFID mapping in the database.
+  $user = \UserQuery::create()->findOneByRFID($rfid);
+  if ($user) {
+    return $user;
   }
 
-  if (isset($cfg['ibutton']['overrides'][$rfid])) {
-    return \UserQuery::create()->findOneByLDAP(
-      $cfg['ibutton']['overrides'][$rfid]);
+  // Then try to find a user based on JD's ldap server, if configured.
+  if (!$cfg['ibutton']) {
+    return null;
   }
 
   if (!$cfg['ibutton']['ibutton_server'] ||

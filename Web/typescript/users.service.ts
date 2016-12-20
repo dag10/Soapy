@@ -13,6 +13,17 @@ export class APIError extends BaseError {
   };
 }
 
+export interface RFID extends API.RFID {}
+
+export interface User {
+  ldap: string;
+  firstName: string;
+  lastName: string;
+  avatar?: string;
+  lastTap?: string;
+  rfids: RFID[];
+}
+
 @Injectable()
 export class UsersService {
   public errors: EventEmitter<any> = new EventEmitter();
@@ -20,8 +31,8 @@ export class UsersService {
   private _polling: boolean = false;
   private _maxPollInterval: number = 500; // milliseconds
 
-  private _unknownRFIDs: API.RFID[] = [];
-  private _users: API.User[] = [];
+  private _unknownRFIDs: RFID[] = null;
+  private _users: User[] = null;
 
   constructor(private http: Http) {
     this.errors.subscribe((error) => {
@@ -42,6 +53,59 @@ export class UsersService {
    */
   public unsubscribeFromUsers() {
     this._polling = false;
+  }
+
+  /**
+   * Get processed list of known users.
+   */
+  public get users(): User[] {
+    if (this._users === null) {
+      return [];
+    }
+
+    return this._users;
+  }
+
+  /**
+   * Get processed list of unknown RFIDs.
+   */
+  public get unknownRFIDs(): RFID[] {
+    if (this._unknownRFIDs === null) {
+      return [];
+    }
+
+    return this._unknownRFIDs;
+  }
+
+  /**
+   * Maps a user object from an API response into a user object for this page.
+   */
+  private mapApiUser(user: API.User): User {
+    var ret: User = {
+      ldap: user.ldap,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      rfids: [],
+    };
+
+    if (user.spotifyAccount) {
+      ret.avatar = user.spotifyAccount.avatar;
+    }
+
+    if (user.rfids) {
+      ret.rfids = <RFID[]>user.rfids.map(this.mapApiRFID.bind(this));
+    }
+
+    // TODO: Calculate last tap time
+
+    return ret;
+  }
+
+  /**
+   * Maps a API response's RFID tap into an RFID tap object for this page.
+   */
+  private mapApiRFID(rfid: API.RFID): RFID {
+    return rfid;
   }
 
   /**
@@ -73,22 +137,18 @@ export class UsersService {
    * Processes current list of uknown RFIDs.
    */
   private processUnknownRFIDs(rfids: API.RFID[]) {
-    console.info('Unknown RFID taps:', rfids);
+    this._unknownRFIDs = <RFID[]>rfids.map(this.mapApiRFID.bind(this));
 
-    this._unknownRFIDs = rfids;
-
-    // TODO
+    console.info('Unknown RFID taps:', this._unknownRFIDs);
   }
 
   /**
    * Processes current list of known users.
    */
   private processUsers(users: API.User[]) {
-    console.info('Known users:', users);
+    this._users = <User[]>users.map(this.mapApiUser.bind(this));
 
-    this._users = users;
-
-    // TODO
+    console.info('Known users:', this._users);
   }
 
   /**

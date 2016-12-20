@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <database name="soapy" defaultIdMethod="native">
+  <table name="rfid">
+    <column name="rfid" type="varchar" size="64" required="true" primaryKey="true" />
+    <column name="ldap" type="varchar" size="128" required="true" />
+  </table>
   <table name="user">
     <column name="id" type="integer" required="true" primaryKey="true" autoIncrement="true" />
     <column name="ldap" type="varchar" size="128" required="true" />

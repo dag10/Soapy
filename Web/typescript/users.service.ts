@@ -20,6 +20,9 @@ export class UsersService {
   private _polling: boolean = false;
   private _maxPollInterval: number = 500; // milliseconds
 
+  private _unknownRFIDs: API.RFID[] = [];
+  private _users: API.User[] = [];
+
   constructor(private http: Http) {
     this.errors.subscribe((error) => {
       console.error('An error occurred in UsersService:', error);
@@ -52,7 +55,8 @@ export class UsersService {
         return;
       }
 
-      this.processMappings(res.rfidMappings);
+      this.processUnknownRFIDs(res.unknownRFIDs);
+      this.processUsers(res.users);
 
       // Calculate a short delay for refetching to avoid spamming.
       var elapsed = new Date().getTime() - startTime;
@@ -66,10 +70,23 @@ export class UsersService {
   }
 
   /**
-   * Notifies subscribers of changes to RFID mappings.
+   * Processes current list of uknown RFIDs.
    */
-  private processMappings(mappings: API.RFIDMapping[]) {
-    console.info('Received RFID mappings:', mappings);
+  private processUnknownRFIDs(rfids: API.RFID[]) {
+    console.info('Unknown RFID taps:', rfids);
+
+    this._unknownRFIDs = rfids;
+
+    // TODO
+  }
+
+  /**
+   * Processes current list of known users.
+   */
+  private processUsers(users: API.User[]) {
+    console.info('Known users:', users);
+
+    this._users = users;
 
     // TODO
   }
@@ -78,9 +95,67 @@ export class UsersService {
    * Fetches RFID->LDAP mappings along with their last tap timestamp.
    */
   private fetchMappings(): Rx.Observable<API.Response> {
+    // TODO: TEMPORARY API MOCK
+    var emitter = new EventEmitter<API.Response>();
+    setTimeout(() => {
+      emitter.emit({
+        unknownRFIDs: [
+          {
+            rfid: 'UNKNOWN02',
+            lastTap: '1482271152200',
+          },
+          {
+            rfid: 'UNKNOWN01',
+            lastTap: '' + new Date().getTime(),
+          },
+        ],
+        users: [
+          {
+            ldap: 'dag10',
+            firstName: 'Drew',
+            lastName: 'Gottlieb',
+            isAdmin: false,
+            spotifyAccount: {
+              username: 'spotifyDag10',
+              avatar: 'http://placehold.it/250x250',
+            },
+            rfids: [
+              {
+                rfid: '12345',
+                lastTap: '1482271039547',
+              },
+            ],
+          },
+          {
+            ldap: 'dev',
+            firstName: 'John',
+            lastName: 'Smith',
+            isAdmin: false,
+            spotifyAccount: {
+              username: 'spotifyDev',
+              avatar: 'http://placehold.it/250x250',
+            },
+            rfids: [
+              {
+                rfid: 'devid01',
+                lastTap: '1482271039547',
+              },
+              {
+                rfid: 'devid02',
+                lastTap: '1482271039547',
+              },
+            ],
+          },
+        ],
+      });
+    }, 200);
+    return emitter;
+
+    /*
     return this
-      .makeGetRequest('/api/mappings/all')
+      .makeGetRequest('/api/users/all')
       .map(res => res.json());
+     */
   }
 
   /**

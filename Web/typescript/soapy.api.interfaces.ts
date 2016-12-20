@@ -49,6 +49,11 @@ export interface SoapyPlaylist {
   tracklist?: SpotifyTrack[];
 }
 
+export interface RFID {
+  rfid: string;
+  lastTap?: string;
+}
+
 export interface User {
   ldap: string;
   firstName: string;
@@ -59,6 +64,7 @@ export interface User {
   playlists?: SoapyPlaylist[];
   selectedPlaylist?: SoapyPlaylist;
   selectedPlaylistId?: number;
+  rfids?: RFID[];
 }
 
 export interface LogEvent {
@@ -70,17 +76,12 @@ export interface LogEvent {
   Message: string;
 }
 
-export interface RFIDMapping {
-  rfid: string;
-  ldap?: string;
-  lastTap?: string;
-}
-
 export interface Response {
   user?: User;
+  users?: User[];
   playlist?: SoapyPlaylist;
   error?: string;
   events?: LogEvent[];
-  rfidMappings?: RFIDMapping[];
+  unknownRFIDs?: RFID[];
 }
 

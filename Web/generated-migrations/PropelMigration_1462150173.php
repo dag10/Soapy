@@ -48,7 +48,7 @@ class PropelMigration_1462150173
 # It "suspends judgement" for fkey relationships until are tables are set.
 SET FOREIGN_KEY_CHECKS = 0;
 
-CREATE TABLE `user`
+CREATE TABLE IF NOT EXISTS `user`
 (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
     `ldap` VARCHAR(128) NOT NULL,
@@ -63,7 +63,7 @@ CREATE TABLE `user`
         REFERENCES `playlist` (`id`)
 ) ENGINE=InnoDB;
 
-CREATE TABLE `spotifyaccount`
+CREATE TABLE IF NOT EXISTS `spotifyaccount`
 (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
     `user_id` INTEGER NOT NULL,
@@ -79,7 +79,7 @@ CREATE TABLE `spotifyaccount`
         REFERENCES `user` (`id`)
 ) ENGINE=InnoDB;
 
-CREATE TABLE `log`
+CREATE TABLE IF NOT EXISTS `log`
 (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
     `bathroom` VARCHAR(64) NOT NULL,
@@ -90,7 +90,7 @@ CREATE TABLE `log`
     PRIMARY KEY (`id`)
 ) ENGINE=InnoDB;
 
-CREATE TABLE `playlist`
+CREATE TABLE IF NOT EXISTS `playlist`
 (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
     `uri` TEXT NOT NULL,

@@ -163,7 +163,7 @@ abstract class UserQuery extends ModelCriteria
         if ($key === null) {
             return null;
         }
-        if ((null !== ($obj = UserTableMap::getInstanceFromPool((string) $key))) && !$this->formatter) {
+        if ((null !== ($obj = UserTableMap::getInstanceFromPool(null === $key || is_scalar($key) || is_callable([$key, '__toString']) ? (string) $key : $key))) && !$this->formatter) {
             // the object is already in the instance pool
             return $obj;
         }
@@ -207,7 +207,7 @@ abstract class UserQuery extends ModelCriteria
             /** @var ChildUser $obj */
             $obj = new ChildUser();
             $obj->hydrate($row);
-            UserTableMap::addInstanceToPool($obj, (string) $key);
+            UserTableMap::addInstanceToPool($obj, null === $key || is_scalar($key) || is_callable([$key, '__toString']) ? (string) $key : $key);
         }
         $stmt->closeCursor();
 

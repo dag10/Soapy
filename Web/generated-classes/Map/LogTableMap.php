@@ -153,7 +153,7 @@ class LogTableMap extends TableMap
     );
 
     /**
-     * Gets the list of values for all ENUM columns
+     * Gets the list of values for all ENUM and SET columns
      * @return array
      */
     public static function getValueSets()
@@ -162,7 +162,7 @@ class LogTableMap extends TableMap
     }
 
     /**
-     * Gets the list of values for an ENUM column
+     * Gets the list of values for an ENUM or SET column
      * @param string $colname
      * @return array list of possible values for the column
      */
@@ -232,7 +232,7 @@ class LogTableMap extends TableMap
             return null;
         }
 
-        return (string) $row[TableMap::TYPE_NUM == $indexType ? 0 + $offset : static::translateFieldName('Id', TableMap::TYPE_PHPNAME, $indexType)];
+        return null === $row[TableMap::TYPE_NUM == $indexType ? 0 + $offset : static::translateFieldName('Id', TableMap::TYPE_PHPNAME, $indexType)] || is_scalar($row[TableMap::TYPE_NUM == $indexType ? 0 + $offset : static::translateFieldName('Id', TableMap::TYPE_PHPNAME, $indexType)]) || is_callable([$row[TableMap::TYPE_NUM == $indexType ? 0 + $offset : static::translateFieldName('Id', TableMap::TYPE_PHPNAME, $indexType)], '__toString']) ? (string) $row[TableMap::TYPE_NUM == $indexType ? 0 + $offset : static::translateFieldName('Id', TableMap::TYPE_PHPNAME, $indexType)] : $row[TableMap::TYPE_NUM == $indexType ? 0 + $offset : static::translateFieldName('Id', TableMap::TYPE_PHPNAME, $indexType)];
     }
 
     /**

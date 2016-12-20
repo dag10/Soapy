@@ -14,6 +14,10 @@ use Base\UserQuery as BaseUserQuery;
  */
 class UserQuery extends BaseUserQuery
 {
+  public static function findOneByRFID($rfid) {
+    return null;
+  }
+
   public static function GetOrCreateUser($webauth) {
     $user = self::create()->findOneByLDAP($webauth['ldap']);
 

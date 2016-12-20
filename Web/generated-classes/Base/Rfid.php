@@ -2,11 +2,10 @@
 
 namespace Base;
 
-use \LogQuery as ChildLogQuery;
-use \DateTime;
+use \RfidQuery as ChildRfidQuery;
 use \Exception;
 use \PDO;
-use Map\LogTableMap;
+use Map\RfidTableMap;
 use Propel\Runtime\Propel;
 use Propel\Runtime\ActiveQuery\Criteria;
 use Propel\Runtime\ActiveQuery\ModelCriteria;
@@ -18,21 +17,20 @@ use Propel\Runtime\Exception\LogicException;
 use Propel\Runtime\Exception\PropelException;
 use Propel\Runtime\Map\TableMap;
 use Propel\Runtime\Parser\AbstractParser;
-use Propel\Runtime\Util\PropelDateTime;
 
 /**
- * Base class that represents a row from the 'log' table.
+ * Base class that represents a row from the 'rfid' table.
  *
  *
  *
 * @package    propel.generator..Base
 */
-abstract class Log implements ActiveRecordInterface
+abstract class Rfid implements ActiveRecordInterface
 {
     /**
      * TableMap class name
      */
-    const TABLE_MAP = '\\Map\\LogTableMap';
+    const TABLE_MAP = '\\Map\\RfidTableMap';
 
 
     /**
@@ -62,46 +60,18 @@ abstract class Log implements ActiveRecordInterface
     protected $virtualColumns = array();
 
     /**
-     * The value for the id field.
-     *
-     * @var        int
-     */
-    protected $id;
-
-    /**
-     * The value for the bathroom field.
+     * The value for the rfid field.
      *
      * @var        string
      */
-    protected $bathroom;
+    protected $rfid;
 
     /**
-     * The value for the level field.
-     *
-     * @var        int
-     */
-    protected $level;
-
-    /**
-     * The value for the time field.
-     *
-     * @var        \DateTime
-     */
-    protected $time;
-
-    /**
-     * The value for the tag field.
+     * The value for the ldap field.
      *
      * @var        string
      */
-    protected $tag;
-
-    /**
-     * The value for the message field.
-     *
-     * @var        string
-     */
-    protected $message;
+    protected $ldap;
 
     /**
      * Flag to prevent endless save loop, if this object is referenced
@@ -112,7 +82,7 @@ abstract class Log implements ActiveRecordInterface
     protected $alreadyInSave = false;
 
     /**
-     * Initializes internal state of Base\Log object.
+     * Initializes internal state of Base\Rfid object.
      */
     public function __construct()
     {
@@ -207,9 +177,9 @@ abstract class Log implements ActiveRecordInterface
     }
 
     /**
-     * Compares this with another <code>Log</code> instance.  If
-     * <code>obj</code> is an instance of <code>Log</code>, delegates to
-     * <code>equals(Log)</code>.  Otherwise, returns <code>false</code>.
+     * Compares this with another <code>Rfid</code> instance.  If
+     * <code>obj</code> is an instance of <code>Rfid</code>, delegates to
+     * <code>equals(Rfid)</code>.  Otherwise, returns <code>false</code>.
      *
      * @param  mixed   $obj The object to compare to.
      * @return boolean Whether equal to the object specified.
@@ -275,7 +245,7 @@ abstract class Log implements ActiveRecordInterface
      * @param string $name  The virtual column name
      * @param mixed  $value The value to give to the virtual column
      *
-     * @return $this|Log The current object, for fluid interface
+     * @return $this|Rfid The current object, for fluid interface
      */
     public function setVirtualColumn($name, $value)
     {
@@ -337,208 +307,64 @@ abstract class Log implements ActiveRecordInterface
     }
 
     /**
-     * Get the [id] column value.
-     *
-     * @return int
-     */
-    public function getId()
-    {
-        return $this->id;
-    }
-
-    /**
-     * Get the [bathroom] column value.
+     * Get the [rfid] column value.
      *
      * @return string
      */
-    public function getBathroom()
+    public function getRfid()
     {
-        return $this->bathroom;
+        return $this->rfid;
     }
 
     /**
-     * Get the [level] column value.
-     *
-     * @return string
-     * @throws \Propel\Runtime\Exception\PropelException
-     */
-    public function getLevel()
-    {
-        if (null === $this->level) {
-            return null;
-        }
-        $valueSet = LogTableMap::getValueSet(LogTableMap::COL_LEVEL);
-        if (!isset($valueSet[$this->level])) {
-            throw new PropelException('Unknown stored enum key: ' . $this->level);
-        }
-
-        return $valueSet[$this->level];
-    }
-
-    /**
-     * Get the [optionally formatted] temporal [time] column value.
-     *
-     *
-     * @param      string $format The date/time format string (either date()-style or strftime()-style).
-     *                            If format is NULL, then the raw DateTime object will be returned.
-     *
-     * @return string|DateTime Formatted date/time value as string or DateTime object (if format is NULL), NULL if column is NULL, and 0 if column value is 0000-00-00 00:00:00
-     *
-     * @throws PropelException - if unable to parse/validate the date/time value.
-     */
-    public function getTime($format = NULL)
-    {
-        if ($format === null) {
-            return $this->time;
-        } else {
-            return $this->time instanceof \DateTime ? $this->time->format($format) : null;
-        }
-    }
-
-    /**
-     * Get the [tag] column value.
+     * Get the [ldap] column value.
      *
      * @return string
      */
-    public function getTag()
+    public function getLdap()
     {
-        return $this->tag;
+        return $this->ldap;
     }
 
     /**
-     * Get the [message] column value.
-     *
-     * @return string
-     */
-    public function getMessage()
-    {
-        return $this->message;
-    }
-
-    /**
-     * Set the value of [id] column.
-     *
-     * @param int $v new value
-     * @return $this|\Log The current object (for fluent API support)
-     */
-    public function setId($v)
-    {
-        if ($v !== null) {
-            $v = (int) $v;
-        }
-
-        if ($this->id !== $v) {
-            $this->id = $v;
-            $this->modifiedColumns[LogTableMap::COL_ID] = true;
-        }
-
-        return $this;
-    } // setId()
-
-    /**
-     * Set the value of [bathroom] column.
+     * Set the value of [rfid] column.
      *
      * @param string $v new value
-     * @return $this|\Log The current object (for fluent API support)
+     * @return $this|\Rfid The current object (for fluent API support)
      */
-    public function setBathroom($v)
+    public function setRfid($v)
     {
         if ($v !== null) {
             $v = (string) $v;
         }
 
-        if ($this->bathroom !== $v) {
-            $this->bathroom = $v;
-            $this->modifiedColumns[LogTableMap::COL_BATHROOM] = true;
+        if ($this->rfid !== $v) {
+            $this->rfid = $v;
+            $this->modifiedColumns[RfidTableMap::COL_RFID] = true;
         }
 
         return $this;
-    } // setBathroom()
+    } // setRfid()
 
     /**
-     * Set the value of [level] column.
-     *
-     * @param  string $v new value
-     * @return $this|\Log The current object (for fluent API support)
-     * @throws \Propel\Runtime\Exception\PropelException
-     */
-    public function setLevel($v)
-    {
-        if ($v !== null) {
-            $valueSet = LogTableMap::getValueSet(LogTableMap::COL_LEVEL);
-            if (!in_array($v, $valueSet)) {
-                throw new PropelException(sprintf('Value "%s" is not accepted in this enumerated column', $v));
-            }
-            $v = array_search($v, $valueSet);
-        }
-
-        if ($this->level !== $v) {
-            $this->level = $v;
-            $this->modifiedColumns[LogTableMap::COL_LEVEL] = true;
-        }
-
-        return $this;
-    } // setLevel()
-
-    /**
-     * Sets the value of [time] column to a normalized version of the date/time value specified.
-     *
-     * @param  mixed $v string, integer (timestamp), or \DateTime value.
-     *               Empty strings are treated as NULL.
-     * @return $this|\Log The current object (for fluent API support)
-     */
-    public function setTime($v)
-    {
-        $dt = PropelDateTime::newInstance($v, null, 'DateTime');
-        if ($this->time !== null || $dt !== null) {
-            if ($this->time === null || $dt === null || $dt->format("Y-m-d H:i:s") !== $this->time->format("Y-m-d H:i:s")) {
-                $this->time = $dt === null ? null : clone $dt;
-                $this->modifiedColumns[LogTableMap::COL_TIME] = true;
-            }
-        } // if either are not null
-
-        return $this;
-    } // setTime()
-
-    /**
-     * Set the value of [tag] column.
+     * Set the value of [ldap] column.
      *
      * @param string $v new value
-     * @return $this|\Log The current object (for fluent API support)
+     * @return $this|\Rfid The current object (for fluent API support)
      */
-    public function setTag($v)
+    public function setLdap($v)
     {
         if ($v !== null) {
             $v = (string) $v;
         }
 
-        if ($this->tag !== $v) {
-            $this->tag = $v;
-            $this->modifiedColumns[LogTableMap::COL_TAG] = true;
+        if ($this->ldap !== $v) {
+            $this->ldap = $v;
+            $this->modifiedColumns[RfidTableMap::COL_LDAP] = true;
         }
 
         return $this;
-    } // setTag()
-
-    /**
-     * Set the value of [message] column.
-     *
-     * @param string $v new value
-     * @return $this|\Log The current object (for fluent API support)
-     */
-    public function setMessage($v)
-    {
-        if ($v !== null) {
-            $v = (string) $v;
-        }
-
-        if ($this->message !== $v) {
-            $this->message = $v;
-            $this->modifiedColumns[LogTableMap::COL_MESSAGE] = true;
-        }
-
-        return $this;
-    } // setMessage()
+    } // setLdap()
 
     /**
      * Indicates whether the columns in this object are only set to default values.
@@ -576,26 +402,11 @@ abstract class Log implements ActiveRecordInterface
     {
         try {
 
-            $col = $row[TableMap::TYPE_NUM == $indexType ? 0 + $startcol : LogTableMap::translateFieldName('Id', TableMap::TYPE_PHPNAME, $indexType)];
-            $this->id = (null !== $col) ? (int) $col : null;
+            $col = $row[TableMap::TYPE_NUM == $indexType ? 0 + $startcol : RfidTableMap::translateFieldName('Rfid', TableMap::TYPE_PHPNAME, $indexType)];
+            $this->rfid = (null !== $col) ? (string) $col : null;
 
-            $col = $row[TableMap::TYPE_NUM == $indexType ? 1 + $startcol : LogTableMap::translateFieldName('Bathroom', TableMap::TYPE_PHPNAME, $indexType)];
-            $this->bathroom = (null !== $col) ? (string) $col : null;
-
-            $col = $row[TableMap::TYPE_NUM == $indexType ? 2 + $startcol : LogTableMap::translateFieldName('Level', TableMap::TYPE_PHPNAME, $indexType)];
-            $this->level = (null !== $col) ? (int) $col : null;
-
-            $col = $row[TableMap::TYPE_NUM == $indexType ? 3 + $startcol : LogTableMap::translateFieldName('Time', TableMap::TYPE_PHPNAME, $indexType)];
-            if ($col === '0000-00-00 00:00:00') {
-                $col = null;
-            }
-            $this->time = (null !== $col) ? PropelDateTime::newInstance($col, null, 'DateTime') : null;
-
-            $col = $row[TableMap::TYPE_NUM == $indexType ? 4 + $startcol : LogTableMap::translateFieldName('Tag', TableMap::TYPE_PHPNAME, $indexType)];
-            $this->tag = (null !== $col) ? (string) $col : null;
-
-            $col = $row[TableMap::TYPE_NUM == $indexType ? 5 + $startcol : LogTableMap::translateFieldName('Message', TableMap::TYPE_PHPNAME, $indexType)];
-            $this->message = (null !== $col) ? (string) $col : null;
+            $col = $row[TableMap::TYPE_NUM == $indexType ? 1 + $startcol : RfidTableMap::translateFieldName('Ldap', TableMap::TYPE_PHPNAME, $indexType)];
+            $this->ldap = (null !== $col) ? (string) $col : null;
             $this->resetModified();
 
             $this->setNew(false);
@@ -604,10 +415,10 @@ abstract class Log implements ActiveRecordInterface
                 $this->ensureConsistency();
             }
 
-            return $startcol + 6; // 6 = LogTableMap::NUM_HYDRATE_COLUMNS.
+            return $startcol + 2; // 2 = RfidTableMap::NUM_HYDRATE_COLUMNS.
 
         } catch (Exception $e) {
-            throw new PropelException(sprintf('Error populating %s object', '\\Log'), 0, $e);
+            throw new PropelException(sprintf('Error populating %s object', '\\Rfid'), 0, $e);
         }
     }
 
@@ -649,13 +460,13 @@ abstract class Log implements ActiveRecordInterface
         }
 
         if ($con === null) {
-            $con = Propel::getServiceContainer()->getReadConnection(LogTableMap::DATABASE_NAME);
+            $con = Propel::getServiceContainer()->getReadConnection(RfidTableMap::DATABASE_NAME);
         }
 
         // We don't need to alter the object instance pool; we're just modifying this instance
         // already in the pool.
 
-        $dataFetcher = ChildLogQuery::create(null, $this->buildPkeyCriteria())->setFormatter(ModelCriteria::FORMAT_STATEMENT)->find($con);
+        $dataFetcher = ChildRfidQuery::create(null, $this->buildPkeyCriteria())->setFormatter(ModelCriteria::FORMAT_STATEMENT)->find($con);
         $row = $dataFetcher->fetch();
         $dataFetcher->close();
         if (!$row) {
@@ -674,8 +485,8 @@ abstract class Log implements ActiveRecordInterface
      * @param      ConnectionInterface $con
      * @return void
      * @throws PropelException
-     * @see Log::setDeleted()
-     * @see Log::isDeleted()
+     * @see Rfid::setDeleted()
+     * @see Rfid::isDeleted()
      */
     public function delete(ConnectionInterface $con = null)
     {
@@ -684,11 +495,11 @@ abstract class Log implements ActiveRecordInterface
         }
 
         if ($con === null) {
-            $con = Propel::getServiceContainer()->getWriteConnection(LogTableMap::DATABASE_NAME);
+            $con = Propel::getServiceContainer()->getWriteConnection(RfidTableMap::DATABASE_NAME);
         }
 
         $con->transaction(function () use ($con) {
-            $deleteQuery = ChildLogQuery::create()
+            $deleteQuery = ChildRfidQuery::create()
                 ->filterByPrimaryKey($this->getPrimaryKey());
             $ret = $this->preDelete($con);
             if ($ret) {
@@ -719,7 +530,7 @@ abstract class Log implements ActiveRecordInterface
         }
 
         if ($con === null) {
-            $con = Propel::getServiceContainer()->getWriteConnection(LogTableMap::DATABASE_NAME);
+            $con = Propel::getServiceContainer()->getWriteConnection(RfidTableMap::DATABASE_NAME);
         }
 
         return $con->transaction(function () use ($con) {
@@ -738,7 +549,7 @@ abstract class Log implements ActiveRecordInterface
                     $this->postUpdate($con);
                 }
                 $this->postSave($con);
-                LogTableMap::addInstanceToPool($this);
+                RfidTableMap::addInstanceToPool($this);
             } else {
                 $affectedRows = 0;
             }
@@ -795,33 +606,17 @@ abstract class Log implements ActiveRecordInterface
         $modifiedColumns = array();
         $index = 0;
 
-        $this->modifiedColumns[LogTableMap::COL_ID] = true;
-        if (null !== $this->id) {
-            throw new PropelException('Cannot insert a value for auto-increment primary key (' . LogTableMap::COL_ID . ')');
-        }
 
          // check the columns in natural order for more readable SQL queries
-        if ($this->isColumnModified(LogTableMap::COL_ID)) {
-            $modifiedColumns[':p' . $index++]  = 'id';
+        if ($this->isColumnModified(RfidTableMap::COL_RFID)) {
+            $modifiedColumns[':p' . $index++]  = 'rfid';
         }
-        if ($this->isColumnModified(LogTableMap::COL_BATHROOM)) {
-            $modifiedColumns[':p' . $index++]  = 'bathroom';
-        }
-        if ($this->isColumnModified(LogTableMap::COL_LEVEL)) {
-            $modifiedColumns[':p' . $index++]  = 'level';
-        }
-        if ($this->isColumnModified(LogTableMap::COL_TIME)) {
-            $modifiedColumns[':p' . $index++]  = 'time';
-        }
-        if ($this->isColumnModified(LogTableMap::COL_TAG)) {
-            $modifiedColumns[':p' . $index++]  = 'tag';
-        }
-        if ($this->isColumnModified(LogTableMap::COL_MESSAGE)) {
-            $modifiedColumns[':p' . $index++]  = 'message';
+        if ($this->isColumnModified(RfidTableMap::COL_LDAP)) {
+            $modifiedColumns[':p' . $index++]  = 'ldap';
         }
 
         $sql = sprintf(
-            'INSERT INTO log (%s) VALUES (%s)',
+            'INSERT INTO rfid (%s) VALUES (%s)',
             implode(', ', $modifiedColumns),
             implode(', ', array_keys($modifiedColumns))
         );
@@ -830,23 +625,11 @@ abstract class Log implements ActiveRecordInterface
             $stmt = $con->prepare($sql);
             foreach ($modifiedColumns as $identifier => $columnName) {
                 switch ($columnName) {
-                    case 'id':
-                        $stmt->bindValue($identifier, $this->id, PDO::PARAM_INT);
+                    case 'rfid':
+                        $stmt->bindValue($identifier, $this->rfid, PDO::PARAM_STR);
                         break;
-                    case 'bathroom':
-                        $stmt->bindValue($identifier, $this->bathroom, PDO::PARAM_STR);
-                        break;
-                    case 'level':
-                        $stmt->bindValue($identifier, $this->level, PDO::PARAM_INT);
-                        break;
-                    case 'time':
-                        $stmt->bindValue($identifier, $this->time ? $this->time->format("Y-m-d H:i:s") : null, PDO::PARAM_STR);
-                        break;
-                    case 'tag':
-                        $stmt->bindValue($identifier, $this->tag, PDO::PARAM_STR);
-                        break;
-                    case 'message':
-                        $stmt->bindValue($identifier, $this->message, PDO::PARAM_STR);
+                    case 'ldap':
+                        $stmt->bindValue($identifier, $this->ldap, PDO::PARAM_STR);
                         break;
                 }
             }
@@ -855,13 +638,6 @@ abstract class Log implements ActiveRecordInterface
             Propel::log($e->getMessage(), Propel::LOG_ERR);
             throw new PropelException(sprintf('Unable to execute INSERT statement [%s]', $sql), 0, $e);
         }
-
-        try {
-            $pk = $con->lastInsertId();
-        } catch (Exception $e) {
-            throw new PropelException('Unable to get autoincrement id.', 0, $e);
-        }
-        $this->setId($pk);
 
         $this->setNew(false);
     }
@@ -894,7 +670,7 @@ abstract class Log implements ActiveRecordInterface
      */
     public function getByName($name, $type = TableMap::TYPE_PHPNAME)
     {
-        $pos = LogTableMap::translateFieldName($name, $type, TableMap::TYPE_NUM);
+        $pos = RfidTableMap::translateFieldName($name, $type, TableMap::TYPE_NUM);
         $field = $this->getByPosition($pos);
 
         return $field;
@@ -911,22 +687,10 @@ abstract class Log implements ActiveRecordInterface
     {
         switch ($pos) {
             case 0:
-                return $this->getId();
+                return $this->getRfid();
                 break;
             case 1:
-                return $this->getBathroom();
-                break;
-            case 2:
-                return $this->getLevel();
-                break;
-            case 3:
-                return $this->getTime();
-                break;
-            case 4:
-                return $this->getTag();
-                break;
-            case 5:
-                return $this->getMessage();
+                return $this->getLdap();
                 break;
             default:
                 return null;
@@ -951,23 +715,15 @@ abstract class Log implements ActiveRecordInterface
     public function toArray($keyType = TableMap::TYPE_PHPNAME, $includeLazyLoadColumns = true, $alreadyDumpedObjects = array())
     {
 
-        if (isset($alreadyDumpedObjects['Log'][$this->hashCode()])) {
+        if (isset($alreadyDumpedObjects['Rfid'][$this->hashCode()])) {
             return '*RECURSION*';
         }
-        $alreadyDumpedObjects['Log'][$this->hashCode()] = true;
-        $keys = LogTableMap::getFieldNames($keyType);
+        $alreadyDumpedObjects['Rfid'][$this->hashCode()] = true;
+        $keys = RfidTableMap::getFieldNames($keyType);
         $result = array(
-            $keys[0] => $this->getId(),
-            $keys[1] => $this->getBathroom(),
-            $keys[2] => $this->getLevel(),
-            $keys[3] => $this->getTime(),
-            $keys[4] => $this->getTag(),
-            $keys[5] => $this->getMessage(),
+            $keys[0] => $this->getRfid(),
+            $keys[1] => $this->getLdap(),
         );
-        if ($result[$keys[3]] instanceof \DateTime) {
-            $result[$keys[3]] = $result[$keys[3]]->format('c');
-        }
-
         $virtualColumns = $this->virtualColumns;
         foreach ($virtualColumns as $key => $virtualColumn) {
             $result[$key] = $virtualColumn;
@@ -986,11 +742,11 @@ abstract class Log implements ActiveRecordInterface
      *                one of the class type constants TableMap::TYPE_PHPNAME, TableMap::TYPE_CAMELNAME
      *                TableMap::TYPE_COLNAME, TableMap::TYPE_FIELDNAME, TableMap::TYPE_NUM.
      *                Defaults to TableMap::TYPE_PHPNAME.
-     * @return $this|\Log
+     * @return $this|\Rfid
      */
     public function setByName($name, $value, $type = TableMap::TYPE_PHPNAME)
     {
-        $pos = LogTableMap::translateFieldName($name, $type, TableMap::TYPE_NUM);
+        $pos = RfidTableMap::translateFieldName($name, $type, TableMap::TYPE_NUM);
 
         return $this->setByPosition($pos, $value);
     }
@@ -1001,32 +757,16 @@ abstract class Log implements ActiveRecordInterface
      *
      * @param  int $pos position in xml schema
      * @param  mixed $value field value
-     * @return $this|\Log
+     * @return $this|\Rfid
      */
     public function setByPosition($pos, $value)
     {
         switch ($pos) {
             case 0:
-                $this->setId($value);
+                $this->setRfid($value);
                 break;
             case 1:
-                $this->setBathroom($value);
-                break;
-            case 2:
-                $valueSet = LogTableMap::getValueSet(LogTableMap::COL_LEVEL);
-                if (isset($valueSet[$value])) {
-                    $value = $valueSet[$value];
-                }
-                $this->setLevel($value);
-                break;
-            case 3:
-                $this->setTime($value);
-                break;
-            case 4:
-                $this->setTag($value);
-                break;
-            case 5:
-                $this->setMessage($value);
+                $this->setLdap($value);
                 break;
         } // switch()
 
@@ -1052,25 +792,13 @@ abstract class Log implements ActiveRecordInterface
      */
     public function fromArray($arr, $keyType = TableMap::TYPE_PHPNAME)
     {
-        $keys = LogTableMap::getFieldNames($keyType);
+        $keys = RfidTableMap::getFieldNames($keyType);
 
         if (array_key_exists($keys[0], $arr)) {
-            $this->setId($arr[$keys[0]]);
+            $this->setRfid($arr[$keys[0]]);
         }
         if (array_key_exists($keys[1], $arr)) {
-            $this->setBathroom($arr[$keys[1]]);
-        }
-        if (array_key_exists($keys[2], $arr)) {
-            $this->setLevel($arr[$keys[2]]);
-        }
-        if (array_key_exists($keys[3], $arr)) {
-            $this->setTime($arr[$keys[3]]);
-        }
-        if (array_key_exists($keys[4], $arr)) {
-            $this->setTag($arr[$keys[4]]);
-        }
-        if (array_key_exists($keys[5], $arr)) {
-            $this->setMessage($arr[$keys[5]]);
+            $this->setLdap($arr[$keys[1]]);
         }
     }
 
@@ -1091,7 +819,7 @@ abstract class Log implements ActiveRecordInterface
      * @param string $data The source data to import from
      * @param string $keyType The type of keys the array uses.
      *
-     * @return $this|\Log The current object, for fluid interface
+     * @return $this|\Rfid The current object, for fluid interface
      */
     public function importFrom($parser, $data, $keyType = TableMap::TYPE_PHPNAME)
     {
@@ -1111,25 +839,13 @@ abstract class Log implements ActiveRecordInterface
      */
     public function buildCriteria()
     {
-        $criteria = new Criteria(LogTableMap::DATABASE_NAME);
+        $criteria = new Criteria(RfidTableMap::DATABASE_NAME);
 
-        if ($this->isColumnModified(LogTableMap::COL_ID)) {
-            $criteria->add(LogTableMap::COL_ID, $this->id);
+        if ($this->isColumnModified(RfidTableMap::COL_RFID)) {
+            $criteria->add(RfidTableMap::COL_RFID, $this->rfid);
         }
-        if ($this->isColumnModified(LogTableMap::COL_BATHROOM)) {
-            $criteria->add(LogTableMap::COL_BATHROOM, $this->bathroom);
-        }
-        if ($this->isColumnModified(LogTableMap::COL_LEVEL)) {
-            $criteria->add(LogTableMap::COL_LEVEL, $this->level);
-        }
-        if ($this->isColumnModified(LogTableMap::COL_TIME)) {
-            $criteria->add(LogTableMap::COL_TIME, $this->time);
-        }
-        if ($this->isColumnModified(LogTableMap::COL_TAG)) {
-            $criteria->add(LogTableMap::COL_TAG, $this->tag);
-        }
-        if ($this->isColumnModified(LogTableMap::COL_MESSAGE)) {
-            $criteria->add(LogTableMap::COL_MESSAGE, $this->message);
+        if ($this->isColumnModified(RfidTableMap::COL_LDAP)) {
+            $criteria->add(RfidTableMap::COL_LDAP, $this->ldap);
         }
 
         return $criteria;
@@ -1147,8 +863,8 @@ abstract class Log implements ActiveRecordInterface
      */
     public function buildPkeyCriteria()
     {
-        $criteria = ChildLogQuery::create();
-        $criteria->add(LogTableMap::COL_ID, $this->id);
+        $criteria = ChildRfidQuery::create();
+        $criteria->add(RfidTableMap::COL_RFID, $this->rfid);
 
         return $criteria;
     }
@@ -1161,7 +877,7 @@ abstract class Log implements ActiveRecordInterface
      */
     public function hashCode()
     {
-        $validPk = null !== $this->getId();
+        $validPk = null !== $this->getRfid();
 
         $validPrimaryKeyFKs = 0;
         $primaryKeyFKs = [];
@@ -1177,22 +893,22 @@ abstract class Log implements ActiveRecordInterface
 
     /**
      * Returns the primary key for this object (row).
-     * @return int
+     * @return string
      */
     public function getPrimaryKey()
     {
-        return $this->getId();
+        return $this->getRfid();
     }
 
     /**
-     * Generic method to set the primary key (id column).
+     * Generic method to set the primary key (rfid column).
      *
-     * @param       int $key Primary key.
+     * @param       string $key Primary key.
      * @return void
      */
     public function setPrimaryKey($key)
     {
-        $this->setId($key);
+        $this->setRfid($key);
     }
 
     /**
@@ -1201,7 +917,7 @@ abstract class Log implements ActiveRecordInterface
      */
     public function isPrimaryKeyNull()
     {
-        return null === $this->getId();
+        return null === $this->getRfid();
     }
 
     /**
@@ -1210,21 +926,17 @@ abstract class Log implements ActiveRecordInterface
      * If desired, this method can also make copies of all associated (fkey referrers)
      * objects.
      *
-     * @param      object $copyObj An object of \Log (or compatible) type.
+     * @param      object $copyObj An object of \Rfid (or compatible) type.
      * @param      boolean $deepCopy Whether to also copy all rows that refer (by fkey) to the current row.
      * @param      boolean $makeNew Whether to reset autoincrement PKs and make the object new.
      * @throws PropelException
      */
     public function copyInto($copyObj, $deepCopy = false, $makeNew = true)
     {
-        $copyObj->setBathroom($this->getBathroom());
-        $copyObj->setLevel($this->getLevel());
-        $copyObj->setTime($this->getTime());
-        $copyObj->setTag($this->getTag());
-        $copyObj->setMessage($this->getMessage());
+        $copyObj->setRfid($this->getRfid());
+        $copyObj->setLdap($this->getLdap());
         if ($makeNew) {
             $copyObj->setNew(true);
-            $copyObj->setId(NULL); // this is a auto-increment column, so set to default value
         }
     }
 
@@ -1237,7 +949,7 @@ abstract class Log implements ActiveRecordInterface
      * objects.
      *
      * @param  boolean $deepCopy Whether to also copy all rows that refer (by fkey) to the current row.
-     * @return \Log Clone of current object.
+     * @return \Rfid Clone of current object.
      * @throws PropelException
      */
     public function copy($deepCopy = false)
@@ -1257,12 +969,8 @@ abstract class Log implements ActiveRecordInterface
      */
     public function clear()
     {
-        $this->id = null;
-        $this->bathroom = null;
-        $this->level = null;
-        $this->time = null;
-        $this->tag = null;
-        $this->message = null;
+        $this->rfid = null;
+        $this->ldap = null;
         $this->alreadyInSave = false;
         $this->clearAllReferences();
         $this->resetModified();
@@ -1292,7 +1000,7 @@ abstract class Log implements ActiveRecordInterface
      */
     public function __toString()
     {
-        return (string) $this->exportTo(LogTableMap::DEFAULT_STRING_FORMAT);
+        return (string) $this->exportTo(RfidTableMap::DEFAULT_STRING_FORMAT);
     }
 
     /**

@@ -2,8 +2,8 @@
 
 namespace Map;
 
-use \User;
-use \UserQuery;
+use \Rfid;
+use \RfidQuery;
 use Propel\Runtime\Propel;
 use Propel\Runtime\ActiveQuery\Criteria;
 use Propel\Runtime\ActiveQuery\InstancePoolTrait;
@@ -16,7 +16,7 @@ use Propel\Runtime\Map\TableMapTrait;
 
 
 /**
- * This class defines the structure of the 'user' table.
+ * This class defines the structure of the 'rfid' table.
  *
  *
  *
@@ -26,7 +26,7 @@ use Propel\Runtime\Map\TableMapTrait;
  * (i.e. if it's a text column type).
  *
  */
-class UserTableMap extends TableMap
+class RfidTableMap extends TableMap
 {
     use InstancePoolTrait;
     use TableMapTrait;
@@ -34,7 +34,7 @@ class UserTableMap extends TableMap
     /**
      * The (dot-path) name of this class
      */
-    const CLASS_NAME = '.Map.UserTableMap';
+    const CLASS_NAME = '.Map.RfidTableMap';
 
     /**
      * The default database name for this class
@@ -44,22 +44,22 @@ class UserTableMap extends TableMap
     /**
      * The table name for this class
      */
-    const TABLE_NAME = 'user';
+    const TABLE_NAME = 'rfid';
 
     /**
      * The related Propel class for this table
      */
-    const OM_CLASS = '\\User';
+    const OM_CLASS = '\\Rfid';
 
     /**
      * A class that can be returned by this tableMap
      */
-    const CLASS_DEFAULT = 'User';
+    const CLASS_DEFAULT = 'Rfid';
 
     /**
      * The total number of columns
      */
-    const NUM_COLUMNS = 6;
+    const NUM_COLUMNS = 2;
 
     /**
      * The number of lazy-loaded columns
@@ -69,46 +69,22 @@ class UserTableMap extends TableMap
     /**
      * The number of columns to hydrate (NUM_COLUMNS - NUM_LAZY_LOAD_COLUMNS)
      */
-    const NUM_HYDRATE_COLUMNS = 6;
+    const NUM_HYDRATE_COLUMNS = 2;
 
     /**
-     * the column name for the id field
+     * the column name for the rfid field
      */
-    const COL_ID = 'user.id';
+    const COL_RFID = 'rfid.rfid';
 
     /**
      * the column name for the ldap field
      */
-    const COL_LDAP = 'user.ldap';
-
-    /**
-     * the column name for the firstname field
-     */
-    const COL_FIRSTNAME = 'user.firstname';
-
-    /**
-     * the column name for the lastname field
-     */
-    const COL_LASTNAME = 'user.lastname';
-
-    /**
-     * the column name for the playlist_id field
-     */
-    const COL_PLAYLIST_ID = 'user.playlist_id';
-
-    /**
-     * the column name for the playbackmode field
-     */
-    const COL_PLAYBACKMODE = 'user.playbackmode';
+    const COL_LDAP = 'rfid.ldap';
 
     /**
      * The default string format for model objects of the related table
      */
     const DEFAULT_STRING_FORMAT = 'YAML';
-
-    /** The enumerated values for the playbackmode field */
-    const COL_PLAYBACKMODE_LINEAR = 'LINEAR';
-    const COL_PLAYBACKMODE_SHUFFLE = 'SHUFFLE';
 
     /**
      * holds an array of fieldnames
@@ -117,11 +93,11 @@ class UserTableMap extends TableMap
      * e.g. self::$fieldNames[self::TYPE_PHPNAME][0] = 'Id'
      */
     protected static $fieldNames = array (
-        self::TYPE_PHPNAME       => array('Id', 'Ldap', 'FirstName', 'LastName', 'PlaylistId', 'PlaybackMode', ),
-        self::TYPE_CAMELNAME     => array('id', 'ldap', 'firstName', 'lastName', 'playlistId', 'playbackMode', ),
-        self::TYPE_COLNAME       => array(UserTableMap::COL_ID, UserTableMap::COL_LDAP, UserTableMap::COL_FIRSTNAME, UserTableMap::COL_LASTNAME, UserTableMap::COL_PLAYLIST_ID, UserTableMap::COL_PLAYBACKMODE, ),
-        self::TYPE_FIELDNAME     => array('id', 'ldap', 'firstname', 'lastname', 'playlist_id', 'playbackmode', ),
-        self::TYPE_NUM           => array(0, 1, 2, 3, 4, 5, )
+        self::TYPE_PHPNAME       => array('Rfid', 'Ldap', ),
+        self::TYPE_CAMELNAME     => array('rfid', 'ldap', ),
+        self::TYPE_COLNAME       => array(RfidTableMap::COL_RFID, RfidTableMap::COL_LDAP, ),
+        self::TYPE_FIELDNAME     => array('rfid', 'ldap', ),
+        self::TYPE_NUM           => array(0, 1, )
     );
 
     /**
@@ -131,41 +107,12 @@ class UserTableMap extends TableMap
      * e.g. self::$fieldKeys[self::TYPE_PHPNAME]['Id'] = 0
      */
     protected static $fieldKeys = array (
-        self::TYPE_PHPNAME       => array('Id' => 0, 'Ldap' => 1, 'FirstName' => 2, 'LastName' => 3, 'PlaylistId' => 4, 'PlaybackMode' => 5, ),
-        self::TYPE_CAMELNAME     => array('id' => 0, 'ldap' => 1, 'firstName' => 2, 'lastName' => 3, 'playlistId' => 4, 'playbackMode' => 5, ),
-        self::TYPE_COLNAME       => array(UserTableMap::COL_ID => 0, UserTableMap::COL_LDAP => 1, UserTableMap::COL_FIRSTNAME => 2, UserTableMap::COL_LASTNAME => 3, UserTableMap::COL_PLAYLIST_ID => 4, UserTableMap::COL_PLAYBACKMODE => 5, ),
-        self::TYPE_FIELDNAME     => array('id' => 0, 'ldap' => 1, 'firstname' => 2, 'lastname' => 3, 'playlist_id' => 4, 'playbackmode' => 5, ),
-        self::TYPE_NUM           => array(0, 1, 2, 3, 4, 5, )
+        self::TYPE_PHPNAME       => array('Rfid' => 0, 'Ldap' => 1, ),
+        self::TYPE_CAMELNAME     => array('rfid' => 0, 'ldap' => 1, ),
+        self::TYPE_COLNAME       => array(RfidTableMap::COL_RFID => 0, RfidTableMap::COL_LDAP => 1, ),
+        self::TYPE_FIELDNAME     => array('rfid' => 0, 'ldap' => 1, ),
+        self::TYPE_NUM           => array(0, 1, )
     );
-
-    /** The enumerated values for this table */
-    protected static $enumValueSets = array(
-                UserTableMap::COL_PLAYBACKMODE => array(
-                            self::COL_PLAYBACKMODE_LINEAR,
-            self::COL_PLAYBACKMODE_SHUFFLE,
-        ),
-    );
-
-    /**
-     * Gets the list of values for all ENUM and SET columns
-     * @return array
-     */
-    public static function getValueSets()
-    {
-      return static::$enumValueSets;
-    }
-
-    /**
-     * Gets the list of values for an ENUM or SET column
-     * @param string $colname
-     * @return array list of possible values for the column
-     */
-    public static function getValueSet($colname)
-    {
-        $valueSets = self::getValueSets();
-
-        return $valueSets[$colname];
-    }
 
     /**
      * Initialize the table attributes and columns
@@ -177,23 +124,15 @@ class UserTableMap extends TableMap
     public function initialize()
     {
         // attributes
-        $this->setName('user');
-        $this->setPhpName('User');
+        $this->setName('rfid');
+        $this->setPhpName('Rfid');
         $this->setIdentifierQuoting(false);
-        $this->setClassName('\\User');
+        $this->setClassName('\\Rfid');
         $this->setPackage('');
-        $this->setUseIdGenerator(true);
+        $this->setUseIdGenerator(false);
         // columns
-        $this->addPrimaryKey('id', 'Id', 'INTEGER', true, null, null);
+        $this->addPrimaryKey('rfid', 'Rfid', 'VARCHAR', true, 64, null);
         $this->addColumn('ldap', 'Ldap', 'VARCHAR', true, 128, null);
-        $this->addColumn('firstname', 'FirstName', 'LONGVARCHAR', true, null, null);
-        $this->addColumn('lastname', 'LastName', 'LONGVARCHAR', true, null, null);
-        $this->addForeignKey('playlist_id', 'PlaylistId', 'INTEGER', 'playlist', 'id', false, null, null);
-        $this->addColumn('playbackmode', 'PlaybackMode', 'ENUM', true, null, 'LINEAR');
-        $this->getColumn('playbackmode')->setValueSet(array (
-  0 => 'LINEAR',
-  1 => 'SHUFFLE',
-));
     } // initialize()
 
     /**
@@ -201,28 +140,6 @@ class UserTableMap extends TableMap
      */
     public function buildRelations()
     {
-        $this->addRelation('SelectedPlaylist', '\\Playlist', RelationMap::MANY_TO_ONE, array (
-  0 =>
-  array (
-    0 => ':playlist_id',
-    1 => ':id',
-  ),
-), null, null, null, false);
-        $this->addRelation('SpotifyAccount', '\\SpotifyAccount', RelationMap::ONE_TO_MANY, array (
-  0 =>
-  array (
-    0 => ':user_id',
-    1 => ':id',
-  ),
-), null, null, 'SpotifyAccounts', false);
-        $this->addRelation('User', '\\ListensTo', RelationMap::ONE_TO_MANY, array (
-  0 =>
-  array (
-    0 => ':user_id',
-    1 => ':id',
-  ),
-), null, null, 'Users', false);
-        $this->addRelation('Playlist', '\\Playlist', RelationMap::MANY_TO_MANY, array(), null, null, 'Playlists');
     } // buildRelations()
 
     /**
@@ -241,11 +158,11 @@ class UserTableMap extends TableMap
     public static function getPrimaryKeyHashFromRow($row, $offset = 0, $indexType = TableMap::TYPE_NUM)
     {
         // If the PK cannot be derived from the row, return NULL.
-        if ($row[TableMap::TYPE_NUM == $indexType ? 0 + $offset : static::translateFieldName('Id', TableMap::TYPE_PHPNAME, $indexType)] === null) {
+        if ($row[TableMap::TYPE_NUM == $indexType ? 0 + $offset : static::translateFieldName('Rfid', TableMap::TYPE_PHPNAME, $indexType)] === null) {
             return null;
         }
 
-        return null === $row[TableMap::TYPE_NUM == $indexType ? 0 + $offset : static::translateFieldName('Id', TableMap::TYPE_PHPNAME, $indexType)] || is_scalar($row[TableMap::TYPE_NUM == $indexType ? 0 + $offset : static::translateFieldName('Id', TableMap::TYPE_PHPNAME, $indexType)]) || is_callable([$row[TableMap::TYPE_NUM == $indexType ? 0 + $offset : static::translateFieldName('Id', TableMap::TYPE_PHPNAME, $indexType)], '__toString']) ? (string) $row[TableMap::TYPE_NUM == $indexType ? 0 + $offset : static::translateFieldName('Id', TableMap::TYPE_PHPNAME, $indexType)] : $row[TableMap::TYPE_NUM == $indexType ? 0 + $offset : static::translateFieldName('Id', TableMap::TYPE_PHPNAME, $indexType)];
+        return null === $row[TableMap::TYPE_NUM == $indexType ? 0 + $offset : static::translateFieldName('Rfid', TableMap::TYPE_PHPNAME, $indexType)] || is_scalar($row[TableMap::TYPE_NUM == $indexType ? 0 + $offset : static::translateFieldName('Rfid', TableMap::TYPE_PHPNAME, $indexType)]) || is_callable([$row[TableMap::TYPE_NUM == $indexType ? 0 + $offset : static::translateFieldName('Rfid', TableMap::TYPE_PHPNAME, $indexType)], '__toString']) ? (string) $row[TableMap::TYPE_NUM == $indexType ? 0 + $offset : static::translateFieldName('Rfid', TableMap::TYPE_PHPNAME, $indexType)] : $row[TableMap::TYPE_NUM == $indexType ? 0 + $offset : static::translateFieldName('Rfid', TableMap::TYPE_PHPNAME, $indexType)];
     }
 
     /**
@@ -262,10 +179,10 @@ class UserTableMap extends TableMap
      */
     public static function getPrimaryKeyFromRow($row, $offset = 0, $indexType = TableMap::TYPE_NUM)
     {
-        return (int) $row[
+        return (string) $row[
             $indexType == TableMap::TYPE_NUM
                 ? 0 + $offset
-                : self::translateFieldName('Id', TableMap::TYPE_PHPNAME, $indexType)
+                : self::translateFieldName('Rfid', TableMap::TYPE_PHPNAME, $indexType)
         ];
     }
 
@@ -282,7 +199,7 @@ class UserTableMap extends TableMap
      */
     public static function getOMClass($withPrefix = true)
     {
-        return $withPrefix ? UserTableMap::CLASS_DEFAULT : UserTableMap::OM_CLASS;
+        return $withPrefix ? RfidTableMap::CLASS_DEFAULT : RfidTableMap::OM_CLASS;
     }
 
     /**
@@ -296,22 +213,22 @@ class UserTableMap extends TableMap
      *
      * @throws PropelException Any exceptions caught during processing will be
      *                         rethrown wrapped into a PropelException.
-     * @return array           (User object, last column rank)
+     * @return array           (Rfid object, last column rank)
      */
     public static function populateObject($row, $offset = 0, $indexType = TableMap::TYPE_NUM)
     {
-        $key = UserTableMap::getPrimaryKeyHashFromRow($row, $offset, $indexType);
-        if (null !== ($obj = UserTableMap::getInstanceFromPool($key))) {
+        $key = RfidTableMap::getPrimaryKeyHashFromRow($row, $offset, $indexType);
+        if (null !== ($obj = RfidTableMap::getInstanceFromPool($key))) {
             // We no longer rehydrate the object, since this can cause data loss.
             // See http://www.propelorm.org/ticket/509
             // $obj->hydrate($row, $offset, true); // rehydrate
-            $col = $offset + UserTableMap::NUM_HYDRATE_COLUMNS;
+            $col = $offset + RfidTableMap::NUM_HYDRATE_COLUMNS;
         } else {
-            $cls = UserTableMap::OM_CLASS;
-            /** @var User $obj */
+            $cls = RfidTableMap::OM_CLASS;
+            /** @var Rfid $obj */
             $obj = new $cls();
             $col = $obj->hydrate($row, $offset, false, $indexType);
-            UserTableMap::addInstanceToPool($obj, $key);
+            RfidTableMap::addInstanceToPool($obj, $key);
         }
 
         return array($obj, $col);
@@ -334,18 +251,18 @@ class UserTableMap extends TableMap
         $cls = static::getOMClass(false);
         // populate the object(s)
         while ($row = $dataFetcher->fetch()) {
-            $key = UserTableMap::getPrimaryKeyHashFromRow($row, 0, $dataFetcher->getIndexType());
-            if (null !== ($obj = UserTableMap::getInstanceFromPool($key))) {
+            $key = RfidTableMap::getPrimaryKeyHashFromRow($row, 0, $dataFetcher->getIndexType());
+            if (null !== ($obj = RfidTableMap::getInstanceFromPool($key))) {
                 // We no longer rehydrate the object, since this can cause data loss.
                 // See http://www.propelorm.org/ticket/509
                 // $obj->hydrate($row, 0, true); // rehydrate
                 $results[] = $obj;
             } else {
-                /** @var User $obj */
+                /** @var Rfid $obj */
                 $obj = new $cls();
                 $obj->hydrate($row);
                 $results[] = $obj;
-                UserTableMap::addInstanceToPool($obj, $key);
+                RfidTableMap::addInstanceToPool($obj, $key);
             } // if key exists
         }
 
@@ -366,19 +283,11 @@ class UserTableMap extends TableMap
     public static function addSelectColumns(Criteria $criteria, $alias = null)
     {
         if (null === $alias) {
-            $criteria->addSelectColumn(UserTableMap::COL_ID);
-            $criteria->addSelectColumn(UserTableMap::COL_LDAP);
-            $criteria->addSelectColumn(UserTableMap::COL_FIRSTNAME);
-            $criteria->addSelectColumn(UserTableMap::COL_LASTNAME);
-            $criteria->addSelectColumn(UserTableMap::COL_PLAYLIST_ID);
-            $criteria->addSelectColumn(UserTableMap::COL_PLAYBACKMODE);
+            $criteria->addSelectColumn(RfidTableMap::COL_RFID);
+            $criteria->addSelectColumn(RfidTableMap::COL_LDAP);
         } else {
-            $criteria->addSelectColumn($alias . '.id');
+            $criteria->addSelectColumn($alias . '.rfid');
             $criteria->addSelectColumn($alias . '.ldap');
-            $criteria->addSelectColumn($alias . '.firstname');
-            $criteria->addSelectColumn($alias . '.lastname');
-            $criteria->addSelectColumn($alias . '.playlist_id');
-            $criteria->addSelectColumn($alias . '.playbackmode');
         }
     }
 
@@ -391,7 +300,7 @@ class UserTableMap extends TableMap
      */
     public static function getTableMap()
     {
-        return Propel::getServiceContainer()->getDatabaseMap(UserTableMap::DATABASE_NAME)->getTable(UserTableMap::TABLE_NAME);
+        return Propel::getServiceContainer()->getDatabaseMap(RfidTableMap::DATABASE_NAME)->getTable(RfidTableMap::TABLE_NAME);
     }
 
     /**
@@ -399,16 +308,16 @@ class UserTableMap extends TableMap
      */
     public static function buildTableMap()
     {
-        $dbMap = Propel::getServiceContainer()->getDatabaseMap(UserTableMap::DATABASE_NAME);
-        if (!$dbMap->hasTable(UserTableMap::TABLE_NAME)) {
-            $dbMap->addTableObject(new UserTableMap());
+        $dbMap = Propel::getServiceContainer()->getDatabaseMap(RfidTableMap::DATABASE_NAME);
+        if (!$dbMap->hasTable(RfidTableMap::TABLE_NAME)) {
+            $dbMap->addTableObject(new RfidTableMap());
         }
     }
 
     /**
-     * Performs a DELETE on the database, given a User or Criteria object OR a primary key value.
+     * Performs a DELETE on the database, given a Rfid or Criteria object OR a primary key value.
      *
-     * @param mixed               $values Criteria or User object or primary key or array of primary keys
+     * @param mixed               $values Criteria or Rfid object or primary key or array of primary keys
      *              which is used to create the DELETE statement
      * @param  ConnectionInterface $con the connection to use
      * @return int             The number of affected rows (if supported by underlying database driver).  This includes CASCADE-related rows
@@ -419,27 +328,27 @@ class UserTableMap extends TableMap
      public static function doDelete($values, ConnectionInterface $con = null)
      {
         if (null === $con) {
-            $con = Propel::getServiceContainer()->getWriteConnection(UserTableMap::DATABASE_NAME);
+            $con = Propel::getServiceContainer()->getWriteConnection(RfidTableMap::DATABASE_NAME);
         }
 
         if ($values instanceof Criteria) {
             // rename for clarity
             $criteria = $values;
-        } elseif ($values instanceof \User) { // it's a model object
+        } elseif ($values instanceof \Rfid) { // it's a model object
             // create criteria based on pk values
             $criteria = $values->buildPkeyCriteria();
         } else { // it's a primary key, or an array of pks
-            $criteria = new Criteria(UserTableMap::DATABASE_NAME);
-            $criteria->add(UserTableMap::COL_ID, (array) $values, Criteria::IN);
+            $criteria = new Criteria(RfidTableMap::DATABASE_NAME);
+            $criteria->add(RfidTableMap::COL_RFID, (array) $values, Criteria::IN);
         }
 
-        $query = UserQuery::create()->mergeWith($criteria);
+        $query = RfidQuery::create()->mergeWith($criteria);
 
         if ($values instanceof Criteria) {
-            UserTableMap::clearInstancePool();
+            RfidTableMap::clearInstancePool();
         } elseif (!is_object($values)) { // it's a primary key, or an array of pks
             foreach ((array) $values as $singleval) {
-                UserTableMap::removeInstanceFromPool($singleval);
+                RfidTableMap::removeInstanceFromPool($singleval);
             }
         }
 
@@ -447,20 +356,20 @@ class UserTableMap extends TableMap
     }
 
     /**
-     * Deletes all rows from the user table.
+     * Deletes all rows from the rfid table.
      *
      * @param ConnectionInterface $con the connection to use
      * @return int The number of affected rows (if supported by underlying database driver).
      */
     public static function doDeleteAll(ConnectionInterface $con = null)
     {
-        return UserQuery::create()->doDeleteAll($con);
+        return RfidQuery::create()->doDeleteAll($con);
     }
 
     /**
-     * Performs an INSERT on the database, given a User or Criteria object.
+     * Performs an INSERT on the database, given a Rfid or Criteria object.
      *
-     * @param mixed               $criteria Criteria or User object containing data that is used to create the INSERT statement.
+     * @param mixed               $criteria Criteria or Rfid object containing data that is used to create the INSERT statement.
      * @param ConnectionInterface $con the ConnectionInterface connection to use
      * @return mixed           The new primary key.
      * @throws PropelException Any exceptions caught during processing will be
@@ -469,22 +378,18 @@ class UserTableMap extends TableMap
     public static function doInsert($criteria, ConnectionInterface $con = null)
     {
         if (null === $con) {
-            $con = Propel::getServiceContainer()->getWriteConnection(UserTableMap::DATABASE_NAME);
+            $con = Propel::getServiceContainer()->getWriteConnection(RfidTableMap::DATABASE_NAME);
         }
 
         if ($criteria instanceof Criteria) {
             $criteria = clone $criteria; // rename for clarity
         } else {
-            $criteria = $criteria->buildCriteria(); // build Criteria from User object
-        }
-
-        if ($criteria->containsKey(UserTableMap::COL_ID) && $criteria->keyContainsValue(UserTableMap::COL_ID) ) {
-            throw new PropelException('Cannot insert a value for auto-increment primary key ('.UserTableMap::COL_ID.')');
+            $criteria = $criteria->buildCriteria(); // build Criteria from Rfid object
         }
 
 
         // Set the correct dbName
-        $query = UserQuery::create()->mergeWith($criteria);
+        $query = RfidQuery::create()->mergeWith($criteria);
 
         // use transaction because $criteria could contain info
         // for more than one table (I guess, conceivably)
@@ -493,7 +398,7 @@ class UserTableMap extends TableMap
         });
     }
 
-} // UserTableMap
+} // RfidTableMap
 // This is the static code needed to register the TableMap for this table with the main Propel class.
 //
-UserTableMap::buildTableMap();
+RfidTableMap::buildTableMap();

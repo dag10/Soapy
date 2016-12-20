@@ -7,4 +7,5 @@
 //= PlaybackCard : playback.card.html
 //= LogsApp : logs.app.html
 //= LogsCard : logs.card.html
+//= UsersApp : users.app.html
 

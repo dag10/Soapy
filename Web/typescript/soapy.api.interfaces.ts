@@ -70,10 +70,17 @@ export interface LogEvent {
   Message: string;
 }
 
+export interface RFIDMapping {
+  rfid: string;
+  ldap?: string;
+  lastTap?: string;
+}
+
 export interface Response {
   user?: User;
   playlist?: SoapyPlaylist;
   error?: string;
   events?: LogEvent[];
+  rfidMappings?: RFIDMapping[];
 }
 

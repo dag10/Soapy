@@ -10,6 +10,7 @@ interface TemplateFormat {
   PlaybackCard: string;
   LogsApp: string;
   LogsCard: string;
+  UsersApp: string;
 }
 
 interface StaticDataFormat {

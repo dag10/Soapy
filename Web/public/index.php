@@ -176,6 +176,20 @@ $app->get(
   $app->render('app.html', $ctx);
 });
 
+$app->get(
+    '/users/?', function() use ($app) {
+
+  $ctx = start_view_context($app, ['admin_only' => true]);
+
+  $ctx['bathrooms'] = LogQuery::bathrooms();
+
+  $ctx['main_module'] = 'users.init';
+  $ctx['playlist_api_data'] = apiRawUserData($ctx);
+  $ctx['current_page'] = 'users';
+
+  $app->render('app.html', $ctx);
+});
+
 // Spotify redirects here after user authenticates.
 $app->get(
     '/' . $cfg['spotify']['callback_route'] . '/?', function() use ($app) {

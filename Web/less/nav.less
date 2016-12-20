@@ -12,5 +12,21 @@ navbar {
   .navbar-right {
     margin-right: 0;
   }
+
+  .navbar-nav {
+    margin: 0;
+    height: 50px;
+    
+    & > li {
+      display: inline-block;
+      margin-left: 10px;
+      
+      & > a {
+        line-height: 50px;
+        height: 50px;
+        padding: 0 10px;
+      }
+    }
+  }
 }
 

@@ -1,0 +1,19 @@
+<div class="image" [ngStyle]="style">
+  <i class="material-icons" *ngIf="!user.avatar">face</i>
+</div>
+
+<h1>{{ user.firstName }} {{ user.lastName }} <span class="ldap" title="{{ user.firstName }}'s ldap username">{{ user.ldap }}</span></h1>
+
+<span *ngIf="user.lastTap" class="line-2" title="{{ user.lastTap.fullText }}">
+  <i class="material-icons clock">access_time</i>
+  <span class="last-used">Last used Soapy</span>
+  <span>{{ user.lastTap.fuzzyText }}</span><span class="last-used">.</span>
+</span>
+
+<span class="rfids">
+  <span *ngFor="#rfid of user.rfids" class="mdl-chip mdl-chip--deletable">
+    <span class="mdl-chip__text" title="Last used {{ rfid.lastTap?.fuzzyText }}">{{ rfid.rfid }}</span>
+    <button type="button" class="mdl-chip__action" title="Unpair RFID" (click)="unpairRFID.emit(rfid.rfid)"><i class="material-icons">cancel</i></button>
+  </span>
+</span>
+

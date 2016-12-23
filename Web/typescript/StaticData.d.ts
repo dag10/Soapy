@@ -11,6 +11,7 @@ interface TemplateFormat {
   LogsApp: string;
   LogsCard: string;
   UsersApp: string;
+  UserCard: string;
 }
 
 interface StaticDataFormat {

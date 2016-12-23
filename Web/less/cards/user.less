@@ -1,0 +1,144 @@
+@import 'base.less';
+
+user-card {
+  .card();
+
+  @card-height: 86px;
+  @text-left-margin: @card-height + @card-padding;
+  @light-grey: darken(@card-bg-color, 8%);
+
+  padding: 0;
+  height: @card-height;
+  position: relative;
+
+  & > a {
+    .card-action-button;
+  }
+
+  padding: 0;
+  overflow: hidden;
+  position: relative;
+  height: @card-height;
+
+  h1 {
+    margin: 13px auto 7px 0;
+    position: absolute;
+    left: @text-left-margin;
+
+    .ldap {
+      color: #929292;
+      margin-left: 2px;
+      font-size: 16px;
+      font-weight: 100;
+    }
+  }
+
+  .line-2 {
+    .card-copy;
+
+    display: block;
+    position: absolute;
+    right: @card-padding;
+    top: @card-padding - 7px;
+    color: #929292;
+  }
+
+  .rfids {
+    position: absolute;
+    left: @text-left-margin - 3px;
+    top: 40px;
+
+    .mdl-chip {
+      background-color: @light-grey;
+      /*height: 22px;*/
+      /*line-height: 22px;*/
+      margin-right: 10px;
+
+      .mdl-chip__text {
+        /*font-size: 14px;*/
+        /*font-weight: 100;*/
+      }
+
+      .mdl-chip__action {
+        /*width: 14px;*/
+        /*height: 14px;*/
+        
+        i {
+          /*font-size: 15px;*/
+        }
+      }
+    }
+  }
+
+  .image {
+    background-color: @light-grey;
+    width: @card-height;
+    height: @card-height;
+    border-top-left-radius: @card-border-radius;
+    border-bottom-left-radius: @card-border-radius;
+    float: left;
+    position: relative;
+    overflow: hidden;
+    background-size: cover;
+    
+    i {
+      font-size: 64px;
+      line-height: @card-height;
+      width: @card-height;
+      text-align: center;
+      color: #d4d4d4;
+    }
+  }
+
+  .last-used {
+    display: none;
+  }
+
+  .clock {
+    display: inline;
+    font-size: 13px;
+    position: relative;
+    top: 1px;
+  }
+
+  @media only screen and (max-width: @mobile-width) {
+    @text-left-margin: @card-height + @card-padding-mobile;
+
+    & > a.mdl-button {
+      position: absolute;
+      left: @card-height;
+      right: 0;
+      bottom: 0;
+      top: auto;
+      border-radius: 0;
+      text-align: left;
+      padding: 0 11px;
+    }
+
+    .last-used {
+      display: inline;
+    }
+
+    .clock {
+      display: none;
+    }
+
+    & > div.card-content {
+      h1 {
+        margin: @card-top-padding-mobile auto 7px 0;
+        left: @text-left-margin;
+      }
+
+      .line-2 {
+        .card-copy;
+
+        display: block;
+        position: absolute;
+        left: @text-left-margin;
+        right: auto;
+        top: 30px;
+      }
+    }
+  }
+}
+

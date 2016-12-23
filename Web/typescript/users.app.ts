@@ -1,10 +1,10 @@
 import {Component, OnInit, ChangeDetectorRef} from 'angular2/core';
 
 import {ErrorCardComponent} from './error.card';
+import {UserCardComponent} from './user.card';
 
 import {StaticData} from './StaticData';
-import {UsersService} from './users.service';
-
+import {RFID, User, UsersService} from './users.service';
 
 @Component({
   providers: [UsersService],
@@ -12,6 +12,7 @@ import {UsersService} from './users.service';
   template: StaticData.templates.UsersApp,
   directives: [
     ErrorCardComponent,
+    UserCardComponent,
   ],
 })
 export class UsersAppComponent implements OnInit {
@@ -29,6 +30,18 @@ export class UsersAppComponent implements OnInit {
     });
 
     this._usersService.subscribeToUsers();
+  }
+
+  public get unknownRFIDs(): RFID[] {
+    return this._usersService.unknownRFIDs;
+  }
+
+  public get users(): User[] {
+    return this._usersService.users;
+  }
+
+  public unpairRFID(rfid: string) {
+    this._usersService.unpairRFID(rfid);
   }
 }
 

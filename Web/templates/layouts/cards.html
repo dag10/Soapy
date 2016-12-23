@@ -3,6 +3,7 @@
   <head>
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
     <meta charset="utf-8"/>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 
     <title>{% block title %}Soapy{% endblock %}</title>
 
@@ -57,6 +58,11 @@
 
     {% block init_script %}
     <script>
+      System.config({
+        map: {
+          'moment': '/lib/moment.js',
+        },
+      });
       System.register("StaticData", [], function(exports) {
         "use strict";
         return {

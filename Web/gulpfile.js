@@ -227,6 +227,8 @@ gulp.task('copy:libs', function() {
 
     'node_modules/Stickyfill/dist/stickyfill.js',
     'node_modules/Stickyfill/dist/stickyfill.min.js',
+
+    'node_modules/moment/moment.js',
   ])
   .pipe(gulp.dest(libOut));
 });

@@ -1,5 +1,8 @@
+///<reference path="../node_modules/moment/moment.d.ts"/>
+import moment from 'moment';
+
 import {EventEmitter, Injectable} from 'angular2/core';
-import {Http, Response} from 'angular2/http';
+import {Http, Response, URLSearchParams, Headers, RequestOptions} from 'angular2/http';
 import * as Rx from 'rxjs/Rx';
 
 import {StaticData} from './StaticData';
@@ -13,14 +16,24 @@ export class APIError extends BaseError {
   };
 }
 
-export interface RFID extends API.RFID {}
+export interface HumanDate {
+  date: Date;
+  fullText: string;
+  fuzzyText: string;
+}
+
+export interface RFID {
+  rfid: string;
+  lastTap?: HumanDate;
+}
 
 export interface User {
   ldap: string;
   firstName: string;
   lastName: string;
+  hasSpotifyAccount: boolean;
   avatar?: string;
-  lastTap?: string;
+  lastTap?: HumanDate;
   rfids: RFID[];
 }
 
@@ -31,8 +44,8 @@ export class UsersService {
   private _polling: boolean = false;
   private _maxPollInterval: number = 500; // milliseconds
 
-  private _unknownRFIDs: RFID[] = null;
-  private _users: User[] = null;
+  private _unknownRFIDs: { [rfid: string]: RFID; } = {};
+  private _users: { [ldap: string]: User; } = {};
 
   constructor(private http: Http) {
     this.errors.subscribe((error) => {
@@ -45,7 +58,7 @@ export class UsersService {
    */
   public subscribeToUsers() {
     this._polling = true;
-    this.pollForMappings();
+    this.pollForUsers();
   }
 
   /**
@@ -56,62 +69,9 @@ export class UsersService {
   }
 
   /**
-   * Get processed list of known users.
-   */
-  public get users(): User[] {
-    if (this._users === null) {
-      return [];
-    }
-
-    return this._users;
-  }
-
-  /**
-   * Get processed list of unknown RFIDs.
-   */
-  public get unknownRFIDs(): RFID[] {
-    if (this._unknownRFIDs === null) {
-      return [];
-    }
-
-    return this._unknownRFIDs;
-  }
-
-  /**
-   * Maps a user object from an API response into a user object for this page.
-   */
-  private mapApiUser(user: API.User): User {
-    var ret: User = {
-      ldap: user.ldap,
-      firstName: user.firstName,
-      lastName: user.lastName,
-      rfids: [],
-    };
-
-    if (user.spotifyAccount) {
-      ret.avatar = user.spotifyAccount.avatar;
-    }
-
-    if (user.rfids) {
-      ret.rfids = <RFID[]>user.rfids.map(this.mapApiRFID.bind(this));
-    }
-
-    // TODO: Calculate last tap time
-
-    return ret;
-  }
-
-  /**
-   * Maps a API response's RFID tap into an RFID tap object for this page.
-   */
-  private mapApiRFID(rfid: API.RFID): RFID {
-    return rfid;
-  }
-
-  /**
    * Fetches the RFID mappings, including time of last tap.
    */
-  private pollForMappings() {
+  public pollForUsers() {
     var startTime = new Date().getTime();
 
     this.fetchMappings().subscribe(res => {
@@ -129,26 +89,138 @@ export class UsersService {
         timeout = 0;
       }
 
-      setTimeout(this.pollForMappings.bind(this), timeout);
+      setTimeout(this.pollForUsers.bind(this), timeout);
     });
+  }
+
+  /**
+   * Get processed list of known users.
+   */
+  public get users(): User[] {
+    return (<any>Object).values(this._users);
+  }
+
+  /**
+   * Get processed list of unknown RFIDs.
+   */
+  public get unknownRFIDs(): RFID[] {
+    return (<any>Object).values(this._unknownRFIDs);
+  }
+
+  /**
+   * Sends an RPC to unpair an RFID fob.
+   */
+  public unpairRFID(rfid: string): Rx.Observable<API.Response> {
+    if (!this.removeRFIDFromData(rfid)) {
+      return Rx.Observable.throw(new Error('RFID not found.'));
+    }
+
+    var params = new URLSearchParams();
+    params.set('rfid', rfid);
+
+    return this
+      .makePostRequest('/api/rfid/unpair', params)
+      .map(res => res.json());
+  }
+
+  /**
+   * Removes an RFID from the local cache of user data.
+   * Returns false if RFID is not found.
+   */
+  private removeRFIDFromData(rfid: string) {
+    for (var i = 0; i < this.users.length; i++) {
+      var user: User = this.users[i];
+      for (var j = 0; j < user.rfids.length; j++) {
+        if (user.rfids[j].rfid === rfid) {
+          user.rfids.splice(j, 1);
+          return true;
+        }
+      }
+    }
+
+    return false;
+  }
+
+  /**
+   * Converts a timestamp into a pair containing the date and a fuzzy timestamp.
+   */
+  private timestampToHumanDate(timestamp: string): HumanDate {
+    var date = new Date((<any>Number).parseInt(timestamp));
+
+    return {
+      date: date,
+      fullText: moment(date).format("ddd, MMMM Do YYYY, h:mm:ss a"),
+      fuzzyText: moment(date).fromNow(),
+    };
+  }
+
+  /**
+   * Maps a user object from an API response into a user object for this page.
+   */
+  private mapApiUser(user: API.User): User {
+    var ret: User = {
+      ldap: user.ldap,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      hasSpotifyAccount: !!user.spotifyAccount,
+      rfids: [],
+    };
+
+    if (user.spotifyAccount) {
+      ret.avatar = user.spotifyAccount.avatar;
+    }
+
+    if (user.rfids) {
+      ret.rfids = <RFID[]>user.rfids.map(this.mapApiRFID.bind(this));
+
+      var sortedRFIDs = ret.rfids.slice(0).sort(
+        (a, b) => b.lastTap.date.getTime() - a.lastTap.date.getTime());
+      ret.lastTap = sortedRFIDs[0].lastTap;
+    }
+
+    return ret;
+  }
+
+  /**
+   * Maps a API response's RFID tap into an RFID tap object for this page.
+   */
+  private mapApiRFID(rfid: API.RFID): RFID {
+    return {
+      rfid: rfid.rfid,
+      lastTap: this.timestampToHumanDate(rfid.lastTap),
+    };
   }
 
   /**
    * Processes current list of uknown RFIDs.
    */
   private processUnknownRFIDs(rfids: API.RFID[]) {
-    this._unknownRFIDs = <RFID[]>rfids.map(this.mapApiRFID.bind(this));
+    rfids
+    .map(this.mapApiRFID.bind(this))
+    .forEach((rfid: RFID) => {
+      if (this._unknownRFIDs.hasOwnProperty(rfid.rfid)) {
+        (<any>Object).assign(this._unknownRFIDs[rfid.rfid], rfid);
+        return;
+      }
 
-    console.info('Unknown RFID taps:', this._unknownRFIDs);
+      this._unknownRFIDs[rfid.rfid] = rfid;
+    });
   }
 
   /**
    * Processes current list of known users.
    */
   private processUsers(users: API.User[]) {
-    this._users = <User[]>users.map(this.mapApiUser.bind(this));
+    users
+    .map(this.mapApiUser.bind(this))
+    .forEach((user: User) => {
+      if (this._users.hasOwnProperty(user.ldap)) {
+        (<any>Object).assign(this._users[user.ldap], user);
+        return;
+      }
 
-    console.info('Known users:', this._users);
+      this._users[user.ldap] = user;
+    });
   }
 
   /**
@@ -166,7 +238,7 @@ export class UsersService {
           },
           {
             rfid: 'UNKNOWN01',
-            lastTap: '' + new Date().getTime(),
+            lastTap: '' + (new Date().getTime() - 200000000 + (200000000 * Math.random())),
           },
         ],
         users: [
@@ -193,16 +265,16 @@ export class UsersService {
             isAdmin: false,
             spotifyAccount: {
               username: 'spotifyDev',
-              avatar: 'http://placehold.it/250x250',
+              //avatar: 'http://placehold.it/250x250',
             },
             rfids: [
               {
                 rfid: 'devid01',
-                lastTap: '1482271039547',
+                lastTap: '' + (new Date().getTime() - (1000 * 60 * 60 * 24)),
               },
               {
                 rfid: 'devid02',
-                lastTap: '1482271039547',
+                lastTap: '' + (new Date().getTime() - 200000000 + (200000000 * Math.random())),
               },
             ],
           },
@@ -216,6 +288,31 @@ export class UsersService {
       .makeGetRequest('/api/users/all')
       .map(res => res.json());
      */
+  }
+
+  /**
+   * Makes a parameterize post request to the API.
+   */
+  private makePostRequest(route: string, params?: URLSearchParams):
+    Rx.Observable<Response> {
+
+    var headers = new Headers({
+      'Content-Type': 'application/x-www-form-urlencoded',
+    });
+
+    var options = new RequestOptions({
+      headers: headers,
+    });
+
+    var body: string = params ? params.toString() : '';
+
+    var res = this.http.post(route, body, options)
+      .catch(this.catchAPIErrors.bind(this))
+      .publishReplay(1);
+
+    res.connect();
+
+    return <Rx.ConnectableObservable<Response>> res;
   }
 
   /**

@@ -9,4 +9,5 @@
 //= LogsCard : logs.card.html
 //= UsersApp : users.app.html
 //= UserCard : user.card.html
+//= RfidCard : rfid.card.html
 

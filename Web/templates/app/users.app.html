@@ -1,13 +1,15 @@
 <error-card [errors]="errors"></error-card>
 
-<h1>Unknown RFIDs:</h1>
+<h1 *ngIf="unknownRFIDs" class="first">Unregistered RFIDs</h1>
 
-<div class="card" *ngFor="#rfid of unknownRFIDs">
-  <h1>{{ rfid.rfid }}</h1>
-  Last tapped {{ rfid.lastTap?.fuzzyText }}.
-</div>
+<rfid-card
+  *ngFor="#rfid of unknownRFIDs"
+  [rfid]="rfid"
+  [suggestedUsers]="suggestedUsers"
+  (pair)="pairRFID(rfid.rfid, $event)">
+</rfid-card>
 
-<h1>Users:</h1>
+<h1 *ngIf="users" [class.first]="!unknownRFIDs">Users</h1>
 
 <user-card
   *ngFor="#user of users"

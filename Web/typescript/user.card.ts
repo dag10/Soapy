@@ -18,8 +18,7 @@ export class UserCardComponent {
 
   private _user: User;
 
-  constructor(private _changeDetector: ChangeDetectorRef) {
-  }
+  constructor(private _changeDetector: ChangeDetectorRef) {}
 
   @Input()
   public set user(user: User) {

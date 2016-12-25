@@ -1,0 +1,46 @@
+<h1>Unpaired RFID <span class="subtitle">{{ rfid.rfid }}</span></h1>
+
+<span *ngIf="rfid.lastTap" class="line-2" title="{{ rfid.lastTap.fullText }}">
+  <i class="material-icons clock">access_time</i>
+  <span class="last-used">Last tapped</span>
+  <span>{{ rfid.lastTap.fuzzyText }}</span><span class="last-used">.</span>
+</span>
+
+<div class="chips">
+  <button
+      *ngFor="#user of suggestedUsers"
+      type="button"
+      class="mdl-chip"
+      [class.mdl-chip--contact]="user.avatar"
+      (click)="pairWithSuggestion(user.ldap)">
+    <img *ngIf="user.avatar" class="mdl-chip__contact" src="{{ user.avatar }}" />
+    <span class="mdl-chip__text">
+      Pair with {{ user.firstName }} {{ user.lastName }}
+    </span>
+  </button>
+  <button
+      type="button"
+      class="mdl-chip">
+    <span class="mdl-chip__text">
+      Pair with a username...
+    </span>
+  </button>
+</div>
+
+<form class="username-pair">
+  <div class="mdl-textfield mdl-js-textfield">
+    <input
+      class="mdl-textfield__input"
+      type="text"
+      [attr.id]="usernameId" />
+    <label
+      class="mdl-textfield__label"
+      [attr.for]="usernameId">
+      Username to pair
+    </label>
+  </div>
+  <button
+    class="mdl-button mdl-js-button mdl-js-ripple-effect"
+    >Pair</button>
+</form>
+

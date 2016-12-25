@@ -33,6 +33,7 @@ export interface User {
   lastName: string;
   hasSpotifyAccount: boolean;
   avatar?: string;
+  spotifyUsername?: string;
   lastTap?: HumanDate;
   rfids: RFID[];
 }
@@ -40,9 +41,11 @@ export interface User {
 @Injectable()
 export class UsersService {
   public errors: EventEmitter<any> = new EventEmitter();
+  public unknownRFIDsChanged: EventEmitter<any> = new EventEmitter();
+  public usersChanged: EventEmitter<any> = new EventEmitter();
 
   private _polling: boolean = false;
-  private _maxPollInterval: number = 500; // milliseconds
+  private _maxPollInterval: number = 1500; // milliseconds
 
   private _unknownRFIDs: { [rfid: string]: RFID; } = {};
   private _users: { [ldap: string]: User; } = {};
@@ -89,7 +92,7 @@ export class UsersService {
         timeout = 0;
       }
 
-      setTimeout(this.pollForUsers.bind(this), timeout);
+      //setTimeout(this.pollForUsers.bind(this), timeout); // TODO ENABLE
     });
   }
 
@@ -98,6 +101,13 @@ export class UsersService {
    */
   public get users(): User[] {
     return (<any>Object).values(this._users);
+  }
+
+  /**
+   * Get list of users with no RFID pairings.
+   */
+  public get unpairedUsers(): User[] {
+    return this.users.filter(user => !user.rfids || user.rfids.length === 0);
   }
 
   /**
@@ -124,6 +134,21 @@ export class UsersService {
   }
 
   /**
+   * Sends an RPC to pair an RFID fob to a user.
+   */
+  public pairRFID(rfid: string, ldap: string): Rx.Observable<API.Response> {
+    this.addRFIDToUserInData(rfid, ldap);
+
+    var params = new URLSearchParams();
+    params.set('rfid', rfid);
+    params.set('ldap', ldap);
+
+    return this
+      .makePostRequest('/api/rfid/pair', params)
+      .map(res => res.json());
+  }
+
+  /**
    * Removes an RFID from the local cache of user data.
    * Returns false if RFID is not found.
    */
@@ -132,9 +157,43 @@ export class UsersService {
       var user: User = this.users[i];
       for (var j = 0; j < user.rfids.length; j++) {
         if (user.rfids[j].rfid === rfid) {
+          this._unknownRFIDs[user.rfids[j].rfid] = user.rfids[j];
           user.rfids.splice(j, 1);
           return true;
         }
+      }
+    }
+
+    return false;
+  }
+
+  /**
+   * Adds an RFID to a user in local cache of user data.
+   * Returns false if user or RFID is not found.
+   */
+  private addRFIDToUserInData(rfid: string, ldap: string) {
+    var rfidTap: RFID = null;
+    for (var i = 0; i < this.unknownRFIDs.length; i++) {
+      if (this.unknownRFIDs[i].rfid === rfid) {
+        rfidTap = this.unknownRFIDs[i];
+        delete this._unknownRFIDs[rfidTap.rfid];
+        break;
+      }
+    }
+
+    if (rfidTap === null) {
+      return false;
+    }
+
+    for (i = 0; i < this.users.length; i++) {
+      var user: User = this.users[i];
+      if (user.ldap === ldap) {
+        if (!user.rfids) {
+          user.rfids = [];
+        }
+
+        user.rfids.push(rfidTap);
+        return true;
       }
     }
 
@@ -168,9 +227,10 @@ export class UsersService {
 
     if (user.spotifyAccount) {
       ret.avatar = user.spotifyAccount.avatar;
+      ret.spotifyUsername = user.spotifyAccount.username;
     }
 
-    if (user.rfids) {
+    if (user.rfids && user.rfids.length > 0) {
       ret.rfids = <RFID[]>user.rfids.map(this.mapApiRFID.bind(this));
 
       var sortedRFIDs = ret.rfids.slice(0).sort(
@@ -205,6 +265,8 @@ export class UsersService {
 
       this._unknownRFIDs[rfid.rfid] = rfid;
     });
+
+    this.unknownRFIDsChanged.emit(null);
   }
 
   /**
@@ -221,6 +283,8 @@ export class UsersService {
 
       this._users[user.ldap] = user;
     });
+
+    this.usersChanged.emit(null);
   }
 
   /**
@@ -243,6 +307,24 @@ export class UsersService {
         ],
         users: [
           {
+            ldap: 'newbie',
+            firstName: 'John',
+            lastName: 'Dorian',
+            isAdmin: false,
+            spotifyAccount: {
+              username: 'spotifyNewbie',
+              avatar: 'http://placehold.it/30/ffff00',
+            },
+            rfids: [
+            ],
+          },
+          {
+            ldap: 'nobody',
+            firstName: 'Anne',
+            lastName: 'Egg',
+            isAdmin: false,
+          },
+          {
             ldap: 'dag10',
             firstName: 'Drew',
             lastName: 'Gottlieb',
@@ -260,7 +342,7 @@ export class UsersService {
           },
           {
             ldap: 'dev',
-            firstName: 'John',
+            firstName: 'Bob',
             lastName: 'Smith',
             isAdmin: false,
             spotifyAccount: {

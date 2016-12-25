@@ -1,10 +1,8 @@
 @import 'base.less';
 
-user-card {
+.user-rfid-card-base(@card-height, @text-left-margin) {
   .card();
 
-  @card-height: 86px;
-  @text-left-margin: @card-height + @card-padding;
   @light-grey: darken(@card-bg-color, 8%);
 
   padding: 0;
@@ -21,11 +19,14 @@ user-card {
   height: @card-height;
 
   h1 {
-    margin: 13px auto 7px 0;
+    &, &:first-child {
+      margin: 13px auto 7px 0;
+    }
+
     position: absolute;
     left: @text-left-margin;
 
-    .ldap {
+    .subtitle {
       color: #929292;
       margin-left: 2px;
       font-size: 16px;
@@ -43,7 +44,7 @@ user-card {
     color: #929292;
   }
 
-  .rfids {
+  .chips {
     position: absolute;
     left: @text-left-margin - 3px;
     top: 40px;
@@ -139,6 +140,30 @@ user-card {
         top: 30px;
       }
     }
+  }
+}
+
+user-card {
+  @card-height: 86px;
+  @text-left-margin: @card-height + @card-padding;
+
+  .user-rfid-card-base(@card-height, @text-left-margin);
+}
+
+rfid-card {
+  @card-height: 86px;
+  @text-left-margin: @card-padding;
+
+  .user-rfid-card-base(@card-height, @text-left-margin);
+
+  .chips {
+    display: none; /* TODO: TEMPORARY */
+  }
+
+  .username-pair {
+    position: absolute;
+    left: @text-left-margin;
+    top: 24px;
   }
 }
 

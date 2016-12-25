@@ -20,6 +20,16 @@ soapy-app {
   .spinner {
     margin: -@card-vertical-margin auto @card-vertical-margin auto;
   }
+
+  & > h1 {
+    color: #7d7d7d;
+    margin-bottom: @card-vertical-margin * 25/30;
+    font-size: 19px;
+
+    &.first {
+      margin-top: 0;
+    }
+  }
 }
 
 .navbar {
@@ -67,6 +77,18 @@ soapy-app {
 
   .mobile-only {
     display: inherit;
+  }
+
+  soapy-app {
+    & > h1 {
+      font-size: 16px;
+      margin: 15px auto;
+      text-align: center;
+
+      &.first {
+        margin-top: 5px;
+      }
+    }
   }
 }
 

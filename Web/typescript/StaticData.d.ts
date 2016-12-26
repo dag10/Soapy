@@ -13,6 +13,7 @@ interface TemplateFormat {
   UsersApp: string;
   UserCard: string;
   RfidCard: string;
+  Snackbar: string;
 }
 
 interface StaticDataFormat {

@@ -3,6 +3,7 @@ import {Component, OnInit, ChangeDetectorRef} from 'angular2/core';
 import {ErrorCardComponent} from './error.card';
 import {UserCardComponent} from './user.card';
 import {RfidCardComponent} from './rfid.card';
+import {SnackbarComponent} from './snackbar';
 
 import {StaticData} from './StaticData';
 import {RFID, User, UsersService} from './users.service';
@@ -15,6 +16,7 @@ import {RFID, User, UsersService} from './users.service';
     ErrorCardComponent,
     UserCardComponent,
     RfidCardComponent,
+    SnackbarComponent,
   ],
 })
 export class UsersAppComponent implements OnInit {

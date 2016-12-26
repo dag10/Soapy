@@ -5,10 +5,6 @@
 
   @light-grey: darken(@card-bg-color, 8%);
 
-  padding: 0;
-  height: @card-height;
-  position: relative;
-
   & > a {
     .card-action-button;
   }
@@ -16,7 +12,7 @@
   padding: 0;
   overflow: hidden;
   position: relative;
-  height: @card-height;
+  min-height: @card-height;
 
   h1 {
     &, &:first-child {
@@ -40,20 +36,32 @@
     display: block;
     position: absolute;
     right: @card-padding;
-    top: @card-padding - 7px;
+    top: @card-padding - 5px;
     color: #929292;
   }
 
+  .no-chips {
+    .card-copy;
+
+    display: block;
+    padding-top: 47px;
+    padding-bottom: 15px;
+    padding: 47px 10px 15px @text-left-margin;
+    font-weight: 400;
+  }
+
   .chips {
-    position: absolute;
-    left: @text-left-margin - 3px;
-    top: 40px;
+    /*position: absolute;*/
+    padding-left: @text-left-margin - 3px;
+    padding-top: 40px;
+    padding-bottom: 4px;
 
     .mdl-chip {
       background-color: @light-grey;
       /*height: 22px;*/
       /*line-height: 22px;*/
       margin-right: 10px;
+      margin-bottom: 5px;
 
       .mdl-chip__text {
         /*font-size: 14px;*/
@@ -100,6 +108,7 @@
     font-size: 13px;
     position: relative;
     top: 1px;
+    margin-right: 2px;
   }
 
   @media only screen and (max-width: @mobile-width) {
@@ -151,19 +160,82 @@ user-card {
 }
 
 rfid-card {
-  @card-height: 86px;
+  @card-height: 60px;
   @text-left-margin: @card-padding;
+  @user-height: 30px;
+  @user-avatar-size: 25px;
 
   .user-rfid-card-base(@card-height, @text-left-margin);
 
-  .chips {
-    display: none; /* TODO: TEMPORARY */
+  h1 {
+    .mdl-button {
+      margin-left: 5px;
+      padding-left: 10px;
+      padding-right: 10px;
+    }
   }
 
-  .username-pair {
-    position: absolute;
-    left: @text-left-margin;
-    top: 24px;
+  .selecting-header,
+  .inline-register-button {
+    display: none;
   }
+
+  &.no-suggested-users {
+    .inline-register-button {
+      display: inline-block;
+    }
+
+    .line-2 {
+      top: 19px;
+    }
+  }
+
+  &.selecting-user {
+    .rfid-header,
+    .line-2,
+    .expand-chip,
+    .pair-with-text {
+      display: none;
+    }
+
+    .selecting-header {
+      display: block;
+    }
+  }
+
+  &.no-suggested-users:not(.selecting-user) {
+    .chips {
+      display: none;
+    }
+  }
+
+  /*.users {*/
+    /*margin-top: 45px;*/
+    /*margin-bottom: 0;*/
+    /*padding: 0;*/
+
+    /*li {*/
+      /*list-style: none;*/
+
+      /*a {*/
+        /*display: block;*/
+        /*min-height: @user-height;*/
+        /*position: relative;*/
+
+        /*.image-container {*/
+          /*padding: (@user-height - @user-avatar-size) / 2;*/
+
+          /*.image {*/
+            /*width: @user-avatar-size;*/
+            /*height: @user-avatar-size;*/
+          /*}*/
+        /*}*/
+
+        /*.name {*/
+          /*color: black; [> TODO TMP <]*/
+        /*}*/
+      /*}*/
+    /*}*/
+  /*}*/
 }
 

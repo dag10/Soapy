@@ -31,6 +31,14 @@ export class UsersAppComponent implements OnInit {
       window.scrollTo(0, 0);
     });
 
+    this._usersService.unknownRFIDsChanged.subscribe(() => {
+      this._changeDetector.detectChanges();
+    });
+
+    this._usersService.usersChanged.subscribe(() => {
+      this._changeDetector.detectChanges();
+    });
+
     this._usersService.subscribeToUsers();
   }
 
@@ -43,7 +51,7 @@ export class UsersAppComponent implements OnInit {
   }
 
   public get suggestedUsers(): User[] {
-    return this._usersService.unpairedUsers.slice(0, 1);
+    return this._usersService.unpairedUsers.slice(0, 4);
   }
 
   public unpairRFID(rfid: string) {

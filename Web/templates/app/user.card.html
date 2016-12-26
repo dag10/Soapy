@@ -10,7 +10,11 @@
   <span>{{ user.lastTap.fuzzyText }}</span><span class="last-used">.</span>
 </span>
 
-<div class="chips">
+<span *ngIf="user.rfids.length === 0" class="no-chips">
+  No RFID fobs are associated with {{ user.firstName }}.
+</span>
+
+<div *ngIf="user.rfids.length > 0" class="chips">
   <span *ngFor="#rfid of user.rfids" class="mdl-chip mdl-chip--deletable">
     <span class="mdl-chip__text" title="Last used {{ rfid.lastTap?.fuzzyText }}">
       {{ rfid.rfid }}

@@ -7,8 +7,13 @@ import {SnackbarService} from './snackbar.service';
 export interface SnackbarData {
   message: string;
   timeout: number;
-  actionHandler?: (any) => void;
+  actionHandler?: () => void;
   actionText?: string;
+}
+
+interface MaterialSnackbar {
+  showSnackbar: (data: SnackbarData) => void;
+  active: boolean;
 }
 
 @Component({
@@ -31,8 +36,29 @@ export class SnackbarComponent implements OnInit, AfterViewChecked {
     return this._el.nativeElement.querySelector('.mdl-snackbar');
   }
 
+  public get materialSnackbar(): MaterialSnackbar {
+    return (<any>this.snackbarElement).MaterialSnackbar;
+  }
+
   public display(data: SnackbarData) {
-    (<any>this.snackbarElement).MaterialSnackbar.showSnackbar(data);
+    if (data.actionHandler) {
+      var originalActionHandler: () => void = data.actionHandler;
+      data.actionHandler = () => {
+        this.hide();
+        originalActionHandler();
+      };
+    }
+
+    this.materialSnackbar.showSnackbar(data);
+  }
+
+  public hide() {
+    this.snackbarElement.classList.remove('mdl-snackbar--active');
+    this.materialSnackbar.active = false;
+  }
+
+  public get active(): boolean {
+    return this.materialSnackbar.active;
   }
 }
 

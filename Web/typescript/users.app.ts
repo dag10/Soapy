@@ -7,9 +7,13 @@ import {SnackbarComponent} from './snackbar';
 
 import {StaticData} from './StaticData';
 import {RFID, User, UsersService} from './users.service';
+import {SnackbarService} from './snackbar.service';
 
 @Component({
-  providers: [UsersService],
+  providers: [
+    UsersService,
+    SnackbarService,
+  ],
   selector: 'soapy-app',
   template: StaticData.templates.UsersApp,
   directives: [
@@ -23,6 +27,7 @@ export class UsersAppComponent implements OnInit {
   public errors: string[] = [];
 
   constructor(private _usersService: UsersService,
+              private _snackbarService: SnackbarService,
               private _changeDetector: ChangeDetectorRef) {}
 
   public ngOnInit() {
@@ -57,10 +62,25 @@ export class UsersAppComponent implements OnInit {
   }
 
   public unpairRFID(rfid: string) {
+    var user = this._usersService.getUserForRFID(rfid);
+    this._snackbarService.showUndo(
+        rfid + ' has been unpaired from ' + user.firstName + '.',
+        () => {
+      this._usersService.pairRFID(rfid, user.ldap);
+    });
+
     this._usersService.unpairRFID(rfid);
   }
 
   public pairRFID(rfid: string, ldap: string) {
+    var user = this._usersService.getUserForLDAP(ldap);
+    this._snackbarService.showUndo(
+        rfid + ' has been paired with ' + user.firstName + ' ' +
+        user.lastName + '.',
+        () => {
+      this._usersService.unpairRFID(rfid);
+    });
+
     this._usersService.pairRFID(rfid, ldap);
   }
 }

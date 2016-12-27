@@ -118,6 +118,33 @@ export class UsersService {
   }
 
   /**
+   * Finds a User object for a RFID ID, or returns null.
+   */
+  public getUserForRFID(rfid: string): User {
+    for (var i = 0; i < this.users.length; i++) {
+      var user: User = this.users[i];
+      for (var j = 0; j < user.rfids.length; j++) {
+        if (user.rfids[j].rfid === rfid) {
+          return user;
+        }
+      }
+    }
+
+    return null;
+  }
+
+  /**
+   * Finds a User object for a username, or returns null.
+   */
+  public getUserForLDAP(ldap: string): User {
+    if (!this._users.hasOwnProperty(ldap)) {
+      return null;
+    }
+
+    return this._users[ldap];
+  }
+
+  /**
    * Sends an RPC to unpair an RFID fob.
    */
   public unpairRFID(rfid: string): Rx.Observable<API.Response> {

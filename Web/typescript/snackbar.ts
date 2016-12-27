@@ -14,7 +14,6 @@ export interface SnackbarData {
 @Component({
   selector: 'snackbar',
   template: StaticData.templates.Snackbar,
-  providers: [SnackbarService],
 })
 export class SnackbarComponent implements OnInit, AfterViewChecked {
   constructor(private _el: ElementRef,

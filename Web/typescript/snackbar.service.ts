@@ -6,7 +6,7 @@ import {SnackbarComponent} from './snackbar';
 @Injectable()
 export class SnackbarService {
   private _snackbar: SnackbarComponent;
-  private _timeout: number = 2000;
+  private _timeout: number = 4000;
 
   public registerSnackbarComponent(snackbar: SnackbarComponent) {
     this._snackbar = snackbar;

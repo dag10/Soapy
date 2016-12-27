@@ -51,7 +51,7 @@ export interface SoapyPlaylist {
 
 export interface RFID {
   rfid: string;
-  lastTap?: string;
+  lastTap?: number;
 }
 
 export interface User {

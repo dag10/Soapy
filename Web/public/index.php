@@ -253,6 +253,31 @@ $app->post('/api/me/unpair/?', function() use ($app) {
   dieWithJsonSuccess();
 });
 
+// Raw API endpoint for fetching user and RFID data.
+function apiRawUsers() {
+  $unknownRFIDs = [];
+  foreach (RfidQuery::create()->unpaired()->find() as $rfid) {
+    $unknownRFIDs[] = $rfid->getDataForJson(true);
+  }
+
+  $users = [];
+  foreach (UserQuery::create()->find() as $user) {
+    $users[] = $user->getDataForJson(true);
+  }
+
+  dieWithJson([
+    'unknownRFIDs' => $unknownRFIDs,
+    'users' => $users,
+  ]);
+}
+
+// API endpoint for getting users and RFID ata.
+$app->get('/api/users', function() use ($app) {
+  $ctx = start_view_context($app, ['admin_only' => true, 'json' => true]);
+
+  apiRawUsers();
+});
+
 // Raw API endpoint for fetching log data.
 function apiRawGetLogs($room, $since) {
   dieWithJson([

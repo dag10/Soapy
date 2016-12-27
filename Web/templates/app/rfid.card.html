@@ -29,6 +29,7 @@
     </span>
   </button>
   <button
+    *ngIf="users.length > suggestedUsers.length"
     type="button"
     class="mdl-chip expand-chip"
     (click)="expandUsersList()"

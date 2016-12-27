@@ -230,8 +230,8 @@ export class UsersService {
   /**
    * Converts a timestamp into a pair containing the date and a fuzzy timestamp.
    */
-  private timestampToHumanDate(timestamp: string): HumanDate {
-    var date = new Date((<any>Number).parseInt(timestamp));
+  private timestampToHumanDate(timestamp: number): HumanDate {
+    var date = new Date(timestamp);
 
     return {
       date: date,
@@ -319,84 +319,82 @@ export class UsersService {
    */
   private fetchMappings(): Rx.Observable<API.Response> {
     // TODO: TEMPORARY API MOCK
-    var emitter = new EventEmitter<API.Response>();
-    setTimeout(() => {
-      emitter.emit({
-        unknownRFIDs: [
-          {
-            rfid: 'UNKNOWN02',
-            lastTap: '1482271152200',
-          },
-          {
-            rfid: 'UNKNOWN01',
-            lastTap: '' + (new Date().getTime() - 200000000 + (200000000 * Math.random())),
-          },
-        ],
-        users: [
-          {
-            ldap: 'newbie',
-            firstName: 'John',
-            lastName: 'Dorian',
-            isAdmin: false,
-            spotifyAccount: {
-              username: 'spotifyNewbie',
-              avatar: 'http://placehold.it/30/ffff00',
-            },
-            rfids: [
-            ],
-          },
-          {
-            ldap: 'nobody',
-            firstName: 'Anne',
-            lastName: 'Egg',
-            isAdmin: false,
-          },
-          {
-            ldap: 'dag10',
-            firstName: 'Drew',
-            lastName: 'Gottlieb',
-            isAdmin: false,
-            spotifyAccount: {
-              username: 'spotifyDag10',
-              avatar: 'http://placehold.it/250x250',
-            },
-            rfids: [
-              {
-                rfid: '12345',
-                lastTap: '1482271039547',
-              },
-            ],
-          },
-          {
-            ldap: 'dev',
-            firstName: 'Bob',
-            lastName: 'Smith',
-            isAdmin: false,
-            spotifyAccount: {
-              username: 'spotifyDev',
+    //var emitter = new EventEmitter<API.Response>();
+    //setTimeout(() => {
+      //emitter.emit({
+        //unknownRFIDs: [
+          //{
+            //rfid: 'UNKNOWN02',
+            //lastTap: '1482271152200',
+          //},
+          //{
+            //rfid: 'UNKNOWN01',
+            //lastTap: '' + (new Date().getTime() - 200000000 + (200000000 * Math.random())),
+          //},
+        //],
+        //users: [
+          //{
+            //ldap: 'newbie',
+            //firstName: 'John',
+            //lastName: 'Dorian',
+            //isAdmin: false,
+            //spotifyAccount: {
+              //username: 'spotifyNewbie',
+              //avatar: 'http://placehold.it/30/ffff00',
+            //},
+            //rfids: [
+            //],
+          //},
+          //{
+            //ldap: 'nobody',
+            //firstName: 'Anne',
+            //lastName: 'Egg',
+            //isAdmin: false,
+          //},
+          //{
+            //ldap: 'dag10',
+            //firstName: 'Drew',
+            //lastName: 'Gottlieb',
+            //isAdmin: false,
+            //spotifyAccount: {
+              //username: 'spotifyDag10',
               //avatar: 'http://placehold.it/250x250',
-            },
-            rfids: [
-              {
-                rfid: 'devid01',
-                lastTap: '' + (new Date().getTime() - (1000 * 60 * 60 * 24)),
-              },
-              {
-                rfid: 'devid02',
-                lastTap: '' + (new Date().getTime() - 200000000 + (200000000 * Math.random())),
-              },
-            ],
-          },
-        ],
-      });
-    }, 200);
-    return emitter;
+            //},
+            //rfids: [
+              //{
+                //rfid: '12345',
+                //lastTap: '1482271039547',
+              //},
+            //],
+          //},
+          //{
+            //ldap: 'dev',
+            //firstName: 'Bob',
+            //lastName: 'Smith',
+            //isAdmin: false,
+            //spotifyAccount: {
+              //username: 'spotifyDev',
+              ////avatar: 'http://placehold.it/250x250',
+            //},
+            //rfids: [
+              //{
+                //rfid: 'devid01',
+                //lastTap: '' + (new Date().getTime() - (1000 * 60 * 60 * 24)),
+              //},
+              //{
+                //rfid: 'devid02',
+                //lastTap: '' + (new Date().getTime() - 200000000 + (200000000 * Math.random())),
+              //},
+            //],
+          //},
+        //],
+      //});
+    //}, 200);
+    //return emitter;
 
-    /*
     return this
-      .makeGetRequest('/api/users/all')
+      .makeGetRequest('/api/users')
       .map(res => res.json());
-     */
   }
 
   /**

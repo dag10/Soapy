@@ -156,7 +156,7 @@ export class UsersService {
     params.set('rfid', rfid);
 
     return this
-      .makePostRequest('/api/rfid/unpair', params)
+      .makePostRequest('/api/users/rfid/unpair', params)
       .map(res => res.json());
   }
 
@@ -171,7 +171,7 @@ export class UsersService {
     params.set('ldap', ldap);
 
     return this
-      .makePostRequest('/api/rfid/pair', params)
+      .makePostRequest('/api/users/rfid/pair', params)
       .map(res => res.json());
   }
 

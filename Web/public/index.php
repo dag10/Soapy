@@ -253,8 +253,10 @@ $app->post('/api/me/unpair/?', function() use ($app) {
   dieWithJsonSuccess();
 });
 
-// Raw API endpoint for fetching user and RFID data.
-function apiRawUsers() {
+// API endpoint for getting users and RFID ata.
+$app->get('/api/users/?', function() use ($app) {
+  $ctx = start_view_context($app, ['admin_only' => true, 'json' => true]);
+
   $unknownRFIDs = [];
   foreach (RfidQuery::create()->unpaired()->find() as $rfid) {
     $unknownRFIDs[] = $rfid->getDataForJson(true);
@@ -269,13 +271,30 @@ function apiRawUsers() {
     'unknownRFIDs' => $unknownRFIDs,
     'users' => $users,
   ]);
-}
+});
 
-// API endpoint for getting users and RFID ata.
-$app->get('/api/users', function() use ($app) {
+// API endpoint for unpairing an RFID
+$app->post('/api/users/rfid/unpair/?', function() use ($app) {
   $ctx = start_view_context($app, ['admin_only' => true, 'json' => true]);
 
-  apiRawUsers();
+  $rfid = $app->request->post('rfid');
+  if (!$rfid) {
+    dieWithJsonError("No RFID was given.");
+  }
+
+  $rfidObj = RfidQuery::create()->findOneByRfid($rfid);
+  if (!$rfidObj) {
+    dieWithJsonError("RFID not found.");
+  }
+
+  if (!$rfidObj->getLdap()) {
+    dieWithJsonError("RFID is not paried to begin with.");
+  }
+
+  $rfidObj->setLdap(null);
+  $rfidObj->save();
+
+  dieWithJsonSuccess();
 });
 
 // Raw API endpoint for fetching log data.

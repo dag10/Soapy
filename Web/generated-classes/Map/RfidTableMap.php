@@ -132,7 +132,7 @@ class RfidTableMap extends TableMap
         $this->setUseIdGenerator(false);
         // columns
         $this->addPrimaryKey('rfid', 'Rfid', 'VARCHAR', true, 64, null);
-        $this->addColumn('ldap', 'Ldap', 'VARCHAR', false, 128, null);
+        $this->addForeignKey('ldap', 'Ldap', 'VARCHAR', 'user', 'ldap', false, 128, null);
     } // initialize()
 
     /**
@@ -140,6 +140,20 @@ class RfidTableMap extends TableMap
      */
     public function buildRelations()
     {
+        $this->addRelation('User', '\\User', RelationMap::MANY_TO_ONE, array (
+  0 =>
+  array (
+    0 => ':ldap',
+    1 => ':ldap',
+  ),
+), null, null, null, false);
+        $this->addRelation('Tap', '\\RfidTap', RelationMap::ONE_TO_MANY, array (
+  0 =>
+  array (
+    0 => ':rfid',
+    1 => ':rfid',
+  ),
+), null, null, 'Taps', false);
     } // buildRelations()
 
     /**

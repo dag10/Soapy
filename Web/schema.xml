@@ -3,10 +3,16 @@
   <table name="rfid">
     <column name="rfid" type="varchar" size="64" required="true" primaryKey="true" />
     <column name="ldap" type="varchar" size="128" required="false" />
+    <foreign-key foreignTable="user">
+      <reference local="ldap" foreign="ldap" />
+    </foreign-key>
   </table>
   <table name="rfidtap" phpName="RfidTap">
     <column name="rfid" type="varchar" size="64" required="true" primaryKey="true" />
     <column name="time" type="timestamp" required="true" primaryKey="true" />
+    <foreign-key foreignTable="rfid" phpName="Mapping" refPhpName="Tap">
+      <reference local="rfid" foreign="rfid" />
+    </foreign-key>
   </table>
   <table name="user">
     <column name="id" type="integer" required="true" primaryKey="true" autoIncrement="true" />

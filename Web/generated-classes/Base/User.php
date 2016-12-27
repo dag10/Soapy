@@ -6,6 +6,8 @@ use \ListensTo as ChildListensTo;
 use \ListensToQuery as ChildListensToQuery;
 use \Playlist as ChildPlaylist;
 use \PlaylistQuery as ChildPlaylistQuery;
+use \Rfid as ChildRfid;
+use \RfidQuery as ChildRfidQuery;
 use \SpotifyAccount as ChildSpotifyAccount;
 use \SpotifyAccountQuery as ChildSpotifyAccountQuery;
 use \User as ChildUser;
@@ -13,6 +15,7 @@ use \UserQuery as ChildUserQuery;
 use \Exception;
 use \PDO;
 use Map\ListensToTableMap;
+use Map\RfidTableMap;
 use Map\SpotifyAccountTableMap;
 use Map\UserTableMap;
 use Propel\Runtime\Propel;
@@ -118,6 +121,12 @@ abstract class User implements ActiveRecordInterface
     protected $aSelectedPlaylist;
 
     /**
+     * @var        ObjectCollection|ChildRfid[] Collection to store aggregation of ChildRfid objects.
+     */
+    protected $collRfids;
+    protected $collRfidsPartial;
+
+    /**
      * @var        ObjectCollection|ChildSpotifyAccount[] Collection to store aggregation of ChildSpotifyAccount objects.
      */
     protected $collSpotifyAccounts;
@@ -152,6 +161,12 @@ abstract class User implements ActiveRecordInterface
      * @var ObjectCollection|ChildPlaylist[]
      */
     protected $playlistsScheduledForDeletion = null;
+
+    /**
+     * An array of objects scheduled for deletion.
+     * @var ObjectCollection|ChildRfid[]
+     */
+    protected $rfidsScheduledForDeletion = null;
 
     /**
      * An array of objects scheduled for deletion.
@@ -731,6 +746,8 @@ abstract class User implements ActiveRecordInterface
         if ($deep) {  // also de-associate any related objects?
 
             $this->aSelectedPlaylist = null;
+            $this->collRfids = null;
+
             $this->collSpotifyAccounts = null;
 
             $this->collUsers = null;
@@ -886,6 +903,24 @@ abstract class User implements ActiveRecordInterface
                 }
             }
 
+
+            if ($this->rfidsScheduledForDeletion !== null) {
+                if (!$this->rfidsScheduledForDeletion->isEmpty()) {
+                    foreach ($this->rfidsScheduledForDeletion as $rfid) {
+                        // need to save related object because we set the relation to null
+                        $rfid->save($con);
+                    }
+                    $this->rfidsScheduledForDeletion = null;
+                }
+            }
+
+            if ($this->collRfids !== null) {
+                foreach ($this->collRfids as $referrerFK) {
+                    if (!$referrerFK->isDeleted() && ($referrerFK->isNew() || $referrerFK->isModified())) {
+                        $affectedRows += $referrerFK->save($con);
+                    }
+                }
+            }
 
             if ($this->spotifyAccountsScheduledForDeletion !== null) {
                 if (!$this->spotifyAccountsScheduledForDeletion->isEmpty()) {
@@ -1131,6 +1166,21 @@ abstract class User implements ActiveRecordInterface
                 }
 
                 $result[$key] = $this->aSelectedPlaylist->toArray($keyType, $includeLazyLoadColumns,  $alreadyDumpedObjects, true);
+            }
+            if (null !== $this->collRfids) {
+
+                switch ($keyType) {
+                    case TableMap::TYPE_CAMELNAME:
+                        $key = 'rfids';
+                        break;
+                    case TableMap::TYPE_FIELDNAME:
+                        $key = 'rfids';
+                        break;
+                    default:
+                        $key = 'Rfids';
+                }
+
+                $result[$key] = $this->collRfids->toArray(null, false, $keyType, $includeLazyLoadColumns, $alreadyDumpedObjects);
             }
             if (null !== $this->collSpotifyAccounts) {
 
@@ -1418,6 +1468,12 @@ abstract class User implements ActiveRecordInterface
             // the getter/setter methods for fkey referrer objects.
             $copyObj->setNew(false);
 
+            foreach ($this->getRfids() as $relObj) {
+                if ($relObj !== $this) {  // ensure that we don't try to copy a reference to ourselves
+                    $copyObj->addRfid($relObj->copy($deepCopy));
+                }
+            }
+
             foreach ($this->getSpotifyAccounts() as $relObj) {
                 if ($relObj !== $this) {  // ensure that we don't try to copy a reference to ourselves
                     $copyObj->addSpotifyAccount($relObj->copy($deepCopy));
@@ -1522,12 +1578,240 @@ abstract class User implements ActiveRecordInterface
      */
     public function initRelation($relationName)
     {
+        if ('Rfid' == $relationName) {
+            return $this->initRfids();
+        }
         if ('SpotifyAccount' == $relationName) {
             return $this->initSpotifyAccounts();
         }
         if ('User' == $relationName) {
             return $this->initUsers();
         }
+    }
+
+    /**
+     * Clears out the collRfids collection
+     *
+     * This does not modify the database; however, it will remove any associated objects, causing
+     * them to be refetched by subsequent calls to accessor method.
+     *
+     * @return void
+     * @see        addRfids()
+     */
+    public function clearRfids()
+    {
+        $this->collRfids = null; // important to set this to NULL since that means it is uninitialized
+    }
+
+    /**
+     * Reset is the collRfids collection loaded partially.
+     */
+    public function resetPartialRfids($v = true)
+    {
+        $this->collRfidsPartial = $v;
+    }
+
+    /**
+     * Initializes the collRfids collection.
+     *
+     * By default this just sets the collRfids collection to an empty array (like clearcollRfids());
+     * however, you may wish to override this method in your stub class to provide setting appropriate
+     * to your application -- for example, setting the initial array to the values stored in database.
+     *
+     * @param      boolean $overrideExisting If set to true, the method call initializes
+     *                                        the collection even if it is not empty
+     *
+     * @return void
+     */
+    public function initRfids($overrideExisting = true)
+    {
+        if (null !== $this->collRfids && !$overrideExisting) {
+            return;
+        }
+
+        $collectionClassName = RfidTableMap::getTableMap()->getCollectionClassName();
+
+        $this->collRfids = new $collectionClassName;
+        $this->collRfids->setModel('\Rfid');
+    }
+
+    /**
+     * Gets an array of ChildRfid objects which contain a foreign key that references this object.
+     *
+     * If the $criteria is not null, it is used to always fetch the results from the database.
+     * Otherwise the results are fetched from the database the first time, then cached.
+     * Next time the same method is called without $criteria, the cached collection is returned.
+     * If this ChildUser is new, it will return
+     * an empty collection or the current collection; the criteria is ignored on a new object.
+     *
+     * @param      Criteria $criteria optional Criteria object to narrow the query
+     * @param      ConnectionInterface $con optional connection object
+     * @return ObjectCollection|ChildRfid[] List of ChildRfid objects
+     * @throws PropelException
+     */
+    public function getRfids(Criteria $criteria = null, ConnectionInterface $con = null)
+    {
+        $partial = $this->collRfidsPartial && !$this->isNew();
+        if (null === $this->collRfids || null !== $criteria  || $partial) {
+            if ($this->isNew() && null === $this->collRfids) {
+                // return empty collection
+                $this->initRfids();
+            } else {
+                $collRfids = ChildRfidQuery::create(null, $criteria)
+                    ->filterByUser($this)
+                    ->find($con);
+
+                if (null !== $criteria) {
+                    if (false !== $this->collRfidsPartial && count($collRfids)) {
+                        $this->initRfids(false);
+
+                        foreach ($collRfids as $obj) {
+                            if (false == $this->collRfids->contains($obj)) {
+                                $this->collRfids->append($obj);
+                            }
+                        }
+
+                        $this->collRfidsPartial = true;
+                    }
+
+                    return $collRfids;
+                }
+
+                if ($partial && $this->collRfids) {
+                    foreach ($this->collRfids as $obj) {
+                        if ($obj->isNew()) {
+                            $collRfids[] = $obj;
+                        }
+                    }
+                }
+
+                $this->collRfids = $collRfids;
+                $this->collRfidsPartial = false;
+            }
+        }
+
+        return $this->collRfids;
+    }
+
+    /**
+     * Sets a collection of ChildRfid objects related by a one-to-many relationship
+     * to the current object.
+     * It will also schedule objects for deletion based on a diff between old objects (aka persisted)
+     * and new objects from the given Propel collection.
+     *
+     * @param      Collection $rfids A Propel collection.
+     * @param      ConnectionInterface $con Optional connection object
+     * @return $this|ChildUser The current object (for fluent API support)
+     */
+    public function setRfids(Collection $rfids, ConnectionInterface $con = null)
+    {
+        /** @var ChildRfid[] $rfidsToDelete */
+        $rfidsToDelete = $this->getRfids(new Criteria(), $con)->diff($rfids);
+
+
+        $this->rfidsScheduledForDeletion = $rfidsToDelete;
+
+        foreach ($rfidsToDelete as $rfidRemoved) {
+            $rfidRemoved->setUser(null);
+        }
+
+        $this->collRfids = null;
+        foreach ($rfids as $rfid) {
+            $this->addRfid($rfid);
+        }
+
+        $this->collRfids = $rfids;
+        $this->collRfidsPartial = false;
+
+        return $this;
+    }
+
+    /**
+     * Returns the number of related Rfid objects.
+     *
+     * @param      Criteria $criteria
+     * @param      boolean $distinct
+     * @param      ConnectionInterface $con
+     * @return int             Count of related Rfid objects.
+     * @throws PropelException
+     */
+    public function countRfids(Criteria $criteria = null, $distinct = false, ConnectionInterface $con = null)
+    {
+        $partial = $this->collRfidsPartial && !$this->isNew();
+        if (null === $this->collRfids || null !== $criteria || $partial) {
+            if ($this->isNew() && null === $this->collRfids) {
+                return 0;
+            }
+
+            if ($partial && !$criteria) {
+                return count($this->getRfids());
+            }
+
+            $query = ChildRfidQuery::create(null, $criteria);
+            if ($distinct) {
+                $query->distinct();
+            }
+
+            return $query
+                ->filterByUser($this)
+                ->count($con);
+        }
+
+        return count($this->collRfids);
+    }
+
+    /**
+     * Method called to associate a ChildRfid object to this object
+     * through the ChildRfid foreign key attribute.
+     *
+     * @param  ChildRfid $l ChildRfid
+     * @return $this|\User The current object (for fluent API support)
+     */
+    public function addRfid(ChildRfid $l)
+    {
+        if ($this->collRfids === null) {
+            $this->initRfids();
+            $this->collRfidsPartial = true;
+        }
+
+        if (!$this->collRfids->contains($l)) {
+            $this->doAddRfid($l);
+
+            if ($this->rfidsScheduledForDeletion and $this->rfidsScheduledForDeletion->contains($l)) {
+                $this->rfidsScheduledForDeletion->remove($this->rfidsScheduledForDeletion->search($l));
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @param ChildRfid $rfid The ChildRfid object to add.
+     */
+    protected function doAddRfid(ChildRfid $rfid)
+    {
+        $this->collRfids[]= $rfid;
+        $rfid->setUser($this);
+    }
+
+    /**
+     * @param  ChildRfid $rfid The ChildRfid object to remove.
+     * @return $this|ChildUser The current object (for fluent API support)
+     */
+    public function removeRfid(ChildRfid $rfid)
+    {
+        if ($this->getRfids()->contains($rfid)) {
+            $pos = $this->collRfids->search($rfid);
+            $this->collRfids->remove($pos);
+            if (null === $this->rfidsScheduledForDeletion) {
+                $this->rfidsScheduledForDeletion = clone $this->collRfids;
+                $this->rfidsScheduledForDeletion->clear();
+            }
+            $this->rfidsScheduledForDeletion[]= $rfid;
+            $rfid->setUser(null);
+        }
+
+        return $this;
     }
 
     /**
@@ -2286,6 +2570,11 @@ abstract class User implements ActiveRecordInterface
     public function clearAllReferences($deep = false)
     {
         if ($deep) {
+            if ($this->collRfids) {
+                foreach ($this->collRfids as $o) {
+                    $o->clearAllReferences($deep);
+                }
+            }
             if ($this->collSpotifyAccounts) {
                 foreach ($this->collSpotifyAccounts as $o) {
                     $o->clearAllReferences($deep);
@@ -2303,6 +2592,7 @@ abstract class User implements ActiveRecordInterface
             }
         } // if ($deep)
 
+        $this->collRfids = null;
         $this->collSpotifyAccounts = null;
         $this->collUsers = null;
         $this->collPlaylists = null;

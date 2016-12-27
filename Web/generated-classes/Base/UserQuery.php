@@ -52,6 +52,16 @@ use Propel\Runtime\Exception\PropelException;
  * @method     ChildUserQuery rightJoinWithSelectedPlaylist() Adds a RIGHT JOIN clause and with to the query using the SelectedPlaylist relation
  * @method     ChildUserQuery innerJoinWithSelectedPlaylist() Adds a INNER JOIN clause and with to the query using the SelectedPlaylist relation
  *
+ * @method     ChildUserQuery leftJoinRfid($relationAlias = null) Adds a LEFT JOIN clause to the query using the Rfid relation
+ * @method     ChildUserQuery rightJoinRfid($relationAlias = null) Adds a RIGHT JOIN clause to the query using the Rfid relation
+ * @method     ChildUserQuery innerJoinRfid($relationAlias = null) Adds a INNER JOIN clause to the query using the Rfid relation
+ *
+ * @method     ChildUserQuery joinWithRfid($joinType = Criteria::INNER_JOIN) Adds a join clause and with to the query using the Rfid relation
+ *
+ * @method     ChildUserQuery leftJoinWithRfid() Adds a LEFT JOIN clause and with to the query using the Rfid relation
+ * @method     ChildUserQuery rightJoinWithRfid() Adds a RIGHT JOIN clause and with to the query using the Rfid relation
+ * @method     ChildUserQuery innerJoinWithRfid() Adds a INNER JOIN clause and with to the query using the Rfid relation
+ *
  * @method     ChildUserQuery leftJoinSpotifyAccount($relationAlias = null) Adds a LEFT JOIN clause to the query using the SpotifyAccount relation
  * @method     ChildUserQuery rightJoinSpotifyAccount($relationAlias = null) Adds a RIGHT JOIN clause to the query using the SpotifyAccount relation
  * @method     ChildUserQuery innerJoinSpotifyAccount($relationAlias = null) Adds a INNER JOIN clause to the query using the SpotifyAccount relation
@@ -72,7 +82,7 @@ use Propel\Runtime\Exception\PropelException;
  * @method     ChildUserQuery rightJoinWithUser() Adds a RIGHT JOIN clause and with to the query using the User relation
  * @method     ChildUserQuery innerJoinWithUser() Adds a INNER JOIN clause and with to the query using the User relation
  *
- * @method     \PlaylistQuery|\SpotifyAccountQuery|\ListensToQuery endUse() Finalizes a secondary criteria and merges it with its primary Criteria
+ * @method     \PlaylistQuery|\RfidQuery|\SpotifyAccountQuery|\ListensToQuery endUse() Finalizes a secondary criteria and merges it with its primary Criteria
  *
  * @method     ChildUser findOne(ConnectionInterface $con = null) Return the first ChildUser matching the query
  * @method     ChildUser findOneOrCreate(ConnectionInterface $con = null) Return the first ChildUser matching the query, or a new ChildUser object populated from the query conditions when no match is found
@@ -562,6 +572,79 @@ abstract class UserQuery extends ModelCriteria
         return $this
             ->joinSelectedPlaylist($relationAlias, $joinType)
             ->useQuery($relationAlias ? $relationAlias : 'SelectedPlaylist', '\PlaylistQuery');
+    }
+
+    /**
+     * Filter the query by a related \Rfid object
+     *
+     * @param \Rfid|ObjectCollection $rfid the related object to use as filter
+     * @param string $comparison Operator to use for the column comparison, defaults to Criteria::EQUAL
+     *
+     * @return ChildUserQuery The current query, for fluid interface
+     */
+    public function filterByRfid($rfid, $comparison = null)
+    {
+        if ($rfid instanceof \Rfid) {
+            return $this
+                ->addUsingAlias(UserTableMap::COL_LDAP, $rfid->getLdap(), $comparison);
+        } elseif ($rfid instanceof ObjectCollection) {
+            return $this
+                ->useRfidQuery()
+                ->filterByPrimaryKeys($rfid->getPrimaryKeys())
+                ->endUse();
+        } else {
+            throw new PropelException('filterByRfid() only accepts arguments of type \Rfid or Collection');
+        }
+    }
+
+    /**
+     * Adds a JOIN clause to the query using the Rfid relation
+     *
+     * @param     string $relationAlias optional alias for the relation
+     * @param     string $joinType Accepted values are null, 'left join', 'right join', 'inner join'
+     *
+     * @return $this|ChildUserQuery The current query, for fluid interface
+     */
+    public function joinRfid($relationAlias = null, $joinType = Criteria::LEFT_JOIN)
+    {
+        $tableMap = $this->getTableMap();
+        $relationMap = $tableMap->getRelation('Rfid');
+
+        // create a ModelJoin object for this join
+        $join = new ModelJoin();
+        $join->setJoinType($joinType);
+        $join->setRelationMap($relationMap, $this->useAliasInSQL ? $this->getModelAlias() : null, $relationAlias);
+        if ($previousJoin = $this->getPreviousJoin()) {
+            $join->setPreviousJoin($previousJoin);
+        }
+
+        // add the ModelJoin to the current object
+        if ($relationAlias) {
+            $this->addAlias($relationAlias, $relationMap->getRightTable()->getName());
+            $this->addJoinObject($join, $relationAlias);
+        } else {
+            $this->addJoinObject($join, 'Rfid');
+        }
+
+        return $this;
+    }
+
+    /**
+     * Use the Rfid relation Rfid object
+     *
+     * @see useQuery()
+     *
+     * @param     string $relationAlias optional alias for the relation,
+     *                                   to be used as main alias in the secondary query
+     * @param     string $joinType Accepted values are null, 'left join', 'right join', 'inner join'
+     *
+     * @return \RfidQuery A secondary query class using the current class as primary query
+     */
+    public function useRfidQuery($relationAlias = null, $joinType = Criteria::LEFT_JOIN)
+    {
+        return $this
+            ->joinRfid($relationAlias, $joinType)
+            ->useQuery($relationAlias ? $relationAlias : 'Rfid', '\RfidQuery');
     }
 
     /**

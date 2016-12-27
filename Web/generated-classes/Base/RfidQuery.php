@@ -10,6 +10,7 @@ use Map\RfidTableMap;
 use Propel\Runtime\Propel;
 use Propel\Runtime\ActiveQuery\Criteria;
 use Propel\Runtime\ActiveQuery\ModelCriteria;
+use Propel\Runtime\ActiveQuery\ModelJoin;
 use Propel\Runtime\Collection\ObjectCollection;
 use Propel\Runtime\Connection\ConnectionInterface;
 use Propel\Runtime\Exception\PropelException;
@@ -32,6 +33,28 @@ use Propel\Runtime\Exception\PropelException;
  * @method     ChildRfidQuery leftJoinWith($relation) Adds a LEFT JOIN clause and with to the query
  * @method     ChildRfidQuery rightJoinWith($relation) Adds a RIGHT JOIN clause and with to the query
  * @method     ChildRfidQuery innerJoinWith($relation) Adds a INNER JOIN clause and with to the query
+ *
+ * @method     ChildRfidQuery leftJoinUser($relationAlias = null) Adds a LEFT JOIN clause to the query using the User relation
+ * @method     ChildRfidQuery rightJoinUser($relationAlias = null) Adds a RIGHT JOIN clause to the query using the User relation
+ * @method     ChildRfidQuery innerJoinUser($relationAlias = null) Adds a INNER JOIN clause to the query using the User relation
+ *
+ * @method     ChildRfidQuery joinWithUser($joinType = Criteria::INNER_JOIN) Adds a join clause and with to the query using the User relation
+ *
+ * @method     ChildRfidQuery leftJoinWithUser() Adds a LEFT JOIN clause and with to the query using the User relation
+ * @method     ChildRfidQuery rightJoinWithUser() Adds a RIGHT JOIN clause and with to the query using the User relation
+ * @method     ChildRfidQuery innerJoinWithUser() Adds a INNER JOIN clause and with to the query using the User relation
+ *
+ * @method     ChildRfidQuery leftJoinTap($relationAlias = null) Adds a LEFT JOIN clause to the query using the Tap relation
+ * @method     ChildRfidQuery rightJoinTap($relationAlias = null) Adds a RIGHT JOIN clause to the query using the Tap relation
+ * @method     ChildRfidQuery innerJoinTap($relationAlias = null) Adds a INNER JOIN clause to the query using the Tap relation
+ *
+ * @method     ChildRfidQuery joinWithTap($joinType = Criteria::INNER_JOIN) Adds a join clause and with to the query using the Tap relation
+ *
+ * @method     ChildRfidQuery leftJoinWithTap() Adds a LEFT JOIN clause and with to the query using the Tap relation
+ * @method     ChildRfidQuery rightJoinWithTap() Adds a RIGHT JOIN clause and with to the query using the Tap relation
+ * @method     ChildRfidQuery innerJoinWithTap() Adds a INNER JOIN clause and with to the query using the Tap relation
+ *
+ * @method     \UserQuery|\RfidTapQuery endUse() Finalizes a secondary criteria and merges it with its primary Criteria
  *
  * @method     ChildRfid findOne(ConnectionInterface $con = null) Return the first ChildRfid matching the query
  * @method     ChildRfid findOneOrCreate(ConnectionInterface $con = null) Return the first ChildRfid matching the query, or a new ChildRfid object populated from the query conditions when no match is found
@@ -286,6 +309,156 @@ abstract class RfidQuery extends ModelCriteria
         }
 
         return $this->addUsingAlias(RfidTableMap::COL_LDAP, $ldap, $comparison);
+    }
+
+    /**
+     * Filter the query by a related \User object
+     *
+     * @param \User|ObjectCollection $user The related object(s) to use as filter
+     * @param string $comparison Operator to use for the column comparison, defaults to Criteria::EQUAL
+     *
+     * @throws \Propel\Runtime\Exception\PropelException
+     *
+     * @return ChildRfidQuery The current query, for fluid interface
+     */
+    public function filterByUser($user, $comparison = null)
+    {
+        if ($user instanceof \User) {
+            return $this
+                ->addUsingAlias(RfidTableMap::COL_LDAP, $user->getLdap(), $comparison);
+        } elseif ($user instanceof ObjectCollection) {
+            if (null === $comparison) {
+                $comparison = Criteria::IN;
+            }
+
+            return $this
+                ->addUsingAlias(RfidTableMap::COL_LDAP, $user->toKeyValue('PrimaryKey', 'Ldap'), $comparison);
+        } else {
+            throw new PropelException('filterByUser() only accepts arguments of type \User or Collection');
+        }
+    }
+
+    /**
+     * Adds a JOIN clause to the query using the User relation
+     *
+     * @param     string $relationAlias optional alias for the relation
+     * @param     string $joinType Accepted values are null, 'left join', 'right join', 'inner join'
+     *
+     * @return $this|ChildRfidQuery The current query, for fluid interface
+     */
+    public function joinUser($relationAlias = null, $joinType = Criteria::LEFT_JOIN)
+    {
+        $tableMap = $this->getTableMap();
+        $relationMap = $tableMap->getRelation('User');
+
+        // create a ModelJoin object for this join
+        $join = new ModelJoin();
+        $join->setJoinType($joinType);
+        $join->setRelationMap($relationMap, $this->useAliasInSQL ? $this->getModelAlias() : null, $relationAlias);
+        if ($previousJoin = $this->getPreviousJoin()) {
+            $join->setPreviousJoin($previousJoin);
+        }
+
+        // add the ModelJoin to the current object
+        if ($relationAlias) {
+            $this->addAlias($relationAlias, $relationMap->getRightTable()->getName());
+            $this->addJoinObject($join, $relationAlias);
+        } else {
+            $this->addJoinObject($join, 'User');
+        }
+
+        return $this;
+    }
+
+    /**
+     * Use the User relation User object
+     *
+     * @see useQuery()
+     *
+     * @param     string $relationAlias optional alias for the relation,
+     *                                   to be used as main alias in the secondary query
+     * @param     string $joinType Accepted values are null, 'left join', 'right join', 'inner join'
+     *
+     * @return \UserQuery A secondary query class using the current class as primary query
+     */
+    public function useUserQuery($relationAlias = null, $joinType = Criteria::LEFT_JOIN)
+    {
+        return $this
+            ->joinUser($relationAlias, $joinType)
+            ->useQuery($relationAlias ? $relationAlias : 'User', '\UserQuery');
+    }
+
+    /**
+     * Filter the query by a related \RfidTap object
+     *
+     * @param \RfidTap|ObjectCollection $rfidTap the related object to use as filter
+     * @param string $comparison Operator to use for the column comparison, defaults to Criteria::EQUAL
+     *
+     * @return ChildRfidQuery The current query, for fluid interface
+     */
+    public function filterByTap($rfidTap, $comparison = null)
+    {
+        if ($rfidTap instanceof \RfidTap) {
+            return $this
+                ->addUsingAlias(RfidTableMap::COL_RFID, $rfidTap->getRfid(), $comparison);
+        } elseif ($rfidTap instanceof ObjectCollection) {
+            return $this
+                ->useTapQuery()
+                ->filterByPrimaryKeys($rfidTap->getPrimaryKeys())
+                ->endUse();
+        } else {
+            throw new PropelException('filterByTap() only accepts arguments of type \RfidTap or Collection');
+        }
+    }
+
+    /**
+     * Adds a JOIN clause to the query using the Tap relation
+     *
+     * @param     string $relationAlias optional alias for the relation
+     * @param     string $joinType Accepted values are null, 'left join', 'right join', 'inner join'
+     *
+     * @return $this|ChildRfidQuery The current query, for fluid interface
+     */
+    public function joinTap($relationAlias = null, $joinType = Criteria::INNER_JOIN)
+    {
+        $tableMap = $this->getTableMap();
+        $relationMap = $tableMap->getRelation('Tap');
+
+        // create a ModelJoin object for this join
+        $join = new ModelJoin();
+        $join->setJoinType($joinType);
+        $join->setRelationMap($relationMap, $this->useAliasInSQL ? $this->getModelAlias() : null, $relationAlias);
+        if ($previousJoin = $this->getPreviousJoin()) {
+            $join->setPreviousJoin($previousJoin);
+        }
+
+        // add the ModelJoin to the current object
+        if ($relationAlias) {
+            $this->addAlias($relationAlias, $relationMap->getRightTable()->getName());
+            $this->addJoinObject($join, $relationAlias);
+        } else {
+            $this->addJoinObject($join, 'Tap');
+        }
+
+        return $this;
+    }
+
+    /**
+     * Use the Tap relation RfidTap object
+     *
+     * @see useQuery()
+     *
+     * @param     string $relationAlias optional alias for the relation,
+     *                                   to be used as main alias in the secondary query
+     * @param     string $joinType Accepted values are null, 'left join', 'right join', 'inner join'
+     *
+     * @return \RfidTapQuery A secondary query class using the current class as primary query
+     */
+    public function useTapQuery($relationAlias = null, $joinType = Criteria::INNER_JOIN)
+    {
+        return $this
+            ->joinTap($relationAlias, $joinType)
+            ->useQuery($relationAlias ? $relationAlias : 'Tap', '\RfidTapQuery');
     }
 
     /**

@@ -131,7 +131,7 @@ class RfidTapTableMap extends TableMap
         $this->setPackage('');
         $this->setUseIdGenerator(false);
         // columns
-        $this->addPrimaryKey('rfid', 'Rfid', 'VARCHAR', true, 64, null);
+        $this->addForeignPrimaryKey('rfid', 'Rfid', 'VARCHAR' , 'rfid', 'rfid', true, 64, null);
         $this->addPrimaryKey('time', 'Time', 'TIMESTAMP', true, null, null);
     } // initialize()
 
@@ -140,6 +140,13 @@ class RfidTapTableMap extends TableMap
      */
     public function buildRelations()
     {
+        $this->addRelation('Mapping', '\\Rfid', RelationMap::MANY_TO_ONE, array (
+  0 =>
+  array (
+    0 => ':rfid',
+    1 => ':rfid',
+  ),
+), null, null, null, false);
     } // buildRelations()
 
     /**

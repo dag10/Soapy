@@ -10,6 +10,7 @@ use Map\RfidTapTableMap;
 use Propel\Runtime\Propel;
 use Propel\Runtime\ActiveQuery\Criteria;
 use Propel\Runtime\ActiveQuery\ModelCriteria;
+use Propel\Runtime\ActiveQuery\ModelJoin;
 use Propel\Runtime\Collection\ObjectCollection;
 use Propel\Runtime\Connection\ConnectionInterface;
 use Propel\Runtime\Exception\PropelException;
@@ -32,6 +33,18 @@ use Propel\Runtime\Exception\PropelException;
  * @method     ChildRfidTapQuery leftJoinWith($relation) Adds a LEFT JOIN clause and with to the query
  * @method     ChildRfidTapQuery rightJoinWith($relation) Adds a RIGHT JOIN clause and with to the query
  * @method     ChildRfidTapQuery innerJoinWith($relation) Adds a INNER JOIN clause and with to the query
+ *
+ * @method     ChildRfidTapQuery leftJoinMapping($relationAlias = null) Adds a LEFT JOIN clause to the query using the Mapping relation
+ * @method     ChildRfidTapQuery rightJoinMapping($relationAlias = null) Adds a RIGHT JOIN clause to the query using the Mapping relation
+ * @method     ChildRfidTapQuery innerJoinMapping($relationAlias = null) Adds a INNER JOIN clause to the query using the Mapping relation
+ *
+ * @method     ChildRfidTapQuery joinWithMapping($joinType = Criteria::INNER_JOIN) Adds a join clause and with to the query using the Mapping relation
+ *
+ * @method     ChildRfidTapQuery leftJoinWithMapping() Adds a LEFT JOIN clause and with to the query using the Mapping relation
+ * @method     ChildRfidTapQuery rightJoinWithMapping() Adds a RIGHT JOIN clause and with to the query using the Mapping relation
+ * @method     ChildRfidTapQuery innerJoinWithMapping() Adds a INNER JOIN clause and with to the query using the Mapping relation
+ *
+ * @method     \RfidQuery endUse() Finalizes a secondary criteria and merges it with its primary Criteria
  *
  * @method     ChildRfidTap findOne(ConnectionInterface $con = null) Return the first ChildRfidTap matching the query
  * @method     ChildRfidTap findOneOrCreate(ConnectionInterface $con = null) Return the first ChildRfidTap matching the query, or a new ChildRfidTap object populated from the query conditions when no match is found
@@ -312,6 +325,83 @@ abstract class RfidTapQuery extends ModelCriteria
         }
 
         return $this->addUsingAlias(RfidTapTableMap::COL_TIME, $time, $comparison);
+    }
+
+    /**
+     * Filter the query by a related \Rfid object
+     *
+     * @param \Rfid|ObjectCollection $rfid The related object(s) to use as filter
+     * @param string $comparison Operator to use for the column comparison, defaults to Criteria::EQUAL
+     *
+     * @throws \Propel\Runtime\Exception\PropelException
+     *
+     * @return ChildRfidTapQuery The current query, for fluid interface
+     */
+    public function filterByMapping($rfid, $comparison = null)
+    {
+        if ($rfid instanceof \Rfid) {
+            return $this
+                ->addUsingAlias(RfidTapTableMap::COL_RFID, $rfid->getRfid(), $comparison);
+        } elseif ($rfid instanceof ObjectCollection) {
+            if (null === $comparison) {
+                $comparison = Criteria::IN;
+            }
+
+            return $this
+                ->addUsingAlias(RfidTapTableMap::COL_RFID, $rfid->toKeyValue('PrimaryKey', 'Rfid'), $comparison);
+        } else {
+            throw new PropelException('filterByMapping() only accepts arguments of type \Rfid or Collection');
+        }
+    }
+
+    /**
+     * Adds a JOIN clause to the query using the Mapping relation
+     *
+     * @param     string $relationAlias optional alias for the relation
+     * @param     string $joinType Accepted values are null, 'left join', 'right join', 'inner join'
+     *
+     * @return $this|ChildRfidTapQuery The current query, for fluid interface
+     */
+    public function joinMapping($relationAlias = null, $joinType = Criteria::INNER_JOIN)
+    {
+        $tableMap = $this->getTableMap();
+        $relationMap = $tableMap->getRelation('Mapping');
+
+        // create a ModelJoin object for this join
+        $join = new ModelJoin();
+        $join->setJoinType($joinType);
+        $join->setRelationMap($relationMap, $this->useAliasInSQL ? $this->getModelAlias() : null, $relationAlias);
+        if ($previousJoin = $this->getPreviousJoin()) {
+            $join->setPreviousJoin($previousJoin);
+        }
+
+        // add the ModelJoin to the current object
+        if ($relationAlias) {
+            $this->addAlias($relationAlias, $relationMap->getRightTable()->getName());
+            $this->addJoinObject($join, $relationAlias);
+        } else {
+            $this->addJoinObject($join, 'Mapping');
+        }
+
+        return $this;
+    }
+
+    /**
+     * Use the Mapping relation Rfid object
+     *
+     * @see useQuery()
+     *
+     * @param     string $relationAlias optional alias for the relation,
+     *                                   to be used as main alias in the secondary query
+     * @param     string $joinType Accepted values are null, 'left join', 'right join', 'inner join'
+     *
+     * @return \RfidQuery A secondary query class using the current class as primary query
+     */
+    public function useMappingQuery($relationAlias = null, $joinType = Criteria::INNER_JOIN)
+    {
+        return $this
+            ->joinMapping($relationAlias, $joinType)
+            ->useQuery($relationAlias ? $relationAlias : 'Mapping', '\RfidQuery');
     }
 
     /**

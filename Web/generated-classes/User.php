@@ -22,7 +22,7 @@ class User extends BaseUser
     return $cfg['admins'] && in_array($this->getLdap(), $cfg['admins']);
   }
 
-  public function getDataForJson() {
+  public function getDataForJson($include_rfids = false) {
     $data = [
       'ldap' => $this->getLdap(),
       'firstName' => $this->getFirstName(),
@@ -37,6 +37,14 @@ class User extends BaseUser
     $spotifyAccount = $this->getSpotifyAccount();
     if ($spotifyAccount) {
       $data['spotifyAccount'] = $spotifyAccount->getDataForJson();
+    }
+
+    $rfids = $this->getRFIDs();
+    if ($rfids && $include_rfids) {
+      $data['rfids'] = [];
+      foreach ($rfids as $rfid) {
+        $data['rfids'][] = $rfid->getDataForJson(true);
+      }
     }
 
     return $data;

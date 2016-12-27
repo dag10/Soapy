@@ -2,15 +2,22 @@
 
 namespace Base;
 
+use \Rfid as ChildRfid;
 use \RfidQuery as ChildRfidQuery;
+use \RfidTap as ChildRfidTap;
+use \RfidTapQuery as ChildRfidTapQuery;
+use \User as ChildUser;
+use \UserQuery as ChildUserQuery;
 use \Exception;
 use \PDO;
 use Map\RfidTableMap;
+use Map\RfidTapTableMap;
 use Propel\Runtime\Propel;
 use Propel\Runtime\ActiveQuery\Criteria;
 use Propel\Runtime\ActiveQuery\ModelCriteria;
 use Propel\Runtime\ActiveRecord\ActiveRecordInterface;
 use Propel\Runtime\Collection\Collection;
+use Propel\Runtime\Collection\ObjectCollection;
 use Propel\Runtime\Connection\ConnectionInterface;
 use Propel\Runtime\Exception\BadMethodCallException;
 use Propel\Runtime\Exception\LogicException;
@@ -74,12 +81,29 @@ abstract class Rfid implements ActiveRecordInterface
     protected $ldap;
 
     /**
+     * @var        ChildUser
+     */
+    protected $aUser;
+
+    /**
+     * @var        ObjectCollection|ChildRfidTap[] Collection to store aggregation of ChildRfidTap objects.
+     */
+    protected $collTaps;
+    protected $collTapsPartial;
+
+    /**
      * Flag to prevent endless save loop, if this object is referenced
      * by another object which falls in this transaction.
      *
      * @var boolean
      */
     protected $alreadyInSave = false;
+
+    /**
+     * An array of objects scheduled for deletion.
+     * @var ObjectCollection|ChildRfidTap[]
+     */
+    protected $tapsScheduledForDeletion = null;
 
     /**
      * Initializes internal state of Base\Rfid object.
@@ -363,6 +387,10 @@ abstract class Rfid implements ActiveRecordInterface
             $this->modifiedColumns[RfidTableMap::COL_LDAP] = true;
         }
 
+        if ($this->aUser !== null && $this->aUser->getLdap() !== $v) {
+            $this->aUser = null;
+        }
+
         return $this;
     } // setLdap()
 
@@ -437,6 +465,9 @@ abstract class Rfid implements ActiveRecordInterface
      */
     public function ensureConsistency()
     {
+        if ($this->aUser !== null && $this->ldap !== $this->aUser->getLdap()) {
+            $this->aUser = null;
+        }
     } // ensureConsistency
 
     /**
@@ -475,6 +506,9 @@ abstract class Rfid implements ActiveRecordInterface
         $this->hydrate($row, 0, true, $dataFetcher->getIndexType()); // rehydrate
 
         if ($deep) {  // also de-associate any related objects?
+
+            $this->aUser = null;
+            $this->collTaps = null;
 
         } // if (deep)
     }
@@ -575,6 +609,18 @@ abstract class Rfid implements ActiveRecordInterface
         if (!$this->alreadyInSave) {
             $this->alreadyInSave = true;
 
+            // We call the save method on the following object(s) if they
+            // were passed to this object by their corresponding set
+            // method.  This object relates to these object(s) by a
+            // foreign key reference.
+
+            if ($this->aUser !== null) {
+                if ($this->aUser->isModified() || $this->aUser->isNew()) {
+                    $affectedRows += $this->aUser->save($con);
+                }
+                $this->setUser($this->aUser);
+            }
+
             if ($this->isNew() || $this->isModified()) {
                 // persist changes
                 if ($this->isNew()) {
@@ -584,6 +630,23 @@ abstract class Rfid implements ActiveRecordInterface
                     $affectedRows += $this->doUpdate($con);
                 }
                 $this->resetModified();
+            }
+
+            if ($this->tapsScheduledForDeletion !== null) {
+                if (!$this->tapsScheduledForDeletion->isEmpty()) {
+                    \RfidTapQuery::create()
+                        ->filterByPrimaryKeys($this->tapsScheduledForDeletion->getPrimaryKeys(false))
+                        ->delete($con);
+                    $this->tapsScheduledForDeletion = null;
+                }
+            }
+
+            if ($this->collTaps !== null) {
+                foreach ($this->collTaps as $referrerFK) {
+                    if (!$referrerFK->isDeleted() && ($referrerFK->isNew() || $referrerFK->isModified())) {
+                        $affectedRows += $referrerFK->save($con);
+                    }
+                }
             }
 
             $this->alreadyInSave = false;
@@ -709,10 +772,11 @@ abstract class Rfid implements ActiveRecordInterface
      *                    Defaults to TableMap::TYPE_PHPNAME.
      * @param     boolean $includeLazyLoadColumns (optional) Whether to include lazy loaded columns. Defaults to TRUE.
      * @param     array $alreadyDumpedObjects List of objects to skip to avoid recursion
+     * @param     boolean $includeForeignObjects (optional) Whether to include hydrated related objects. Default to FALSE.
      *
      * @return array an associative array containing the field names (as keys) and field values
      */
-    public function toArray($keyType = TableMap::TYPE_PHPNAME, $includeLazyLoadColumns = true, $alreadyDumpedObjects = array())
+    public function toArray($keyType = TableMap::TYPE_PHPNAME, $includeLazyLoadColumns = true, $alreadyDumpedObjects = array(), $includeForeignObjects = false)
     {
 
         if (isset($alreadyDumpedObjects['Rfid'][$this->hashCode()])) {
@@ -729,6 +793,38 @@ abstract class Rfid implements ActiveRecordInterface
             $result[$key] = $virtualColumn;
         }
 
+        if ($includeForeignObjects) {
+            if (null !== $this->aUser) {
+
+                switch ($keyType) {
+                    case TableMap::TYPE_CAMELNAME:
+                        $key = 'user';
+                        break;
+                    case TableMap::TYPE_FIELDNAME:
+                        $key = 'user';
+                        break;
+                    default:
+                        $key = 'User';
+                }
+
+                $result[$key] = $this->aUser->toArray($keyType, $includeLazyLoadColumns,  $alreadyDumpedObjects, true);
+            }
+            if (null !== $this->collTaps) {
+
+                switch ($keyType) {
+                    case TableMap::TYPE_CAMELNAME:
+                        $key = 'rfidTaps';
+                        break;
+                    case TableMap::TYPE_FIELDNAME:
+                        $key = 'rfidtaps';
+                        break;
+                    default:
+                        $key = 'RfidTaps';
+                }
+
+                $result[$key] = $this->collTaps->toArray(null, false, $keyType, $includeLazyLoadColumns, $alreadyDumpedObjects);
+            }
+        }
 
         return $result;
     }
@@ -935,6 +1031,20 @@ abstract class Rfid implements ActiveRecordInterface
     {
         $copyObj->setRfid($this->getRfid());
         $copyObj->setLdap($this->getLdap());
+
+        if ($deepCopy) {
+            // important: temporarily setNew(false) because this affects the behavior of
+            // the getter/setter methods for fkey referrer objects.
+            $copyObj->setNew(false);
+
+            foreach ($this->getTaps() as $relObj) {
+                if ($relObj !== $this) {  // ensure that we don't try to copy a reference to ourselves
+                    $copyObj->addTap($relObj->copy($deepCopy));
+                }
+            }
+
+        } // if ($deepCopy)
+
         if ($makeNew) {
             $copyObj->setNew(true);
         }
@@ -963,12 +1073,312 @@ abstract class Rfid implements ActiveRecordInterface
     }
 
     /**
+     * Declares an association between this object and a ChildUser object.
+     *
+     * @param  ChildUser $v
+     * @return $this|\Rfid The current object (for fluent API support)
+     * @throws PropelException
+     */
+    public function setUser(ChildUser $v = null)
+    {
+        if ($v === null) {
+            $this->setLdap(NULL);
+        } else {
+            $this->setLdap($v->getLdap());
+        }
+
+        $this->aUser = $v;
+
+        // Add binding for other direction of this n:n relationship.
+        // If this object has already been added to the ChildUser object, it will not be re-added.
+        if ($v !== null) {
+            $v->addRfid($this);
+        }
+
+
+        return $this;
+    }
+
+
+    /**
+     * Get the associated ChildUser object
+     *
+     * @param  ConnectionInterface $con Optional Connection object.
+     * @return ChildUser The associated ChildUser object.
+     * @throws PropelException
+     */
+    public function getUser(ConnectionInterface $con = null)
+    {
+        if ($this->aUser === null && (($this->ldap !== "" && $this->ldap !== null))) {
+            $this->aUser = ChildUserQuery::create()
+                ->filterByRfid($this) // here
+                ->findOne($con);
+            /* The following can be used additionally to
+                guarantee the related object contains a reference
+                to this object.  This level of coupling may, however, be
+                undesirable since it could result in an only partially populated collection
+                in the referenced object.
+                $this->aUser->addRfids($this);
+             */
+        }
+
+        return $this->aUser;
+    }
+
+
+    /**
+     * Initializes a collection based on the name of a relation.
+     * Avoids crafting an 'init[$relationName]s' method name
+     * that wouldn't work when StandardEnglishPluralizer is used.
+     *
+     * @param      string $relationName The name of the relation to initialize
+     * @return void
+     */
+    public function initRelation($relationName)
+    {
+        if ('Tap' == $relationName) {
+            return $this->initTaps();
+        }
+    }
+
+    /**
+     * Clears out the collTaps collection
+     *
+     * This does not modify the database; however, it will remove any associated objects, causing
+     * them to be refetched by subsequent calls to accessor method.
+     *
+     * @return void
+     * @see        addTaps()
+     */
+    public function clearTaps()
+    {
+        $this->collTaps = null; // important to set this to NULL since that means it is uninitialized
+    }
+
+    /**
+     * Reset is the collTaps collection loaded partially.
+     */
+    public function resetPartialTaps($v = true)
+    {
+        $this->collTapsPartial = $v;
+    }
+
+    /**
+     * Initializes the collTaps collection.
+     *
+     * By default this just sets the collTaps collection to an empty array (like clearcollTaps());
+     * however, you may wish to override this method in your stub class to provide setting appropriate
+     * to your application -- for example, setting the initial array to the values stored in database.
+     *
+     * @param      boolean $overrideExisting If set to true, the method call initializes
+     *                                        the collection even if it is not empty
+     *
+     * @return void
+     */
+    public function initTaps($overrideExisting = true)
+    {
+        if (null !== $this->collTaps && !$overrideExisting) {
+            return;
+        }
+
+        $collectionClassName = RfidTapTableMap::getTableMap()->getCollectionClassName();
+
+        $this->collTaps = new $collectionClassName;
+        $this->collTaps->setModel('\RfidTap');
+    }
+
+    /**
+     * Gets an array of ChildRfidTap objects which contain a foreign key that references this object.
+     *
+     * If the $criteria is not null, it is used to always fetch the results from the database.
+     * Otherwise the results are fetched from the database the first time, then cached.
+     * Next time the same method is called without $criteria, the cached collection is returned.
+     * If this ChildRfid is new, it will return
+     * an empty collection or the current collection; the criteria is ignored on a new object.
+     *
+     * @param      Criteria $criteria optional Criteria object to narrow the query
+     * @param      ConnectionInterface $con optional connection object
+     * @return ObjectCollection|ChildRfidTap[] List of ChildRfidTap objects
+     * @throws PropelException
+     */
+    public function getTaps(Criteria $criteria = null, ConnectionInterface $con = null)
+    {
+        $partial = $this->collTapsPartial && !$this->isNew();
+        if (null === $this->collTaps || null !== $criteria  || $partial) {
+            if ($this->isNew() && null === $this->collTaps) {
+                // return empty collection
+                $this->initTaps();
+            } else {
+                $collTaps = ChildRfidTapQuery::create(null, $criteria)
+                    ->filterByMapping($this)
+                    ->find($con);
+
+                if (null !== $criteria) {
+                    if (false !== $this->collTapsPartial && count($collTaps)) {
+                        $this->initTaps(false);
+
+                        foreach ($collTaps as $obj) {
+                            if (false == $this->collTaps->contains($obj)) {
+                                $this->collTaps->append($obj);
+                            }
+                        }
+
+                        $this->collTapsPartial = true;
+                    }
+
+                    return $collTaps;
+                }
+
+                if ($partial && $this->collTaps) {
+                    foreach ($this->collTaps as $obj) {
+                        if ($obj->isNew()) {
+                            $collTaps[] = $obj;
+                        }
+                    }
+                }
+
+                $this->collTaps = $collTaps;
+                $this->collTapsPartial = false;
+            }
+        }
+
+        return $this->collTaps;
+    }
+
+    /**
+     * Sets a collection of ChildRfidTap objects related by a one-to-many relationship
+     * to the current object.
+     * It will also schedule objects for deletion based on a diff between old objects (aka persisted)
+     * and new objects from the given Propel collection.
+     *
+     * @param      Collection $taps A Propel collection.
+     * @param      ConnectionInterface $con Optional connection object
+     * @return $this|ChildRfid The current object (for fluent API support)
+     */
+    public function setTaps(Collection $taps, ConnectionInterface $con = null)
+    {
+        /** @var ChildRfidTap[] $tapsToDelete */
+        $tapsToDelete = $this->getTaps(new Criteria(), $con)->diff($taps);
+
+
+        //since at least one column in the foreign key is at the same time a PK
+        //we can not just set a PK to NULL in the lines below. We have to store
+        //a backup of all values, so we are able to manipulate these items based on the onDelete value later.
+        $this->tapsScheduledForDeletion = clone $tapsToDelete;
+
+        foreach ($tapsToDelete as $tapRemoved) {
+            $tapRemoved->setMapping(null);
+        }
+
+        $this->collTaps = null;
+        foreach ($taps as $tap) {
+            $this->addTap($tap);
+        }
+
+        $this->collTaps = $taps;
+        $this->collTapsPartial = false;
+
+        return $this;
+    }
+
+    /**
+     * Returns the number of related RfidTap objects.
+     *
+     * @param      Criteria $criteria
+     * @param      boolean $distinct
+     * @param      ConnectionInterface $con
+     * @return int             Count of related RfidTap objects.
+     * @throws PropelException
+     */
+    public function countTaps(Criteria $criteria = null, $distinct = false, ConnectionInterface $con = null)
+    {
+        $partial = $this->collTapsPartial && !$this->isNew();
+        if (null === $this->collTaps || null !== $criteria || $partial) {
+            if ($this->isNew() && null === $this->collTaps) {
+                return 0;
+            }
+
+            if ($partial && !$criteria) {
+                return count($this->getTaps());
+            }
+
+            $query = ChildRfidTapQuery::create(null, $criteria);
+            if ($distinct) {
+                $query->distinct();
+            }
+
+            return $query
+                ->filterByMapping($this)
+                ->count($con);
+        }
+
+        return count($this->collTaps);
+    }
+
+    /**
+     * Method called to associate a ChildRfidTap object to this object
+     * through the ChildRfidTap foreign key attribute.
+     *
+     * @param  ChildRfidTap $l ChildRfidTap
+     * @return $this|\Rfid The current object (for fluent API support)
+     */
+    public function addTap(ChildRfidTap $l)
+    {
+        if ($this->collTaps === null) {
+            $this->initTaps();
+            $this->collTapsPartial = true;
+        }
+
+        if (!$this->collTaps->contains($l)) {
+            $this->doAddTap($l);
+
+            if ($this->tapsScheduledForDeletion and $this->tapsScheduledForDeletion->contains($l)) {
+                $this->tapsScheduledForDeletion->remove($this->tapsScheduledForDeletion->search($l));
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @param ChildRfidTap $tap The ChildRfidTap object to add.
+     */
+    protected function doAddTap(ChildRfidTap $tap)
+    {
+        $this->collTaps[]= $tap;
+        $tap->setMapping($this);
+    }
+
+    /**
+     * @param  ChildRfidTap $tap The ChildRfidTap object to remove.
+     * @return $this|ChildRfid The current object (for fluent API support)
+     */
+    public function removeTap(ChildRfidTap $tap)
+    {
+        if ($this->getTaps()->contains($tap)) {
+            $pos = $this->collTaps->search($tap);
+            $this->collTaps->remove($pos);
+            if (null === $this->tapsScheduledForDeletion) {
+                $this->tapsScheduledForDeletion = clone $this->collTaps;
+                $this->tapsScheduledForDeletion->clear();
+            }
+            $this->tapsScheduledForDeletion[]= clone $tap;
+            $tap->setMapping(null);
+        }
+
+        return $this;
+    }
+
+    /**
      * Clears the current object, sets all attributes to their default values and removes
      * outgoing references as well as back-references (from other objects to this one. Results probably in a database
      * change of those foreign objects when you call `save` there).
      */
     public function clear()
     {
+        if (null !== $this->aUser) {
+            $this->aUser->removeRfid($this);
+        }
         $this->rfid = null;
         $this->ldap = null;
         $this->alreadyInSave = false;
@@ -989,8 +1399,15 @@ abstract class Rfid implements ActiveRecordInterface
     public function clearAllReferences($deep = false)
     {
         if ($deep) {
+            if ($this->collTaps) {
+                foreach ($this->collTaps as $o) {
+                    $o->clearAllReferences($deep);
+                }
+            }
         } // if ($deep)
 
+        $this->collTaps = null;
+        $this->aUser = null;
     }
 
     /**

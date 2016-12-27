@@ -2,6 +2,8 @@
 
 namespace Base;
 
+use \Rfid as ChildRfid;
+use \RfidQuery as ChildRfidQuery;
 use \RfidTapQuery as ChildRfidTapQuery;
 use \DateTime;
 use \Exception;
@@ -74,6 +76,11 @@ abstract class RfidTap implements ActiveRecordInterface
      * @var        \DateTime
      */
     protected $time;
+
+    /**
+     * @var        ChildRfid
+     */
+    protected $aMapping;
 
     /**
      * Flag to prevent endless save loop, if this object is referenced
@@ -355,6 +362,10 @@ abstract class RfidTap implements ActiveRecordInterface
             $this->modifiedColumns[RfidTapTableMap::COL_RFID] = true;
         }
 
+        if ($this->aMapping !== null && $this->aMapping->getRfid() !== $v) {
+            $this->aMapping = null;
+        }
+
         return $this;
     } // setRfid()
 
@@ -452,6 +463,9 @@ abstract class RfidTap implements ActiveRecordInterface
      */
     public function ensureConsistency()
     {
+        if ($this->aMapping !== null && $this->rfid !== $this->aMapping->getRfid()) {
+            $this->aMapping = null;
+        }
     } // ensureConsistency
 
     /**
@@ -491,6 +505,7 @@ abstract class RfidTap implements ActiveRecordInterface
 
         if ($deep) {  // also de-associate any related objects?
 
+            $this->aMapping = null;
         } // if (deep)
     }
 
@@ -589,6 +604,18 @@ abstract class RfidTap implements ActiveRecordInterface
         $affectedRows = 0; // initialize var to track total num of affected rows
         if (!$this->alreadyInSave) {
             $this->alreadyInSave = true;
+
+            // We call the save method on the following object(s) if they
+            // were passed to this object by their corresponding set
+            // method.  This object relates to these object(s) by a
+            // foreign key reference.
+
+            if ($this->aMapping !== null) {
+                if ($this->aMapping->isModified() || $this->aMapping->isNew()) {
+                    $affectedRows += $this->aMapping->save($con);
+                }
+                $this->setMapping($this->aMapping);
+            }
 
             if ($this->isNew() || $this->isModified()) {
                 // persist changes
@@ -724,10 +751,11 @@ abstract class RfidTap implements ActiveRecordInterface
      *                    Defaults to TableMap::TYPE_PHPNAME.
      * @param     boolean $includeLazyLoadColumns (optional) Whether to include lazy loaded columns. Defaults to TRUE.
      * @param     array $alreadyDumpedObjects List of objects to skip to avoid recursion
+     * @param     boolean $includeForeignObjects (optional) Whether to include hydrated related objects. Default to FALSE.
      *
      * @return array an associative array containing the field names (as keys) and field values
      */
-    public function toArray($keyType = TableMap::TYPE_PHPNAME, $includeLazyLoadColumns = true, $alreadyDumpedObjects = array())
+    public function toArray($keyType = TableMap::TYPE_PHPNAME, $includeLazyLoadColumns = true, $alreadyDumpedObjects = array(), $includeForeignObjects = false)
     {
 
         if (isset($alreadyDumpedObjects['RfidTap'][$this->hashCode()])) {
@@ -748,6 +776,23 @@ abstract class RfidTap implements ActiveRecordInterface
             $result[$key] = $virtualColumn;
         }
 
+        if ($includeForeignObjects) {
+            if (null !== $this->aMapping) {
+
+                switch ($keyType) {
+                    case TableMap::TYPE_CAMELNAME:
+                        $key = 'rfid';
+                        break;
+                    case TableMap::TYPE_FIELDNAME:
+                        $key = 'rfid';
+                        break;
+                    default:
+                        $key = 'Rfid';
+                }
+
+                $result[$key] = $this->aMapping->toArray($keyType, $includeLazyLoadColumns,  $alreadyDumpedObjects, true);
+            }
+        }
 
         return $result;
     }
@@ -900,8 +945,15 @@ abstract class RfidTap implements ActiveRecordInterface
         $validPk = null !== $this->getRfid() &&
             null !== $this->getTime();
 
-        $validPrimaryKeyFKs = 0;
+        $validPrimaryKeyFKs = 1;
         $primaryKeyFKs = [];
+
+        //relation rfidtap_fk_2eb978 to table rfid
+        if ($this->aMapping && $hash = spl_object_hash($this->aMapping)) {
+            $primaryKeyFKs[] = $hash;
+        } else {
+            $validPrimaryKeyFKs = false;
+        }
 
         if ($validPk) {
             return crc32(json_encode($this->getPrimaryKey(), JSON_UNESCAPED_UNICODE));
@@ -990,12 +1042,66 @@ abstract class RfidTap implements ActiveRecordInterface
     }
 
     /**
+     * Declares an association between this object and a ChildRfid object.
+     *
+     * @param  ChildRfid $v
+     * @return $this|\RfidTap The current object (for fluent API support)
+     * @throws PropelException
+     */
+    public function setMapping(ChildRfid $v = null)
+    {
+        if ($v === null) {
+            $this->setRfid(NULL);
+        } else {
+            $this->setRfid($v->getRfid());
+        }
+
+        $this->aMapping = $v;
+
+        // Add binding for other direction of this n:n relationship.
+        // If this object has already been added to the ChildRfid object, it will not be re-added.
+        if ($v !== null) {
+            $v->addTap($this);
+        }
+
+
+        return $this;
+    }
+
+
+    /**
+     * Get the associated ChildRfid object
+     *
+     * @param  ConnectionInterface $con Optional Connection object.
+     * @return ChildRfid The associated ChildRfid object.
+     * @throws PropelException
+     */
+    public function getMapping(ConnectionInterface $con = null)
+    {
+        if ($this->aMapping === null && (($this->rfid !== "" && $this->rfid !== null))) {
+            $this->aMapping = ChildRfidQuery::create()->findPk($this->rfid, $con);
+            /* The following can be used additionally to
+                guarantee the related object contains a reference
+                to this object.  This level of coupling may, however, be
+                undesirable since it could result in an only partially populated collection
+                in the referenced object.
+                $this->aMapping->addTaps($this);
+             */
+        }
+
+        return $this->aMapping;
+    }
+
+    /**
      * Clears the current object, sets all attributes to their default values and removes
      * outgoing references as well as back-references (from other objects to this one. Results probably in a database
      * change of those foreign objects when you call `save` there).
      */
     public function clear()
     {
+        if (null !== $this->aMapping) {
+            $this->aMapping->removeTap($this);
+        }
         $this->rfid = null;
         $this->time = null;
         $this->alreadyInSave = false;
@@ -1018,6 +1124,7 @@ abstract class RfidTap implements ActiveRecordInterface
         if ($deep) {
         } // if ($deep)
 
+        $this->aMapping = null;
     }
 
     /**

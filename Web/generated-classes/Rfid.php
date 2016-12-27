@@ -1,6 +1,7 @@
 <?php
 
 use Base\Rfid as BaseRfid;
+use Propel\Runtime\ActiveQuery\Criteria;
 
 /**
  * Skeleton subclass for representing a row from the 'rfid' table.
@@ -14,5 +15,25 @@ use Base\Rfid as BaseRfid;
  */
 class Rfid extends BaseRfid
 {
+  public function getLastTap() {
+    return RfidTapQuery::create()
+      ->filterByRfid($this->getRfid())
+      ->orderByTime(Criteria::DESC)
+      ->findOne();
+  }
 
+  public function getDataForJson($include_last_tap = false) {
+    $data = [
+      'rfid' => $this->getRfid(),
+    ];
+
+    if ($include_last_tap) {
+      $lastTap = $this->getLastTap();
+      if ($lastTap) {
+        $data['lastTap'] = $lastTap->getTime()->getTimestamp() * 1000;
+      }
+    }
+
+    return $data;
+  }
 }

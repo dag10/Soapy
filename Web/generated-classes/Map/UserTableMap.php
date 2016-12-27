@@ -208,6 +208,13 @@ class UserTableMap extends TableMap
     1 => ':id',
   ),
 ), null, null, null, false);
+        $this->addRelation('Rfid', '\\Rfid', RelationMap::ONE_TO_MANY, array (
+  0 =>
+  array (
+    0 => ':ldap',
+    1 => ':ldap',
+  ),
+), null, null, 'Rfids', false);
         $this->addRelation('SpotifyAccount', '\\SpotifyAccount', RelationMap::ONE_TO_MANY, array (
   0 =>
   array (

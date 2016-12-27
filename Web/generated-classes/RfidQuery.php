@@ -25,4 +25,8 @@ class RfidQuery extends BaseRfidQuery
 
     return $mapping;
   }
+
+  public function unpaired() {
+    return $this->filterByLdap(null);
+  }
 }

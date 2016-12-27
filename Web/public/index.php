@@ -273,6 +273,40 @@ $app->get('/api/users/?', function() use ($app) {
   ]);
 });
 
+// API endpoint for pairing an RFID with a user by LDAP
+$app->post('/api/users/rfid/pair/?', function() use ($app) {
+  $ctx = start_view_context($app, ['admin_only' => true, 'json' => true]);
+
+  $rfid = $app->request->post('rfid');
+  if (!$rfid) {
+    dieWithJsonError("No RFID was given.");
+  }
+
+  $ldap = $app->request->post('ldap');
+  if (!$ldap) {
+    dieWithJsonError("No LDAP was given.");
+  }
+
+  $rfidObj = RfidQuery::create()->findOneByRfid($rfid);
+  if (!$rfidObj) {
+    dieWithJsonError("RFID not found.");
+  }
+
+  if ($rfidObj->getLdap()) {
+    dieWithJsonError("RFID is already paired. Unpair it first.");
+  }
+
+  $userObject = UserQuery::create()->findOneByLdap($ldap);
+  if (!$userObject) {
+    dieWithJsonError("User not found.");
+  }
+
+  $rfidObj->setLdap($ldap);
+  $rfidObj->save();
+
+  dieWithJsonSuccess();
+});
+
 // API endpoint for unpairing an RFID
 $app->post('/api/users/rfid/unpair/?', function() use ($app) {
   $ctx = start_view_context($app, ['admin_only' => true, 'json' => true]);

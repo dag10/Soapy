@@ -18,11 +18,17 @@
   <button
       *ngFor="#user of usersToShow"
       type="button"
-      class="mdl-chip"
-      [class.mdl-chip--contact]="user.avatar"
+      class="mdl-chip mdl-chip--contact"
       (click)="pairWithUser(user.ldap)"
       >
-    <img *ngIf="user.avatar" class="mdl-chip__contact" src="{{ user.avatar }}" />
+    <div class="mdl-chip__contact">
+      <i class="material-icons">face</i>
+      <div
+        *ngIf="user.avatar"
+        class="image"
+        style="background-image: url('{{ user.avatar }}');"
+        ></div>
+    </div>
     <span class="mdl-chip__text">
       <span class="pair-with-text">Pair with </span>
       {{ user.firstName }} {{ user.lastName }}

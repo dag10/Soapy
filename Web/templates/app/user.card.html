@@ -1,5 +1,6 @@
-<div class="image" [ngStyle]="style" title="{{ user.spotifyUsername }}">
-  <i class="material-icons" *ngIf="!user.avatar">face</i>
+<div class="avatar" [attr.title]="user.spotifyUsername">
+  <div class="image" [ngStyle]="style"></div>
+  <i class="material-icons">face</i>
 </div>
 
 <h1>{{ user.firstName }} {{ user.lastName }} <span class="subtitle" title="{{ user.firstName }}'s ldap username">{{ user.ldap }}</span></h1>

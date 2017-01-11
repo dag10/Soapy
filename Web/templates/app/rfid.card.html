@@ -38,6 +38,7 @@
       *ngFor="#user of usersToShow"
       type="button"
       class="mdl-chip mdl-chip--contact"
+      [attr.title]="user.ldap"
       (click)="pairWithUser(user.ldap)"
       >
     <div class="mdl-chip__contact">

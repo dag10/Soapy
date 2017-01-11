@@ -1,4 +1,9 @@
-import {Component, OnInit, ChangeDetectorRef} from 'angular2/core';
+import {
+  ViewChildren,
+  QueryList,
+  Component,
+  OnInit,
+  ChangeDetectorRef } from 'angular2/core';
 
 import {ErrorCardComponent} from './error.card';
 import {UserCardComponent} from './user.card';
@@ -24,6 +29,8 @@ import {SnackbarService} from './snackbar.service';
   ],
 })
 export class UsersAppComponent implements OnInit {
+  @ViewChildren(RfidCardComponent) rfidCards: QueryList<RfidCardComponent>;
+
   public errors: string[] = [];
 
   constructor(private _usersService: UsersService,
@@ -82,6 +89,16 @@ export class UsersAppComponent implements OnInit {
     });
 
     this._usersService.pairRFID(rfid, ldap);
+  }
+
+  public collapseOtherRfidCards(except: RfidCardComponent) {
+    this.rfidCards.forEach((card: RfidCardComponent) => {
+      if (card === except) {
+        return;
+      }
+
+      card.collapseUsersList();
+    });
   }
 }
 

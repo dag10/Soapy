@@ -25,6 +25,8 @@ export class RfidCardComponent implements AfterViewChecked {
   @Input() suggestedUsers: User[];
 
   @Output() pair: EventEmitter<any> = new EventEmitter();
+  @Output() expanded: EventEmitter<RfidCardComponent> =
+    new EventEmitter<RfidCardComponent>();
 
   private _id: string;
   private _selectingUser: boolean = false;
@@ -128,8 +130,21 @@ export class RfidCardComponent implements AfterViewChecked {
     this.pair.emit(ldap);
   }
 
+  public pairWithSelectedUser() {
+    if (!this.hasHighlightedUser) {
+      return;
+    }
+
+    this.pairWithUser(this.usersToShow[this._highlightedUserIndex].ldap);
+  }
+
+  public get isExpanded(): boolean {
+    return this._selectingUser;
+  }
+
   public expandUsersList() {
     this._selectingUser = true;
+    this.expanded.emit(this);
 
     // Delay to allow template to re-render
     setTimeout(() => {
@@ -138,6 +153,10 @@ export class RfidCardComponent implements AfterViewChecked {
   }
 
   public collapseUsersList() {
+    if (!this.isExpanded) {
+      return;
+    }
+
     this._selectingUser = false;
     this.clearFilter();
   }
@@ -158,7 +177,8 @@ export class RfidCardComponent implements AfterViewChecked {
     if (event.keyCode === 27 /* escape key */) {
       this.collapseUsersList();
     } else if (event.keyCode === 13 /* enter key */) {
-      this.pairWithUser(this.usersToShow[this._highlightedUserIndex].ldap);
+      this.pairWithSelectedUser();
+      return false;
     } else if (event.keyCode === 37 /* left arrow key */) {
       this.selectUserToLeft();
       return false;

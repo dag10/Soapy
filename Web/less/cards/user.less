@@ -51,7 +51,6 @@
   }
 
   .chips {
-    /*position: absolute;*/
     padding-left: @text-left-margin - 3px;
     padding-top: 40px;
     padding-bottom: 4px;
@@ -60,8 +59,11 @@
       background-color: @light-grey;
       /*height: 22px;*/
       /*line-height: 22px;*/
-      margin-right: 10px;
-      margin-bottom: 5px;
+      margin-right: 6px;
+      margin-bottom: 1px;
+      border: solid 2px white;
+      height: 36px;
+      border-radius: 18px;
 
       .mdl-chip__contact {
         position: relative;
@@ -104,6 +106,16 @@
         i {
           /*font-size: 15px;*/
         }
+      }
+
+      &:focus {
+        background-color: @brand-primary;
+        color: white;
+        box-shadow: none;
+      }
+
+      &.highlighted {
+        border-color: @brand-primary;
       }
     }
   }
@@ -279,7 +291,7 @@ rfid-card {
     }
 
     .chips {
-      padding-top: 0;
+      padding-top: 5px;
     }
   }
 
@@ -287,6 +299,11 @@ rfid-card {
     .chips {
       display: none;
     }
+  }
+
+  .chips {
+    padding-top: 45px;
+    padding-bottom: 10px;
   }
 
   /*.users {*/

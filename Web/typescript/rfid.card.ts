@@ -29,6 +29,7 @@ export class RfidCardComponent implements AfterViewChecked {
   private _id: string;
   private _selectingUser: boolean = false;
   private _filter: string = null;
+  private _highlightedUserIndex: number = 0;
 
   constructor(private _el: ElementRef,
               private _changeDetector: ChangeDetectorRef) {
@@ -79,11 +80,34 @@ export class RfidCardComponent implements AfterViewChecked {
     return ret;
   }
 
+  public get hasHighlightedUser(): boolean {
+    return this._selectingUser && this._filter && this._filter.length > 0;
+  }
+
+  public get highlightedUser(): User {
+    if (!this.hasHighlightedUser) {
+      return null;
+    }
+
+    var users = this.usersToShow;
+    var index = this._highlightedUserIndex;
+
+    if (index >= users.length) {
+      index = users.length - 1;
+    }
+
+    return users[index];
+  }
+
   public get filterText(): string {
     return this._filter || '';
   }
 
   public setFilter(filter: string) {
+    if (filter === this._filter) {
+      return;
+    }
+
     if (filter && filter.length > 0) {
       this._filter = filter;
     } else {
@@ -92,6 +116,8 @@ export class RfidCardComponent implements AfterViewChecked {
       // Needed to get the Material placeholder element to be visible.
       this.filterInputContainer.classList.remove('is-dirty');
     }
+
+    this._highlightedUserIndex = 0;
   }
 
   public clearFilter() {
@@ -116,11 +142,29 @@ export class RfidCardComponent implements AfterViewChecked {
     this.clearFilter();
   }
 
+  public selectUserToRight() {
+    if (this._highlightedUserIndex < this.usersToShow.length - 1) {
+      this._highlightedUserIndex++;
+    }
+  }
+
+  public selectUserToLeft() {
+    if (this._highlightedUserIndex > 0) {
+      this._highlightedUserIndex--;
+    }
+  }
+
   public filterKeyDown(event: any) {
     if (event.keyCode === 27 /* escape key */) {
       this.collapseUsersList();
     } else if (event.keyCode === 13 /* enter key */) {
-      this.pairWithUser(this.usersToShow[0].ldap);
+      this.pairWithUser(this.usersToShow[this._highlightedUserIndex].ldap);
+    } else if (event.keyCode === 37 /* left arrow key */) {
+      this.selectUserToLeft();
+      return false;
+    } else if (event.keyCode === 39 /* right arrow key */) {
+      this.selectUserToRight();
+      return false;
     }
   }
 }

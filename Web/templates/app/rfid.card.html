@@ -6,7 +6,26 @@
     >Register this fob</button>
 </h1>
 
-<h1 class="selecting-header">Who owns this fob?</h1>
+<div class="selecting-header">
+  <h1>Who owns this fob?</h1>
+  <div class="mdl-textfield mdl-js-textfield">
+    <input
+      class="mdl-textfield__input"
+      type="text"
+      [attr.id]="chipFilterId"
+      [ngModel]="filterText"
+      (ngModelChange)="setFilter($event)"
+      (keydown)="filterKeyDown($event)"
+      >
+    <label class="mdl-textfield__label" [attr.for]="chipFilterId">
+      Search for a user
+    </label>
+  </div>
+  <button
+    class="mdl-button mdl-js-button mdl-js-ripple-effect cancel-button"
+    (click)="collapseUsersList()"
+    >Cancel</button>
+</div>
 
 <span *ngIf="rfid.lastTap" class="line-2" title="{{ rfid.lastTap.fullText }}">
   <i class="material-icons clock">access_time</i>

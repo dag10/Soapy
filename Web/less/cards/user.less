@@ -238,7 +238,48 @@ rfid-card {
     }
 
     .selecting-header {
-      display: block;
+      display: flex;
+      flex-direction: row;
+
+      h1 {
+        flex-grow: 0;
+        position: static;
+        margin: 13px 17px 7px 17px;
+      }
+
+      .mdl-textfield {
+        flex-grow: 1;
+        margin-top: -12px;
+        margin-bottom: -14px;
+        margin-right: 7px;
+        width: auto;
+
+        .mdl-textfield__input,
+        .mdl-textfield__label {
+          font-size: 14px;
+          padding-bottom: 0;
+        }
+
+        .mdl-textfield__label:after {
+          background-color: @brand-primary !important;
+          bottom: 16px;
+        }
+      }
+
+      button {
+        @height: 26px;
+        @margin: 7px;
+
+        line-height: @height;
+        height: @height;
+        margin-right: @margin;
+        margin-top: @margin;
+        padding: 0 10px;
+      }
+    }
+
+    .chips {
+      padding-top: 0;
     }
   }
 

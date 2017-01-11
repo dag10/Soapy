@@ -5,10 +5,13 @@ import {
   Output,
   ElementRef,
   AfterViewChecked,
+  AfterViewInit,
   ChangeDetectorRef} from 'angular2/core';
 
 import {User, RFID} from './users.service';
 import {StaticData} from './StaticData';
+
+declare var jQuery: JQueryStatic;
 
 
 @Component({
@@ -17,9 +20,11 @@ import {StaticData} from './StaticData';
   host: {
     '[class.selecting-user]': '_selectingUser',
     '[class.no-suggested-users]': 'suggestedUsers.length === 0',
+    '(window:scroll)': 'handleScroll($event)',
+    '(window:touchend)': 'handleScroll($event)',
   },
 })
-export class RfidCardComponent implements AfterViewChecked {
+export class RfidCardComponent implements AfterViewInit, AfterViewChecked {
   @Input() rfid: RFID;
   @Input() users: User[];
   @Input() suggestedUsers: User[];
@@ -28,6 +33,8 @@ export class RfidCardComponent implements AfterViewChecked {
   @Output() expanded: EventEmitter<RfidCardComponent> =
     new EventEmitter<RfidCardComponent>();
 
+  private $el: JQuery;
+  private $header: JQuery;
   private _id: string;
   private _selectingUser: boolean = false;
   private _filter: string = null;
@@ -36,6 +43,11 @@ export class RfidCardComponent implements AfterViewChecked {
   constructor(private _el: ElementRef,
               private _changeDetector: ChangeDetectorRef) {
     this._id = 'rfid-' + Math.floor(Math.random() * 1000000);
+    this.$el = jQuery(this._el.nativeElement);
+  }
+
+  public ngAfterViewInit() {
+    this.$header = jQuery(this.expandedHeader);
   }
 
   public ngAfterViewChecked() {
@@ -45,6 +57,10 @@ export class RfidCardComponent implements AfterViewChecked {
 
   public get chipFilterId(): string {
     return this._id + '-chip-filter';
+  }
+
+  public get expandedHeader(): HTMLElement {
+    return this._el.nativeElement.querySelector('.selecting-header');
   }
 
   public get filterInputContainer(): HTMLElement {
@@ -144,18 +160,24 @@ export class RfidCardComponent implements AfterViewChecked {
 
   public expandUsersList() {
     this._selectingUser = true;
-    this.expanded.emit(this);
+    this.updateStickyHeader();
 
     // Delay to allow template to re-render
     setTimeout(() => {
+      (<any>window).Stickyfill.add(this.expandedHeader);
+      this.updateStickyHeader();
       this.filterInput.focus();
-    }, 50);
+    }, 5);
+
+    this.expanded.emit(this);
   }
 
   public collapseUsersList() {
     if (!this.isExpanded) {
       return;
     }
+
+    (<any>window).Stickyfill.remove(this.expandedHeader);
 
     this._selectingUser = false;
     this.clearFilter();
@@ -185,6 +207,24 @@ export class RfidCardComponent implements AfterViewChecked {
     } else if (event.keyCode === 39 /* right arrow key */) {
       this.selectUserToRight();
       return false;
+    }
+  }
+
+  private handleScroll(event) {
+    this.updateStickyHeader();
+  }
+
+  private updateStickyHeader() {
+    var stickyClass = 'stickied';
+
+    var pos = this.$header.offset().top - jQuery(window).scrollTop();
+    var top = parseInt(this.$header.css('top'), 10);
+    var atTop = (pos <= top) && this.$header.css('display') !== 'none';
+
+    if (this.$header.hasClass(stickyClass) && !atTop) {
+      this.$header.removeClass(stickyClass);
+    } else if (!this.$header.hasClass(stickyClass) && atTop) {
+      this.$header.addClass(stickyClass);
     }
   }
 }

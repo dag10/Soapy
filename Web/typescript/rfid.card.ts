@@ -10,6 +10,7 @@ import {
 
 import {User, RFID} from './users.service';
 import {StaticData} from './StaticData';
+import {IsMobile} from './globals';
 
 declare var jQuery: JQueryStatic;
 
@@ -35,6 +36,7 @@ export class RfidCardComponent implements AfterViewInit, AfterViewChecked {
 
   private $el: JQuery;
   private $header: JQuery;
+  private _stickyClass = 'stickied';
   private _id: string;
   private _selectingUser: boolean = false;
   private _filter: string = null;
@@ -135,11 +137,24 @@ export class RfidCardComponent implements AfterViewInit, AfterViewChecked {
       this.filterInputContainer.classList.remove('is-dirty');
     }
 
+    if (this.isExpanded) {
+      this.scrollToTop();
+    }
+
     this._highlightedUserIndex = 0;
   }
 
   public clearFilter() {
     this.setFilter(null);
+  }
+
+  public scrollToTop() {
+    var navHeight = jQuery('.navbar').outerHeight();
+    var topPosition = this.$el.position().top;
+    (<any>window).scrollTo(0, topPosition - navHeight);
+    setTimeout(() => {
+      this.updateStickyHeader();
+    }, 5);
   }
 
   public pairWithUser(ldap: string) {
@@ -167,6 +182,10 @@ export class RfidCardComponent implements AfterViewInit, AfterViewChecked {
       (<any>window).Stickyfill.add(this.expandedHeader);
       this.updateStickyHeader();
       this.filterInput.focus();
+
+      if (IsMobile()) {
+        this.scrollToTop();
+      }
     }, 5);
 
     this.expanded.emit(this);
@@ -215,16 +234,18 @@ export class RfidCardComponent implements AfterViewInit, AfterViewChecked {
   }
 
   private updateStickyHeader() {
-    var stickyClass = 'stickied';
+    if (!this.isExpanded) {
+      return;
+    }
 
     var pos = this.$header.offset().top - jQuery(window).scrollTop();
     var top = parseInt(this.$header.css('top'), 10);
     var atTop = (pos <= top) && this.$header.css('display') !== 'none';
 
-    if (this.$header.hasClass(stickyClass) && !atTop) {
-      this.$header.removeClass(stickyClass);
-    } else if (!this.$header.hasClass(stickyClass) && atTop) {
-      this.$header.addClass(stickyClass);
+    if (this.$header.hasClass(this._stickyClass) && !atTop) {
+      this.$header.removeClass(this._stickyClass);
+    } else if (!this.$header.hasClass(this._stickyClass) && atTop) {
+      this.$header.addClass(this._stickyClass);
     }
   }
 }

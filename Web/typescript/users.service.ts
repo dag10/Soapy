@@ -111,6 +111,15 @@ export class UsersService {
   }
 
   /**
+   * Get list of users suggested for pairing a new RFID fob.
+   * The list is users who have no RFID pairings but have a Spotify
+   * account paired.
+   */
+  public get suggestedUsers(): User[] {
+    return this.unpairedUsers.filter(user => user.hasSpotifyAccount);
+  }
+
+  /**
    * Get processed list of unknown RFIDs.
    */
   public get unknownRFIDs(): RFID[] {

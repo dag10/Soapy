@@ -58,7 +58,7 @@ export class UsersAppComponent implements OnInit {
   }
 
   public get suggestedUsers(): User[] {
-    return this._usersService.unpairedUsers.slice(0, 4);
+    return this._usersService.suggestedUsers.slice(0, 4);
   }
 
   public unpairRFID(rfid: string) {

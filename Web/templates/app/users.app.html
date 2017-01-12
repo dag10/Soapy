@@ -19,5 +19,13 @@
   (unpairRFID)="unpairRFID($event)">
 </user-card>
 
+<button
+  (click)="showAllUsers()"
+  *ngIf="hideNonSpotifyUsers"
+  class="mdl-button mdl-js-button mdl-js-ripple-effect"
+  >
+  Show all users
+</button>
+
 <snackbar></snackbar>
 

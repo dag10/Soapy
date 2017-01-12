@@ -33,6 +33,8 @@ export class UsersAppComponent implements OnInit {
 
   public errors: string[] = [];
 
+  private _showingAllUsers: boolean = false;
+
   constructor(private _usersService: UsersService,
               private _snackbarService: SnackbarService,
               private _changeDetector: ChangeDetectorRef) {}
@@ -61,7 +63,19 @@ export class UsersAppComponent implements OnInit {
   }
 
   public get users(): User[] {
-    return this._usersService.users;
+    // Show users with Spotify accounts first.
+    var users = this._usersService.users.sort((user: User) => {
+      return user.hasSpotifyAccount ? -1 : 1;
+    });
+
+    // Possibly hide users without Spotify accounts.
+    if (this.hideNonSpotifyUsers) {
+      users = users.filter((user: User) => {
+        return user.hasSpotifyAccount;
+      });
+    }
+
+    return users;
   }
 
   public get suggestedUsers(): User[] {
@@ -99,6 +113,14 @@ export class UsersAppComponent implements OnInit {
 
       card.collapseUsersList();
     });
+  }
+
+  public get hideNonSpotifyUsers(): boolean {
+    return !this._showingAllUsers;
+  }
+
+  public showAllUsers() {
+    this._showingAllUsers = true;
   }
 }
 

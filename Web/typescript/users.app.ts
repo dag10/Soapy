@@ -62,20 +62,26 @@ export class UsersAppComponent implements OnInit {
     return this._usersService.unknownRFIDs;
   }
 
+  /**
+   * All users, sorted to show those with Spotify accounts first.
+   */
   public get users(): User[] {
-    // Show users with Spotify accounts first.
-    var users = this._usersService.users.sort((user: User) => {
+    return this._usersService.users.sort((user: User) => {
       return user.hasSpotifyAccount ? -1 : 1;
     });
+  }
 
-    // Possibly hide users without Spotify accounts.
+  /**
+   * Either all users or just users with Spotify accounts.
+   */
+  public get usersToDisplay(): User[] {
     if (this.hideNonSpotifyUsers) {
-      users = users.filter((user: User) => {
+      return this.users.filter((user: User) => {
         return user.hasSpotifyAccount;
       });
+    } else {
+      return this.users;
     }
-
-    return users;
   }
 
   public get suggestedUsers(): User[] {

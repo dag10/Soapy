@@ -14,7 +14,7 @@
 <h1 *ngIf="users" [class.first]="unknownRFIDs.length === 0">Users</h1>
 
 <user-card
-  *ngFor="#user of users"
+  *ngFor="#user of usersToDisplay"
   [user]="user"
   (unpairRFID)="unpairRFID($event)">
 </user-card>

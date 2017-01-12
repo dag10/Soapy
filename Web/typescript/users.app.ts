@@ -3,6 +3,8 @@ import {
   QueryList,
   Component,
   OnInit,
+  ElementRef,
+  AfterViewChecked,
   ChangeDetectorRef } from 'angular2/core';
 
 import {ErrorCardComponent} from './error.card';
@@ -35,7 +37,8 @@ export class UsersAppComponent implements OnInit {
 
   private _showingAllUsers: boolean = false;
 
-  constructor(private _usersService: UsersService,
+  constructor(private _el: ElementRef,
+              private _usersService: UsersService,
               private _snackbarService: SnackbarService,
               private _changeDetector: ChangeDetectorRef) {}
 
@@ -56,6 +59,11 @@ export class UsersAppComponent implements OnInit {
     });
 
     this._usersService.subscribeToUsers();
+  }
+
+  public ngAfterViewChecked() {
+    // Add material-design-lite javascript support to this element
+    (<any>window).componentHandler.upgradeElements(this._el.nativeElement);
   }
 
   public get unknownRFIDs(): RFID[] {

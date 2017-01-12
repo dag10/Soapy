@@ -11,6 +11,7 @@ import {ErrorCardComponent} from './error.card';
 import {UserCardComponent} from './user.card';
 import {RfidCardComponent} from './rfid.card';
 import {SnackbarComponent} from './snackbar';
+import {SpinnerComponent} from './spinner';
 
 import {StaticData} from './StaticData';
 import {RFID, User, UsersService} from './users.service';
@@ -28,6 +29,7 @@ import {SnackbarService} from './snackbar.service';
     UserCardComponent,
     RfidCardComponent,
     SnackbarComponent,
+    SpinnerComponent,
   ],
 })
 export class UsersAppComponent implements OnInit {
@@ -64,6 +66,10 @@ export class UsersAppComponent implements OnInit {
   public ngAfterViewChecked() {
     // Add material-design-lite javascript support to this element
     (<any>window).componentHandler.upgradeElements(this._el.nativeElement);
+  }
+
+  public get loading(): boolean {
+    return !this._usersService.loaded;
   }
 
   public get unknownRFIDs(): RFID[] {

@@ -1,6 +1,8 @@
 <error-card [errors]="errors"></error-card>
 
-<h1 *ngIf="unknownRFIDs.length > 0" class="first">Unregistered RFID fobs</h1>
+<h1 *ngIf="!loading && unknownRFIDs.length > 0" class="first">
+  Unregistered RFID fobs
+</h1>
 
 <rfid-card
   *ngFor="#rfid of unknownRFIDs"
@@ -11,7 +13,9 @@
   (pair)="pairRFID(rfid.rfid, $event)">
 </rfid-card>
 
-<h1 *ngIf="users" [class.first]="unknownRFIDs.length === 0">Users</h1>
+<h1 *ngIf="!loading && users" [class.first]="unknownRFIDs.length === 0">
+  Users
+</h1>
 
 <user-card
   *ngFor="#user of usersToDisplay"
@@ -26,6 +30,8 @@
   >
   Show users without Spotify accounts
 </button>
+
+<spinner *ngIf="loading"></spinner>
 
 <snackbar></snackbar>
 

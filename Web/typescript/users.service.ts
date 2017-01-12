@@ -46,7 +46,7 @@ export class UsersService {
 
   private _polling: boolean = false;
   private _maxPollInterval: number = 1500; // milliseconds
-
+  private _loaded: boolean = false;
   private _unknownRFIDs: { [rfid: string]: RFID; } = {};
   private _users: { [ldap: string]: User; } = {};
 
@@ -72,6 +72,13 @@ export class UsersService {
   }
 
   /**
+   * True if at least one request was loaded.
+   */
+  public get loaded(): boolean {
+    return this._loaded;
+  }
+
+  /**
    * Fetches the RFID mappings, including time of last tap.
    */
   public pollForUsers() {
@@ -81,6 +88,8 @@ export class UsersService {
       if (!this._polling) {
         return;
       }
+
+      this._loaded = true;
 
       this.processUnknownRFIDs(res.unknownRFIDs);
       this.processUsers(res.users);

@@ -96,6 +96,10 @@ export class UsersAppComponent implements OnInit {
     return this._usersService.suggestedUsers.slice(0, 4);
   }
 
+  public get hasHiddenUsers(): boolean {
+    return this.usersToDisplay.length !== this.users.length;
+  }
+
   public unpairRFID(rfid: string) {
     var user = this._usersService.getUserForRFID(rfid);
     this._snackbarService.showUndo(
@@ -131,6 +135,10 @@ export class UsersAppComponent implements OnInit {
 
   public get hideNonSpotifyUsers(): boolean {
     return !this._showingAllUsers;
+  }
+
+  public get showShowHiddenUsersButton(): boolean {
+    return this.hideNonSpotifyUsers && this.hasHiddenUsers;
   }
 
   public showAllUsers() {
